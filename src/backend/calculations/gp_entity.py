@@ -412,7 +412,9 @@ class GPEntity:
             Dictionary with monthly GP cashflows
         """
         monthly_cashflows = {}
-        cash_reserve = self.initial_cash_reserve
+        cash_reserve = float(self.initial_cash_reserve)
+        quarterly_net_income = 0.0
+        annual_net_income = 0.0
 
         # Get all years
         all_years = set()
@@ -495,25 +497,46 @@ class GPEntity:
                 month_expense_breakdown = {name: float(yearly_expense_breakdown[name]) * custom_expense_weights[name][m_idx] for name in yearly_expense_breakdown}
 
                 # Calculate monthly totals
-                month_total_revenue = month_management_fees + month_carried_interest + month_origination_fees + month_additional_revenue
+                month_total_revenue = (
+                    month_management_fees
+                    + month_carried_interest
+                    + month_origination_fees
+                    + month_additional_revenue
+                )
                 month_total_expenses = month_base_expenses + month_custom_expenses
                 month_net_income = month_total_revenue - month_total_expenses
 
-                # Update cash reserve
+                # Update running totals
                 cash_reserve += month_net_income
+                quarterly_net_income += month_net_income
+                annual_net_income += month_net_income
 
-                # Calculate dividend
+                # Calculate dividend based on accumulated net income
+                month_dividend = 0.0
                 if self.dividend_policy.frequency == 'monthly':
-                    month_dividend = self.dividend_policy.calculate_dividend(year, month_net_income, cash_reserve)
-                elif self.dividend_policy.frequency == 'quarterly' and month in [3, 6, 9, 12]:
-                    # Quarterly dividend: sum net income for the quarter
-                    # For simplicity, pay out this month's net income as quarterly
-                    month_dividend = self.dividend_policy.calculate_dividend(year, month_net_income, cash_reserve)
+                    dividend_dec = self.dividend_policy.calculate_dividend(
+                        year,
+                        Decimal(str(month_net_income)),
+                        Decimal(str(cash_reserve)),
+                    )
+                    month_dividend = float(dividend_dec) / 12.0
+                elif (
+                    self.dividend_policy.frequency == 'quarterly'
+                    and month in [3, 6, 9, 12]
+                ):
+                    dividend_dec = self.dividend_policy.calculate_dividend(
+                        year,
+                        Decimal(str(quarterly_net_income)),
+                        Decimal(str(cash_reserve)),
+                    )
+                    month_dividend = float(dividend_dec) / 4.0
                 elif self.dividend_policy.frequency == 'annual' and month == 12:
-                    # Annual dividend: sum net income for the year
-                    month_dividend = self.dividend_policy.calculate_dividend(year, month_net_income, cash_reserve)
-                else:
-                    month_dividend = Decimal('0')
+                    dividend_dec = self.dividend_policy.calculate_dividend(
+                        year,
+                        Decimal(str(annual_net_income)),
+                        Decimal(str(cash_reserve)),
+                    )
+                    month_dividend = float(dividend_dec)
 
                 # Update cash reserve after dividend
                 cash_reserve -= month_dividend
@@ -531,9 +554,17 @@ class GPEntity:
                     'expense_breakdown': month_expense_breakdown,
                     'total_expenses': month_total_expenses,
                     'net_income': month_net_income,
-                    'dividend': float(month_dividend),
-                    'cash_reserve': float(cash_reserve)
+                    'dividend': month_dividend,
+                    'cash_reserve': cash_reserve,
+                    'quarterly_net_income': quarterly_net_income,
+                    'annual_net_income': annual_net_income,
                 }
+
+                # Reset accumulators at period boundaries
+                if month in [3, 6, 9, 12]:
+                    quarterly_net_income = 0.0
+                if month == 12:
+                    annual_net_income = 0.0
 
         return monthly_cashflows
 
