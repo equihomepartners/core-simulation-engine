@@ -1,0 +1,727 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Simulation Configuration Schema",
+  "description": "Schema for validating simulation configuration parameters",
+  "type": "object",
+  "properties": {
+    "fund_size": {
+      "type": "number",
+      "description": "Fund size in dollars",
+      "minimum": 1000000,
+      "default": 100000000
+    },
+    "fund_term": {
+      "type": "integer",
+      "description": "Fund term in years",
+      "minimum": 1,
+      "maximum": 30,
+      "default": 10
+    },
+    "vintage_year": {
+      "type": "integer",
+      "description": "Fund vintage year",
+      "minimum": 1900,
+      "maximum": 2100,
+      "default": 2023
+    },
+    "gp_commitment_percentage": {
+      "type": "number",
+      "description": "GP commitment percentage (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.0
+    },
+    "hurdle_rate": {
+      "type": "number",
+      "description": "Hurdle rate (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.08
+    },
+    "carried_interest_rate": {
+      "type": "number",
+      "description": "Carried interest rate (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.20
+    },
+    "waterfall_structure": {
+      "type": "string",
+      "description": "Waterfall structure type",
+      "enum": ["european", "american"],
+      "default": "european"
+    },
+    "management_fee_rate": {
+      "type": "number",
+      "description": "Management fee rate (0-1)",
+      "minimum": 0,
+      "maximum": 0.05,
+      "default": 0.02
+    },
+    "management_fee_basis": {
+      "type": "string",
+      "description": "Basis for management fee calculation",
+      "enum": ["committed_capital", "invested_capital", "net_asset_value"],
+      "default": "committed_capital"
+    },
+    "catch_up_rate": {
+      "type": "number",
+      "description": "GP catch-up rate (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.0
+    },
+    "reinvestment_period": {
+      "type": "integer",
+      "description": "Reinvestment period in years",
+      "minimum": 0,
+      "maximum": 30,
+      "default": 5
+    },
+    "avg_loan_size": {
+      "type": "number",
+      "description": "Average loan size in dollars",
+      "minimum": 10000,
+      "default": 250000
+    },
+    "loan_size_std_dev": {
+      "type": "number",
+      "description": "Standard deviation of loan sizes",
+      "minimum": 0,
+      "default": 50000
+    },
+    "min_loan_size": {
+      "type": "number",
+      "description": "Minimum loan size in dollars",
+      "minimum": 1000,
+      "default": 100000
+    },
+    "max_loan_size": {
+      "type": "number",
+      "description": "Maximum loan size in dollars",
+      "minimum": 10000,
+      "default": 500000
+    },
+    "avg_loan_term": {
+      "type": "number",
+      "description": "Average loan term in years",
+      "minimum": 0.1,
+      "default": 5
+    },
+    "avg_loan_interest_rate": {
+      "type": "number",
+      "description": "Average loan interest rate (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.06
+    },
+    "avg_loan_ltv": {
+      "type": "number",
+      "description": "Average loan LTV ratio (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.75
+    },
+    "ltv_std_dev": {
+      "type": "number",
+      "description": "Standard deviation of LTV ratios",
+      "minimum": 0,
+      "maximum": 0.5,
+      "default": 0.05
+    },
+    "min_ltv": {
+      "type": "number",
+      "description": "Minimum LTV ratio (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.5
+    },
+    "max_ltv": {
+      "type": "number",
+      "description": "Maximum LTV ratio (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.9
+    },
+    "avg_loan_exit_year": {
+      "type": "number",
+      "description": "Average loan exit year",
+      "minimum": 0,
+      "default": 7
+    },
+    "exit_year_std_dev": {
+      "type": "number",
+      "description": "Standard deviation of exit years",
+      "minimum": 0,
+      "default": 1.5
+    },
+    "min_holding_period": {
+      "type": "number",
+      "description": "Minimum holding period for a loan before exit (in years)",
+      "minimum": 0,
+      "default": 0.25
+    },
+    "exit_year_skew": {
+      "type": "number",
+      "description": "Skewness of exit year distribution (0=normal, >0=backloaded, <0=frontloaded)",
+      "default": 0
+    },
+    "early_exit_probability": {
+      "type": "number",
+      "description": "Probability of early exit (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.3
+    },
+    "zone_allocations": {
+      "type": "object",
+      "description": "Target zone allocations",
+      "properties": {
+        "green": {
+          "type": "number",
+          "description": "Green zone allocation (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.6
+        },
+        "orange": {
+          "type": "number",
+          "description": "Orange zone allocation (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.3
+        },
+        "red": {
+          "type": "number",
+          "description": "Red zone allocation (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.1
+        }
+      },
+      "additionalProperties": false
+    },
+    "appreciation_rates": {
+      "type": "object",
+      "description": "Zone-specific appreciation rates",
+      "properties": {
+        "green": {
+          "type": "number",
+          "description": "Green zone appreciation rate (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.05
+        },
+        "orange": {
+          "type": "number",
+          "description": "Orange zone appreciation rate (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.03
+        },
+        "red": {
+          "type": "number",
+          "description": "Red zone appreciation rate (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.01
+        }
+      },
+      "additionalProperties": false
+    },
+    "appreciation_std_dev": {
+      "type": "object",
+      "description": "Zone-specific appreciation rate standard deviations",
+      "properties": {
+        "green": {
+          "type": "number",
+          "description": "Green zone appreciation std dev",
+          "minimum": 0,
+          "maximum": 0.5,
+          "default": 0.01
+        },
+        "orange": {
+          "type": "number",
+          "description": "Orange zone appreciation std dev",
+          "minimum": 0,
+          "maximum": 0.5,
+          "default": 0.015
+        },
+        "red": {
+          "type": "number",
+          "description": "Red zone appreciation std dev",
+          "minimum": 0,
+          "maximum": 0.5,
+          "default": 0.02
+        }
+      },
+      "additionalProperties": false
+    },
+    "default_rates": {
+      "type": "object",
+      "description": "Zone-specific default rates",
+      "properties": {
+        "green": {
+          "type": "number",
+          "description": "Green zone default rate (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.01
+        },
+        "orange": {
+          "type": "number",
+          "description": "Orange zone default rate (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.03
+        },
+        "red": {
+          "type": "number",
+          "description": "Red zone default rate (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.05
+        }
+      },
+      "additionalProperties": false
+    },
+    "recovery_rates": {
+      "type": "object",
+      "description": "Zone-specific recovery rates",
+      "properties": {
+        "green": {
+          "type": "number",
+          "description": "Green zone recovery rate (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.9
+        },
+        "orange": {
+          "type": "number",
+          "description": "Orange zone recovery rate (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.8
+        },
+        "red": {
+          "type": "number",
+          "description": "Red zone recovery rate (0-1)",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.7
+        }
+      },
+      "additionalProperties": false
+    },
+    "base_appreciation_rate": {
+      "type": "number",
+      "description": "Base appreciation rate for market conditions (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.03
+    },
+    "appreciation_volatility": {
+      "type": "number",
+      "description": "Volatility of appreciation rates (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.02
+    },
+    "base_default_rate": {
+      "type": "number",
+      "description": "Base default rate for market conditions (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.01
+    },
+    "default_volatility": {
+      "type": "number",
+      "description": "Volatility of default rates (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.005
+    },
+    "correlation": {
+      "type": "number",
+      "description": "Correlation between appreciation and default rates (-1 to 1)",
+      "minimum": -1,
+      "maximum": 1,
+      "default": 0.3
+    },
+    "monte_carlo_enabled": {
+      "type": "boolean",
+      "description": "Whether to run Monte Carlo simulation",
+      "default": false
+    },
+    "monte_carlo_parameters": {
+      "type": "object",
+      "description": "Advanced configuration for variable-level Monte Carlo sampling. Keys map to module names (e.g. exit_timing) and each contains a 'parameters' map of variable specs with base/dist/args.",
+      "additionalProperties": true,
+      "default": {}
+    },
+    "bootstrap_enabled": {
+      "type": "boolean",
+      "description": "Run loan-level bootstrap sequencing analysis",
+      "default": false
+    },
+    "bootstrap_iterations": {
+      "type": "integer",
+      "minimum": 100,
+      "maximum": 10000,
+      "default": 1000,
+      "description": "Number of bootstrap samples"
+    },
+    "grid_stress_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Run 2-D stress grid analysis"
+    },
+    "grid_stress_axes": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 2,
+      "maxItems": 2,
+      "default": ["base_appreciation_rate", "base_default_rate"],
+      "description": "Two parameter names to vary on X and Y axes"
+    },
+    "grid_stress_steps": {
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 9,
+      "default": 5,
+      "description": "Number of grid points per axis"
+    },
+    "vintage_var_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compute vintage-year Value-at-Risk from Monte-Carlo outputs"
+    },
+    "optimization_enabled": {
+      "type": "boolean",
+      "description": "Whether to run portfolio optimization",
+      "default": false
+    },
+    "stress_testing_enabled": {
+      "type": "boolean",
+      "description": "Whether to run stress testing",
+      "default": false
+    },
+    "external_data_enabled": {
+      "type": "boolean",
+      "description": "Whether to use external data sources",
+      "default": false
+    },
+    "generate_reports": {
+      "type": "boolean",
+      "description": "Whether to generate reports",
+      "default": true
+    },
+    "gp_entity_enabled": {
+      "type": "boolean",
+      "description": "Whether to calculate GP entity economics",
+      "default": false
+    },
+    "aggregate_gp_economics": {
+      "type": "boolean",
+      "description": "Whether to aggregate GP economics across funds",
+      "default": true
+    },
+    "gp_entity": {
+      "type": "object",
+      "description": "GP entity configuration",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the GP entity",
+          "default": "Equihome Partners"
+        },
+        "management_company": {
+          "$ref": "gp_entity_schema.json#/properties/management_company"
+        },
+        "team_allocation": {
+          "$ref": "gp_entity_schema.json#/properties/team_allocation"
+        },
+        "gp_commitment_percentage": {
+          "type": "number",
+          "description": "GP commitment as percentage of fund size",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.0
+        },
+        "cross_fund_carry": {
+          "type": "boolean",
+          "description": "Whether to calculate carried interest across funds",
+          "default": false
+        },
+        "cross_fund_carry_rules": {
+          "$ref": "gp_entity_schema.json#/properties/cross_fund_carry_rules"
+        },
+        "cashflow_frequency": {
+          "type": "string",
+          "description": "Frequency of cashflow generation",
+          "enum": ["yearly", "monthly"],
+          "default": "yearly"
+        },
+        "expenses": {
+          "$ref": "gp_entity_schema.json#/properties/expenses"
+        },
+        "dividend_policy": {
+          "$ref": "gp_entity_schema.json#/properties/dividend_policy"
+        },
+        "initial_cash_reserve": {
+          "type": "number",
+          "description": "Initial cash reserve",
+          "minimum": 0,
+          "default": 0
+        }
+      }
+    },
+    "num_simulations": {
+      "type": "integer",
+      "description": "Number of Monte Carlo simulations",
+      "minimum": 1,
+      "maximum": 10000,
+      "default": 1000
+    },
+    "variation_factor": {
+      "type": "number",
+      "description": "Variation factor for Monte Carlo simulation (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.1
+    },
+    "monte_carlo_seed": {
+      "type": ["integer", "null"],
+      "description": "Random seed for Monte Carlo simulation (null for random)",
+      "default": null
+    },
+    "optimization_objective": {
+      "type": "string",
+      "description": "Objective function for portfolio optimization",
+      "enum": ["max_sharpe", "min_volatility", "max_return", "efficient_risk", "efficient_return"],
+      "default": "max_sharpe"
+    },
+    "risk_free_rate": {
+      "type": "number",
+      "description": "Risk-free rate for Sharpe ratio calculation (0-1)",
+      "minimum": 0,
+      "maximum": 0.1,
+      "default": 0.03
+    },
+    "discount_rate": {
+      "type": "number",
+      "description": "Discount rate for loan fair-value / NAV calculations (0-1)",
+      "minimum": 0,
+      "maximum": 0.5,
+      "default": 0.08
+    },
+    "min_allocation": {
+      "type": "number",
+      "description": "Minimum allocation for portfolio optimization (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.0
+    },
+    "max_allocation": {
+      "type": "number",
+      "description": "Maximum allocation for portfolio optimization (0-1)",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 1.0
+    },
+    "stress_config": {
+      "type": "object",
+      "description": "Stress testing configuration",
+      "properties": {
+        "individual_scenarios": {
+          "type": "object",
+          "description": "Individual stress scenarios",
+          "additionalProperties": {
+            "type": "object",
+            "description": "Parameter changes for this scenario"
+          },
+          "default": {
+            "high_default": {"base_default_rate": 0.03},
+            "low_appreciation": {"base_appreciation_rate": 0.01}
+          }
+        },
+        "combined_scenarios": {
+          "type": "object",
+          "description": "Combined stress scenarios",
+          "additionalProperties": {
+            "type": "array",
+            "description": "Array of parameter changes for this scenario",
+            "items": {
+              "type": "object",
+              "description": "Parameter changes"
+            }
+          },
+          "default": {
+            "recession": [
+              {"base_default_rate": 0.03},
+              {"base_appreciation_rate": 0.01}
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "external_data": {
+      "type": "object",
+      "description": "External data source configuration",
+      "properties": {
+        "fred_api_key": {
+          "type": "string",
+          "description": "FRED API key"
+        },
+        "zillow_api_key": {
+          "type": "string",
+          "description": "Zillow API key"
+        },
+        "traffic_light_base_url": {
+          "type": "string",
+          "description": "Traffic Light System base URL"
+        },
+        "traffic_light_api_key": {
+          "type": "string",
+          "description": "Traffic Light System API key"
+        },
+        "cache_enabled": {
+          "type": "boolean",
+          "description": "Whether to cache external data",
+          "default": true
+        },
+        "cache_expiry": {
+          "type": "integer",
+          "description": "Cache expiry time in seconds",
+          "minimum": 0,
+          "default": 86400
+        }
+      },
+      "additionalProperties": false
+    },
+    "report_config": {
+      "type": "object",
+      "description": "Report generation configuration",
+      "properties": {
+        "report_template": {
+          "type": "string",
+          "description": "Report template name",
+          "enum": ["summary", "detailed", "investor", "manager"],
+          "default": "summary"
+        },
+        "export_format": {
+          "type": "string",
+          "description": "Report export format",
+          "enum": ["json", "csv", "excel", "pdf"],
+          "default": "json"
+        },
+        "include_charts": {
+          "type": "boolean",
+          "description": "Whether to include charts in the report",
+          "default": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "force_exit_within_fund_term": {
+      "type": "boolean",
+      "default": true,
+      "description": "If true, all loans are forced to exit on or before the official fund term; if false, loans may mature beyond the term"
+    },
+    "geo_strategy": {
+      "type": "string",
+      "description": "Geographical allocation strategy for traffic-light zones / suburb IDs",
+      "enum": ["simple", "profile", "explicit"],
+      "default": "simple"
+    },
+    "zone_profiles": {
+      "type": "object",
+      "description": "Named groupings of suburb IDs with target weights",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "weight": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "required": ["ids", "weight"],
+        "additionalProperties": false
+      },
+      "default": {}
+    },
+    "risk_weight_table": {
+      "type": "object",
+      "description": "Override of risk weights by suburb id; falls back to master TLS table if omitted",
+      "additionalProperties": { "type": "number" },
+      "default": {}
+    },
+    "leverage": {
+      "type": "object",
+      "description": "Configuration for NAV facilities, over-advance, deal-level notes and ramp lines.",
+      "properties": {
+        "green_sleeve": {
+          "type": "object",
+          "description": "NAV facility secured by the Green-zone sleeve of the fund.",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "max_mult": { "type": "number", "minimum": 0, "default": 1.5 },
+            "spread_bps": { "type": "integer", "minimum": 0, "default": 275 },
+            "commitment_fee_bps": { "type": "integer", "minimum": 0, "default": 50 }
+          },
+          "additionalProperties": false
+        },
+        "a_plus_overadvance": {
+          "type": "object",
+          "description": "Optional over-advance for loans with the specified TLS grade.",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "tls_grade": { "type": "string", "default": "A+" },
+            "advance_rate": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.75 }
+          },
+          "additionalProperties": false
+        },
+        "deal_note": {
+          "type": "object",
+          "description": "Structured note sitting senior to equity on individual deals.",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "note_pct": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.3 },
+            "note_rate": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.07 }
+          },
+          "additionalProperties": false
+        },
+        "ramp_line": {
+          "type": "object",
+          "description": "Temporary warehouse line used during the deployment phase.",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "limit_pct_commit": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.15 },
+            "draw_period_months": { "type": "integer", "minimum": 1, "default": 24 },
+            "spread_bps": { "type": "integer", "minimum": 0, "default": 300 }
+          },
+          "additionalProperties": false
+        },
+        "dynamic_rules": {
+          "type": "array",
+          "description": "List of IF/THEN leverage rules evaluated each period.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "trigger": { "type": "string" },
+              "action": { "type": "string" },
+              "max": { "type": ["number", "null"] }
+            },
+            "required": ["trigger", "action"],
+            "additionalProperties": true
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

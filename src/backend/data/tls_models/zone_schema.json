@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TLS Zone Record",
+  "type": "object",
+  "required": ["id", "name", "zone_color"],
+  "properties": {
+    "id": {"type": "string"},
+    "name": {"type": "string"},
+    "zone_color": {"type": "string", "enum": ["green", "orange", "red"]},
+    "lat": {"type": "number"},
+    "lon": {"type": "number"},
+
+    "growth_mu": {"type": ["number", "null"]},
+    "growth_sigma": {"type": ["number", "null"]},
+    "default_mu": {"type": ["number", "null"]},
+    "default_sigma": {"type": ["number", "null"]},
+    "liquidity_score": {"type": ["number", "null"]},
+    "risk_weight": {"type": ["number", "null"]},
+
+    "price_volatility": {"type": ["number", "null"]},
+    "rent_yield": {"type": ["number", "null"]},
+    "vacancy_rate": {"type": ["number", "null"]},
+    "time_on_market": {"type": ["number", "null"]},
+
+    "median_income": {"type": ["number", "null"]},
+    "population_growth_5y": {"type": ["number", "null"]},
+    "owner_occupier_pct": {"type": ["number", "null"]},
+    "unemployment_rate": {"type": ["number", "null"]},
+    "crime_rate_index": {"type": ["number", "null"]},
+
+    "walk_score": {"type": ["number", "null"]},
+    "transit_score": {"type": ["number", "null"]},
+    "proximity_to_cbd_km": {"type": ["number", "null"]},
+    "green_space_pct": {"type": ["number", "null"]},
+    "school_quality_index": {"type": ["number", "null"]},
+
+    "ltv_cap": {"type": ["number", "null"]},
+    "interest_spread_adjustment": {"type": ["number", "null"]},
+    "recovery_lag_years": {"type": ["number", "null"]},
+
+    "mortgage_velocity": {"type": ["number", "null"]},
+    "property_turnover_pct": {"type": ["number", "null"]},
+    "auction_clearance_rate": {"type": ["number", "null"]},
+    "median_days_on_market": {"type": ["number", "null"]},
+    "price_to_income_ratio": {"type": ["number", "null"]},
+    "building_approvals_annual": {"type": ["number", "null"]},
+    "rental_yield_spread": {"type": ["number", "null"]}
+  },
+  "additionalProperties": true
+} 

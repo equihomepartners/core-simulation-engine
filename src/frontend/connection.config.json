@@ -1,0 +1,11 @@
+{
+  "backend": {
+    "protocol": "http",
+    "host": "localhost",
+    "port": 5005
+  },
+  "proxy": {
+    "api_path": "/api",
+    "ws_path": "/ws"
+  }
+}

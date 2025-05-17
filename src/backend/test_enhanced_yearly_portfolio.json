@@ -1,0 +1,475 @@
+{
+  "0": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "9982852.68121185619",
+      "active_property_value": "15510324.32589440672913711013",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "0",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 22,
+          "amount": "5511084.62551352400",
+          "percentage": "0.5520550890113418585638793969"
+        },
+        "orange": {
+          "count": 9,
+          "amount": "2225478.42144287063",
+          "percentage": "0.2229301075063757626523476922"
+        },
+        "red": {
+          "count": 9,
+          "amount": "2246289.63425546156",
+          "percentage": "0.2250148034822823787837729109"
+        }
+      },
+      "zone_drift": {
+        "green": "-0.0479449109886581414361206031",
+        "orange": "-0.0770698924936242373476523078",
+        "red": "0.1250148034822823787837729109"
+      },
+      "market_conditions": {
+        "housing_market_trend": "stable",
+        "interest_rate_environment": "stable",
+        "economic_outlook": "stable"
+      }
+    }
+  },
+  "1": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "9982852.68121185619",
+      "active_property_value": "16441465.47159741944401905943",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "465570.5728515063574409746542",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 22,
+          "amount": "5511084.62551352400",
+          "percentage": "0.5520550890113418585638793969"
+        },
+        "orange": {
+          "count": 9,
+          "amount": "2225478.42144287063",
+          "percentage": "0.2229301075063757626523476922"
+        },
+        "red": {
+          "count": 9,
+          "amount": "2246289.63425546156",
+          "percentage": "0.2250148034822823787837729109"
+        }
+      },
+      "zone_drift": {
+        "green": "-0.0479449109886581414361206031",
+        "orange": "-0.0770698924936242373476523078",
+        "red": "0.1250148034822823787837729109"
+      },
+      "market_conditions": {
+        "housing_market_trend": "appreciating",
+        "interest_rate_environment": "stable",
+        "economic_outlook": "expansion"
+      }
+    }
+  },
+  "2": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "9982852.68121185619",
+      "active_property_value": "17132088.79034262051729656549",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "417465.7875721930095045960086",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 22,
+          "amount": "5511084.62551352400",
+          "percentage": "0.5520550890113418585638793969"
+        },
+        "orange": {
+          "count": 9,
+          "amount": "2225478.42144287063",
+          "percentage": "0.2229301075063757626523476922"
+        },
+        "red": {
+          "count": 9,
+          "amount": "2246289.63425546156",
+          "percentage": "0.2250148034822823787837729109"
+        }
+      },
+      "zone_drift": {
+        "green": "-0.0479449109886581414361206031",
+        "orange": "-0.0770698924936242373476523078",
+        "red": "0.1250148034822823787837729109"
+      },
+      "market_conditions": {
+        "housing_market_trend": "appreciating",
+        "interest_rate_environment": "rising",
+        "economic_outlook": "expansion"
+      }
+    }
+  },
+  "3": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "9982852.68121185619",
+      "active_property_value": "17408799.51014612991657891804",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "330399.2696785990138610929972",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 22,
+          "amount": "5511084.62551352400",
+          "percentage": "0.5520550890113418585638793969"
+        },
+        "orange": {
+          "count": 9,
+          "amount": "2225478.42144287063",
+          "percentage": "0.2229301075063757626523476922"
+        },
+        "red": {
+          "count": 9,
+          "amount": "2246289.63425546156",
+          "percentage": "0.2250148034822823787837729109"
+        }
+      },
+      "zone_drift": {
+        "green": "-0.0479449109886581414361206031",
+        "orange": "-0.0770698924936242373476523078",
+        "red": "0.1250148034822823787837729109"
+      },
+      "market_conditions": {
+        "housing_market_trend": "stable",
+        "interest_rate_environment": "rising",
+        "economic_outlook": "stable"
+      }
+    }
+  },
+  "4": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "9982852.68121185619",
+      "active_property_value": "18610771.97248061969600050711",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "419435.9607949770465855067730",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 22,
+          "amount": "5511084.62551352400",
+          "percentage": "0.5520550890113418585638793969"
+        },
+        "orange": {
+          "count": 9,
+          "amount": "2225478.42144287063",
+          "percentage": "0.2229301075063757626523476922"
+        },
+        "red": {
+          "count": 9,
+          "amount": "2246289.63425546156",
+          "percentage": "0.2250148034822823787837729109"
+        }
+      },
+      "zone_drift": {
+        "green": "-0.0479449109886581414361206031",
+        "orange": "-0.0770698924936242373476523078",
+        "red": "0.1250148034822823787837729109"
+      },
+      "market_conditions": {
+        "housing_market_trend": "stable",
+        "interest_rate_environment": "stable",
+        "economic_outlook": "stable"
+      }
+    }
+  },
+  "5": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "9982852.68121185619",
+      "active_property_value": "18174254.78836821976371758503",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "285126.0627333252963397280452",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 22,
+          "amount": "5511084.62551352400",
+          "percentage": "0.5520550890113418585638793969"
+        },
+        "orange": {
+          "count": 9,
+          "amount": "2225478.42144287063",
+          "percentage": "0.2229301075063757626523476922"
+        },
+        "red": {
+          "count": 9,
+          "amount": "2246289.63425546156",
+          "percentage": "0.2250148034822823787837729109"
+        }
+      },
+      "zone_drift": {
+        "green": "-0.0479449109886581414361206031",
+        "orange": "-0.0770698924936242373476523078",
+        "red": "0.1250148034822823787837729109"
+      },
+      "market_conditions": {
+        "housing_market_trend": "depreciating",
+        "interest_rate_environment": "stable",
+        "economic_outlook": "recession"
+      }
+    }
+  },
+  "6": {
+    "active_loan_count": 33,
+    "exited_loan_count": 7,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 33,
+      "active_loan_amount": "8257878.19216350213",
+      "active_property_value": "15984430.78088481906236793865",
+      "exited_loan_count": 7,
+      "exited_value": "2067284.229420722958605924161",
+      "interest_income": "412893.9096081751065",
+      "appreciation_income": "285791.8339174770795328588880",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 20,
+          "amount": "5010426.22634519844",
+          "percentage": "0.6067449906320916996234646035"
+        },
+        "orange": {
+          "count": 5,
+          "amount": "1274507.49225925623",
+          "percentage": "0.1543383739262137056625559386"
+        },
+        "red": {
+          "count": 8,
+          "amount": "1972944.47355904746",
+          "percentage": "0.2389166354416945947139794579"
+        }
+      },
+      "zone_drift": {
+        "green": "0.0067449906320916996234646035",
+        "orange": "-0.1456616260737862943374440614",
+        "red": "0.1389166354416945947139794579"
+      },
+      "market_conditions": {
+        "housing_market_trend": "depreciating",
+        "interest_rate_environment": "falling",
+        "economic_outlook": "recession"
+      }
+    }
+  },
+  "7": {
+    "active_loan_count": 23,
+    "exited_loan_count": 17,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 23,
+      "active_loan_amount": "5676367.98935974473",
+      "active_property_value": "13304290.10664738447081039933",
+      "exited_loan_count": 10,
+      "exited_value": "3137685.638141783118282408921",
+      "interest_income": "283818.3994679872365",
+      "appreciation_income": "363860.2380845813945660157774",
+      "default_count": 1,
+      "default_rate": "0.1",
+      "zone_distribution": {
+        "green": {
+          "count": 13,
+          "amount": "3191017.74592805793",
+          "percentage": "0.5621583646285030202081702337"
+        },
+        "orange": {
+          "count": 4,
+          "amount": "1058738.5654425317",
+          "percentage": "0.1865169008470062436370273470"
+        },
+        "red": {
+          "count": 6,
+          "amount": "1426611.67798915510",
+          "percentage": "0.2513247345244907361548024193"
+        }
+      },
+      "zone_drift": {
+        "green": "-0.0378416353714969797918297663",
+        "orange": "-0.1134830991529937563629726530",
+        "red": "0.1513247345244907361548024193"
+      },
+      "market_conditions": {
+        "housing_market_trend": "stable",
+        "interest_rate_environment": "falling",
+        "economic_outlook": "stable"
+      }
+    }
+  },
+  "8": {
+    "active_loan_count": 13,
+    "exited_loan_count": 27,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 13,
+      "active_loan_amount": "3396166.48266141576",
+      "active_property_value": "9565454.908019090421534185072",
+      "exited_loan_count": 10,
+      "exited_value": "3136375.596699637978394245887",
+      "interest_income": "169808.3241330707880",
+      "appreciation_income": "347376.1307770431635963215604",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 6,
+          "amount": "1511464.11244534524",
+          "percentage": "0.4450500645836661058288323920"
+        },
+        "orange": {
+          "count": 2,
+          "amount": "592710.7881782490",
+          "percentage": "0.1745234785173927821653164115"
+        },
+        "red": {
+          "count": 5,
+          "amount": "1291991.58203782152",
+          "percentage": "0.3804264568989411120058511964"
+        }
+      },
+      "zone_drift": {
+        "green": "-0.1549499354163338941711676080",
+        "orange": "-0.1254765214826072178346835885",
+        "red": "0.2804264568989411120058511964"
+      },
+      "market_conditions": {
+        "housing_market_trend": "appreciating",
+        "interest_rate_environment": "stable",
+        "economic_outlook": "expansion"
+      }
+    }
+  },
+  "9": {
+    "active_loan_count": 3,
+    "exited_loan_count": 37,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 3,
+      "active_loan_amount": "801460.6043629647",
+      "active_property_value": "1782574.791706706814439417892",
+      "exited_loan_count": 10,
+      "exited_value": "4219601.185842798019723634516",
+      "interest_income": "40073.030218148235",
+      "appreciation_income": "36093.71800166938232888978215",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 2,
+          "amount": "520022.9412924830",
+          "percentage": "0.6488440460599052919575324425"
+        },
+        "orange": {
+          "count": 1,
+          "amount": "281437.6630704817",
+          "percentage": "0.3511559539400947080424675575"
+        },
+        "red": {
+          "count": 0,
+          "amount": 0,
+          "percentage": "0E+10"
+        }
+      },
+      "zone_drift": {
+        "green": "0.0488440460599052919575324425",
+        "orange": "0.0511559539400947080424675575",
+        "red": "-0.1"
+      },
+      "market_conditions": {
+        "housing_market_trend": "appreciating",
+        "interest_rate_environment": "rising",
+        "economic_outlook": "expansion"
+      }
+    }
+  },
+  "10": {
+    "active_loan_count": 0,
+    "exited_loan_count": 40,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 0,
+      "active_loan_amount": 0,
+      "active_property_value": 0,
+      "exited_loan_count": 3,
+      "exited_value": "1040151.292316596930431002769",
+      "interest_income": 0,
+      "appreciation_income": "0",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 0,
+          "amount": 0,
+          "percentage": "0"
+        },
+        "orange": {
+          "count": 0,
+          "amount": 0,
+          "percentage": "0"
+        },
+        "red": {
+          "count": 0,
+          "amount": 0,
+          "percentage": "0"
+        }
+      },
+      "zone_drift": {
+        "green": "-0.6",
+        "orange": "-0.3",
+        "red": "-0.1"
+      },
+      "market_conditions": {
+        "housing_market_trend": "stable",
+        "interest_rate_environment": "rising",
+        "economic_outlook": "stable"
+      }
+    }
+  }
+}

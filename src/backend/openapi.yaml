@@ -1,0 +1,1437 @@
+openapi: 3.0.3
+info:
+  title: Equihome Fund Simulation Engine API
+  description: |
+    API for running fund simulations and analyzing results.
+    
+    The API provides endpoints for:
+    - Creating and running simulations
+    - Checking simulation status
+    - Retrieving simulation results
+    - Analyzing GP Entity economics
+    - Real-time updates via WebSockets
+  version: 2.0.0
+  contact:
+    name: Equihome Partners
+servers:
+  - url: /
+    description: Default server
+paths:
+  /api/simulations/:
+    get:
+      summary: List Simulations
+      description: |
+        List all simulations.
+      parameters:
+        - name: status
+          in: query
+          description: Filter by status (created, running, completed, or failed)
+          schema:
+            type: string
+            enum: [created, running, completed, failed, cancelled]
+        - name: limit
+          in: query
+          description: Maximum number of simulations to return
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          description: Offset for pagination
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationList'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Simulation
+      description: |
+        Create and run a new simulation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulationConfig'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}:
+    get:
+      summary: Get Simulation
+      description: |
+        Get a simulation by ID.
+        
+        This endpoint returns the simulation metadata including configuration
+        parameters, status, and creation time. It doesn't include the full
+        results, which are available through the /results endpoint.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationDetail'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Simulation
+      description: |
+        Delete a simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/status:
+    get:
+      summary: Get Simulation Status
+      description: |
+        Get the status of a simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: include_partial_results
+          in: query
+          description: Include partial results in the response
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationStatus'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/results:
+    get:
+      summary: Get Simulation Results
+      description: |
+        Get the results of a completed simulation, supporting both yearly and monthly granularity.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: time_granularity
+          in: query
+          description: Time granularity for results (yearly or monthly)
+          schema:
+            type: string
+            enum: [yearly, monthly]
+            default: yearly
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationResults'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/cancel:
+    post:
+      summary: Cancel Simulation
+      description: |
+        Cancel a running simulation without deleting its data.
+        
+        This endpoint stops the background processing of a simulation
+        but keeps any partial results and marks the simulation as 'cancelled'.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  simulation_id:
+                    type: string
+                  status:
+                    type: string
+                  progress:
+                    type: number
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/visualization:
+    get:
+      summary: Get Simulation Visualization
+      description: |
+        Get visualization data for a simulation, supporting both yearly and monthly granularity and advanced chart types.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: chart_type
+          in: query
+          description: Type of chart to retrieve (basic, fan, heatmap, tornado, multi_dim_sensitivity, correlation_matrix, etc.)
+          schema:
+            type: string
+            default: all
+        - name: time_granularity
+          in: query
+          description: Time granularity for time-series data
+          schema:
+            type: string
+            default: yearly
+        - name: cumulative
+          in: query
+          description: Whether to return cumulative data
+          schema:
+            type: boolean
+            default: false
+        - name: start_year
+          in: query
+          description: Start year for filtering
+          schema:
+            type: integer
+        - name: end_year
+          in: query
+          description: End year for filtering
+          schema:
+            type: integer
+        - name: format
+          in: query
+          description: Chart format (bar, line, pie, area, summary)
+          schema:
+            type: string
+            default: bar
+        - name: metrics
+          in: query
+          description: Comma-separated list of metrics to include
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/monte-carlo/visualization:
+    get:
+      summary: Get Monte Carlo Visualization
+      description: Get Monte Carlo visualization data for a simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: chart_type
+          in: query
+          description: Type of chart (distribution, sensitivity, confidence)
+          schema:
+            type: string
+            default: distribution
+        - name: format
+          in: query
+          description: Chart format (irr, multiple, default_rate)
+          schema:
+            type: string
+            default: irr
+        - name: metrics
+          in: query
+          description: Comma-separated list of metrics to include
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/loans/:
+    get:
+      summary: Get Simulation Loans
+      description: Get all loans with analytics for a simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/loans/{loan_id}/:
+    get:
+      summary: Get Simulation Loan
+      description: Get analytics for a single loan.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: loan_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/portfolio-evolution/:
+    get:
+      summary: Get Portfolio Evolution
+      description: Get portfolio evolution time series for a simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortfolioEvolution'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/recycling/:
+    get:
+      summary: Get Recycling Analytics
+      description: Get recycling ratio and capital velocity for a simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/cohorts/:
+    get:
+      summary: Get Cohort Analytics
+      description: Get cohort/time-slice analytics for a simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/export/:
+    get:
+      summary: Export Simulation
+      description: Export simulation analytics as CSV or JSON.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+            default: json
+      responses:
+        '200':
+          description: Successful Response
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/health:
+    get:
+      summary: Health Check
+      description: Health check endpoint.
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+  /api/traffic-light/zones:
+    get:
+      summary: List Zones
+      description: "Return the complete Traffic-Light dataset (all suburb zone metrics)."
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ZoneMetrics'
+  /api/traffic-light/zones/{zone_id}:
+    get:
+      summary: Get Zone
+      description: "Return a single zone record by its suburb id."
+      parameters:
+        - name: zone_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneMetrics'
+        '404':
+          description: Not found
+  # ---------------------------------------------------------------------
+  # Leverage – NAV facilities & deal-level notes
+  # ---------------------------------------------------------------------
+  /api/leverage/preview:
+    post:
+      summary: Leverage Preview
+      description: |
+        Quick, stateless calculation that returns interest expense and leverage
+        metrics for a hypothetical NAV path and leverage configuration.  Used
+        by the wizard's *what-if* panels.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeveragePreviewRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeveragePreviewResponse'
+  /api/leverage/metrics/{simulation_id}:
+    get:
+      summary: Leverage Metrics
+      description: "Return leverage metrics for a completed simulation run."
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeverageMetrics'
+        '404':
+          description: Not found
+components:
+  schemas:
+    HTTPValidationError:
+      title: HTTPValidationError
+      type: object
+      properties:
+        detail:
+          title: Detail
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    ValidationError:
+      title: ValidationError
+      type: object
+      properties:
+        loc:
+          title: Location
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+    SimulationConfig:
+      title: SimulationConfig
+      description: Configuration for a simulation.
+      type: object
+      properties:
+        fund_size:
+          type: number
+          description: Fund size in dollars
+          default: 100000000
+        fund_term:
+          type: integer
+          description: Fund term in years
+          default: 10
+        gp_commitment_percentage:
+          type: number
+          description: GP commitment percentage (0-1)
+          default: 0.05
+        hurdle_rate:
+          type: number
+          description: Hurdle rate (0-1)
+          default: 0.08
+        carried_interest_rate:
+          type: number
+          description: Carried interest rate (0-1)
+          default: 0.20
+        waterfall_structure:
+          type: string
+          description: Waterfall structure (european or american)
+          default: european
+        monte_carlo_enabled:
+          type: boolean
+          description: Enable Monte Carlo simulation
+          default: false
+        optimization_enabled:
+          type: boolean
+          description: Enable portfolio optimization
+          default: false
+        stress_testing_enabled:
+          type: boolean
+          description: Enable stress testing
+          default: false
+        external_data_enabled:
+          type: boolean
+          description: Enable external data sources
+          default: false
+        generate_reports:
+          type: boolean
+          description: Generate reports
+          default: true
+        base_appreciation_rate:
+          type: number
+          description: Base appreciation rate (0-1)
+          default: 0.03
+        appreciation_volatility:
+          type: number
+          description: Appreciation volatility (0-1)
+          default: 0.02
+        base_default_rate:
+          type: number
+          description: Base default rate (0-1)
+          default: 0.01
+        default_volatility:
+          type: number
+          description: Default volatility (0-1)
+          default: 0.005
+        correlation:
+          type: number
+          description: Correlation between appreciation and default rates (-1 to 1)
+          default: 0.3
+        avg_loan_size:
+          type: integer
+          description: Average loan size in dollars
+          default: 250000
+        loan_size_std_dev:
+          type: integer
+          description: Standard deviation of loan size in dollars
+          default: 50000
+        min_loan_size:
+          type: integer
+          description: Minimum loan size in dollars
+          default: 100000
+        max_loan_size:
+          type: integer
+          description: Maximum loan size in dollars
+          default: 500000
+        avg_loan_term:
+          type: integer
+          description: Average loan term in years
+          default: 5
+        avg_loan_interest_rate:
+          type: number
+          description: Average loan interest rate (0-1)
+          default: 0.06
+        avg_loan_ltv:
+          type: number
+          description: Average loan LTV (0-1)
+          default: 0.75
+        zone_allocations:
+          type: object
+          description: Zone allocations (must sum to 1)
+          default:
+            green: 0.6
+            orange: 0.3
+            red: 0.1
+          additionalProperties:
+            type: number
+        management_fee_rate:
+          type: number
+          description: Management fee rate (0-1)
+          default: 0.02
+        management_fee_basis:
+          type: string
+          description: Management fee basis (committed_capital, invested_capital, or nav)
+          default: committed_capital
+        distribution_frequency:
+          type: string
+          description: Distribution frequency (annual, quarterly, or monthly)
+          default: annual
+        distribution_policy:
+          type: string
+          description: Distribution policy (available_cash, income_only, return_of_capital, or reinvestment_priority)
+          default: available_cash
+        reinvestment_period:
+          type: integer
+          description: Reinvestment period in years
+          default: 5
+        avg_loan_exit_year:
+          type: number
+          description: Average loan exit year
+          default: 7
+        exit_year_std_dev:
+          type: number
+          description: Standard deviation of exit year
+          default: 1.5
+        early_exit_probability:
+          type: number
+          description: Probability of early exit (0-1)
+          default: 0.3
+        num_simulations:
+          type: integer
+          description: Number of Monte Carlo simulations
+          default: 1000
+        variation_factor:
+          type: number
+          description: Variation factor for Monte Carlo simulation (0-1)
+          default: 0.1
+        monte_carlo_seed:
+          type: integer
+          description: Seed for Monte Carlo simulation
+          nullable: true
+        optimization_objective:
+          type: string
+          description: Optimization objective (max_sharpe, min_volatility, efficient_risk, or efficient_return)
+          default: max_sharpe
+        risk_free_rate:
+          type: number
+          description: Risk-free rate for Sharpe ratio calculation (0-1)
+          default: 0.03
+        geo_strategy:
+          type: string
+          description: Geographical allocation strategy (simple/profile/explicit)
+          enum: [simple, profile, explicit]
+          default: simple
+        zone_profiles:
+          type: object
+          description: Named groupings of suburb IDs with target weights
+          additionalProperties:
+            type: object
+            properties:
+              ids:
+                type: array
+                items:
+                  type: string
+              weight:
+                type: number
+            required: [ids, weight]
+        risk_weight_table:
+          type: object
+          description: Override risk weights by suburb id
+          additionalProperties:
+            type: number
+        min_allocation:
+          type: number
+          description: Minimum allocation for optimization (0-1)
+          default: 0.0
+        max_allocation:
+          type: number
+          description: Maximum allocation for optimization (0-1)
+          default: 1.0
+        stress_config:
+          type: object
+          description: Stress testing configuration
+          default:
+            individual_scenarios:
+              recession:
+                appreciation_rate: -0.05
+                default_rate: 0.05
+              high_default:
+                appreciation_rate: 0.01
+                default_rate: 0.08
+              low_appreciation:
+                appreciation_rate: 0.01
+                default_rate: 0.02
+            combined_scenarios:
+              recession_high_default:
+                - appreciation_rate: -0.05
+                - default_rate: 0.08
+        report_config:
+          type: object
+          description: Report configuration
+          default:
+            report_template: summary
+            export_format: json
+            include_charts: true
+        time_granularity:
+          type: string
+          description: Time granularity for simulation (yearly or monthly)
+          enum: [yearly, monthly]
+          default: yearly
+    SimulationResponse:
+      title: SimulationResponse
+      description: Response for a simulation creation request.
+      type: object
+      required:
+        - simulation_id
+        - status
+      properties:
+        simulation_id:
+          type: string
+          description: Unique ID for the simulation
+        status:
+          type: string
+          description: Status of the simulation (created, running, completed, or failed)
+    SimulationStatus:
+      title: SimulationStatus
+      description: Status of a simulation.
+      type: object
+      required:
+        - simulation_id
+        - status
+        - progress
+        - created_at
+        - updated_at
+      properties:
+        simulation_id:
+          type: string
+          description: Unique ID for the simulation
+        status:
+          type: string
+          description: Status of the simulation (created, running, completed, failed, or cancelled)
+        progress:
+          type: number
+          description: Progress of the simulation (0-1)
+        current_step:
+          type: string
+          description: Current step of the simulation
+          nullable: true
+        estimated_completion_time:
+          type: number
+          description: Estimated completion time (Unix timestamp)
+          nullable: true
+        created_at:
+          type: number
+          description: Creation time (Unix timestamp)
+        updated_at:
+          type: number
+          description: Last update time (Unix timestamp)
+        partial_results:
+          type: object
+          description: Partial results if available
+          nullable: true
+    SimulationDetail:
+      title: SimulationDetail
+      description: Detailed information about a simulation.
+      type: object
+      required:
+        - simulation_id
+        - status
+      properties:
+        simulation_id:
+          type: string
+          description: Unique ID for the simulation
+        name:
+          type: string
+          description: Name of the simulation
+        description:
+          type: string
+          description: Description of the simulation
+        status:
+          type: string
+          description: Status of the simulation (created, running, completed, failed, or cancelled)
+        progress:
+          type: number
+          description: Progress of the simulation (0-1)
+        current_step:
+          type: string
+          description: Current step of the simulation
+          nullable: true
+        created_at:
+          type: number
+          description: Creation time (Unix timestamp)
+        updated_at:
+          type: number
+          description: Last update time (Unix timestamp)
+        config:
+          $ref: '#/components/schemas/SimulationConfig'
+        error:
+          type: object
+          description: Error information if the simulation failed
+          nullable: true
+          properties:
+            message:
+              type: string
+              description: Error message
+            details:
+              type: object
+              description: Error details
+              nullable: true
+    SimulationList:
+      title: SimulationList
+      description: List of simulations with pagination info.
+      type: object
+      required:
+        - simulations
+        - total
+        - limit
+        - offset
+      properties:
+        simulations:
+          type: array
+          description: List of simulations
+          items:
+            type: object
+            properties:
+              simulation_id:
+                type: string
+                description: Unique ID for the simulation
+              status:
+                type: string
+                description: Status of the simulation
+              progress:
+                type: number
+                description: Progress of the simulation (0-1)
+              created_at:
+                type: number
+                description: Creation time (Unix timestamp)
+              updated_at:
+                type: number
+                description: Last update time (Unix timestamp)
+        total:
+          type: integer
+          description: Total number of simulations matching the filter
+        limit:
+          type: integer
+          description: Maximum number of simulations returned
+        offset:
+          type: integer
+          description: Offset for pagination
+    PerformanceMetrics:
+      title: PerformanceMetrics
+      description: Performance metrics for a simulation.
+      type: object
+      properties:
+        irr:
+          type: number
+          description: Internal Rate of Return
+        moic:
+          type: number
+          description: Multiple on Invested Capital
+        roi:
+          type: number
+          description: Return on Investment
+        payback_period:
+          type: number
+          description: Payback Period in years
+        tvpi:
+          type: number
+          description: Total Value to Paid-In
+        dpi:
+          type: number
+          description: Distributions to Paid-In
+        rvpi:
+          type: number
+          description: Residual Value to Paid-In
+        pic:
+          type: number
+          description: Paid-In Capital
+        lpIrr:
+          type: number
+          description: LP Internal Rate of Return
+        lpMultiple:
+          type: number
+          description: LP Multiple on Invested Capital
+        gpIrr:
+          type: number
+          description: GP Internal Rate of Return
+        defaultRate:
+          type: number
+          description: Default Rate
+        sharpeRatio:
+          type: number
+          description: Sharpe Ratio
+        sortinoRatio:
+          type: number
+          description: Sortino Ratio
+        maxDrawdown:
+          type: number
+          description: Maximum Drawdown
+        alpha:
+          type: number
+          description: Alpha
+        beta:
+          type: number
+          description: Beta
+        distributionYield:
+          type: number
+          description: Distribution Yield
+        totalCapitalCalls:
+          type: number
+          description: Total Capital Calls
+        totalDistributions:
+          type: number
+          description: Total Distributions
+        netCashFlow:
+          type: number
+          description: Net Cash Flow
+        ytdCashFlow:
+          type: number
+          description: Year-to-Date Cash Flow
+        reinvestmentCount:
+          type: number
+          description: Reinvestment Count
+        reinvestmentAmount:
+          type: number
+          description: Reinvestment Amount
+        reinvestmentRate:
+          type: number
+          description: Reinvestment Rate
+        zoneAllocation:
+          type: object
+          description: Zone Allocation
+          properties:
+            green:
+              type: number
+              description: Green Zone Allocation
+            orange:
+              type: number
+              description: Orange Zone Allocation
+            red:
+              type: number
+              description: Red Zone Allocation
+    CashFlowPeriod:
+      title: CashFlowPeriod
+      description: Cash flow data for a single period.
+      type: object
+      properties:
+        year:
+          type: number
+          description: Year or period number
+        capitalCalls:
+          type: number
+          description: Capital calls for the period
+        distributions:
+          type: number
+          description: Distributions for the period
+        net:
+          type: number
+          description: Net cash flow for the period
+    PortfolioPeriod:
+      title: PortfolioPeriod
+      description: Portfolio data for a single period.
+      type: object
+      properties:
+        year:
+          type: number
+          description: Year or period number
+        activeLoans:
+          type: number
+          description: Number of active loans
+        exitedLoans:
+          type: number
+          description: Number of exited loans
+        newLoans:
+          type: number
+          description: Number of new loans
+        defaultedLoans:
+          type: number
+          description: Number of defaulted loans
+        reinvestments:
+          type: number
+          description: Number of reinvestments
+        reinvestedAmount:
+          type: number
+          description: Amount reinvested
+        portfolioValue:
+          type: number
+          description: Portfolio value
+    PortfolioEvolution:
+      title: PortfolioEvolution
+      description: Portfolio evolution over time.
+      type: object
+      properties:
+        years:
+          type: array
+          description: Years or periods
+          items:
+            type: number
+        active_loans:
+          type: array
+          description: Number of active loans by period
+          items:
+            type: number
+        new_loans:
+          type: array
+          description: Number of new loans by period
+          items:
+            type: number
+        exited_loans:
+          type: array
+          description: Number of exited loans by period
+          items:
+            type: number
+        defaulted_loans:
+          type: array
+          description: Number of defaulted loans by period
+          items:
+            type: number
+        reinvestments:
+          type: array
+          description: Number of reinvestments by period
+          items:
+            type: number
+        reinvested_amount:
+          type: array
+          description: Amount reinvested by period
+          items:
+            type: number
+    SimulationResults:
+      title: SimulationResults
+      description: Results of a simulation.
+      type: object
+      properties:
+        id:
+          type: string
+          description: Simulation ID
+        status:
+          type: string
+          description: Status of the simulation
+        message:
+          type: string
+          description: Status message
+        partial_results:
+          type: boolean
+          description: Whether these are partial results
+        progress:
+          type: number
+          description: Progress of the simulation (0-1)
+        metrics:
+          $ref: '#/components/schemas/PerformanceMetrics'
+        performance_metrics:
+          $ref: '#/components/schemas/PerformanceMetrics'
+        cash_flows:
+          type: object
+          description: Cash flow data
+          properties:
+            years:
+              type: array
+              description: Years or periods
+              items:
+                type: number
+            capital_called:
+              type: array
+              description: Capital called by period
+              items:
+                type: number
+            distributions:
+              type: array
+              description: Distributions by period
+              items:
+                type: number
+            net_cash_flow:
+              type: array
+              description: Net cash flow by period
+              items:
+                type: number
+            cumulative_capital_called:
+              type: array
+              description: Cumulative capital called by period
+              items:
+                type: number
+            cumulative_distributions:
+              type: array
+              description: Cumulative distributions by period
+              items:
+                type: number
+            cumulative_net_cash_flow:
+              type: array
+              description: Cumulative net cash flow by period
+              items:
+                type: number
+        portfolio:
+          $ref: '#/components/schemas/PortfolioEvolution'
+        yearly_portfolio:
+          $ref: '#/components/schemas/PortfolioEvolution'
+        monthly_portfolio:
+          $ref: '#/components/schemas/PortfolioEvolution'
+        monthly_cash_flows:
+          type: object
+          description: Monthly cash flow data
+        waterfall_results:
+          type: object
+          description: Waterfall distribution results
+        monte_carlo_results:
+          type: object
+          description: Monte Carlo simulation results
+        bootstrap_results:
+          $ref: '#/components/schemas/BootstrapResults'
+        grid_stress_results:
+          $ref: '#/components/schemas/GridStressResults'
+        vintage_var:
+          $ref: '#/components/schemas/VintageVarResults'
+        fund_size:
+          type: number
+          description: Fund size
+        config:
+          $ref: '#/components/schemas/SimulationConfig'
+    BootstrapResults:
+      title: BootstrapResults
+      description: Results of bootstrap sequencing risk analysis.
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of the bootstrap analysis (success, skipped, error)
+        iterations:
+          type: integer
+          description: Number of bootstrap iterations
+        irr_distribution:
+          type: array
+          description: Distribution of IRR values from bootstrap samples
+          items:
+            type: number
+        mean_irr:
+          type: number
+          description: Mean IRR across all bootstrap samples
+        percentile_5:
+          type: number
+          description: 5th percentile IRR
+        percentile_95:
+          type: number
+          description: 95th percentile IRR
+    GridStressResults:
+      title: GridStressResults
+      description: Results of 2-D parameter grid stress analysis.
+      type: object
+      properties:
+        axis_x:
+          type: string
+          description: Name of the parameter varied along the X-axis
+        axis_y:
+          type: string
+          description: Name of the parameter varied along the Y-axis
+        factors:
+          type: array
+          description: Scaling factors applied to the baseline for each axis
+          items:
+            type: number
+        irr_matrix:
+          type: array
+          description: Matrix of IRR values; rows correspond to Y-axis factors, columns to X-axis factors
+          items:
+            type: array
+            items:
+              type: number
+    VintageVarResults:
+      title: VintageVarResults
+      description: Value-at-Risk by origination vintage derived from Monte-Carlo simulations.
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status of the analysis (success, skipped, error)
+        vintage_var:
+          type: object
+          description: Mapping of vintage year to VaR information
+          additionalProperties:
+            type: object
+            properties:
+              percentile:
+                type: number
+                description: Percentile used for VaR (e.g. 5)
+              value_at_risk:
+                type: number
+                description: IRR at the specified downside percentile
+    ZoneMetrics:
+      title: ZoneMetrics
+      description: Traffic-Light metrics for a single suburb / zone.
+      type: object
+      required: [id, name, zone_color]
+      properties:
+        id:
+          type: string
+          description: Suburb slug (snake-case)
+        name:
+          type: string
+          description: Human-readable suburb name
+        zone_color:
+          type: string
+          description: TLS bucket (green, orange, red)
+        growth_mu:
+          type: number
+          nullable: true
+        growth_sigma:
+          type: number
+          nullable: true
+        default_mu:
+          type: number
+          nullable: true
+        default_sigma:
+          type: number
+          nullable: true
+        liquidity_score:
+          type: number
+          nullable: true
+        risk_weight:
+          type: number
+          nullable: true
+        # Additional properties are allowed for extended metrics
+      additionalProperties: true
+    # -----------------------------------------------------------------
+    # Leverage schemas
+    # -----------------------------------------------------------------
+    LeverageConfig:
+      title: LeverageConfig
+      description: Configuration block for leverage facilities.
+      type: object
+      properties:
+        green_sleeve:
+          type: object
+          properties:
+            enabled: { type: boolean }
+            max_mult: { type: number }
+            spread_bps: { type: integer }
+            commitment_fee_bps: { type: integer }
+        a_plus_overadvance:
+          type: object
+          properties:
+            enabled: { type: boolean }
+            tls_grade: { type: string }
+            advance_rate: { type: number }
+        deal_note:
+          type: object
+          properties:
+            enabled: { type: boolean }
+            note_pct: { type: number }
+            note_rate: { type: number }
+        ramp_line:
+          type: object
+          properties:
+            enabled: { type: boolean }
+            limit_pct_commit: { type: number }
+            draw_period_months: { type: integer }
+            spread_bps: { type: integer }
+        dynamic_rules:
+          type: array
+          items:
+            type: object
+            properties:
+              trigger: { type: string }
+              action: { type: string }
+              max: { type: number }
+
+    LeveragePreviewRequest:
+      title: LeveragePreviewRequest
+      type: object
+      required: [nav_by_year, config]
+      properties:
+        nav_by_year:
+          type: object
+          additionalProperties:
+            type: number
+          description: Mapping of year→NAV
+        config:
+          $ref: '#/components/schemas/LeverageConfig'
+
+    LeveragePreviewResponse:
+      title: LeveragePreviewResponse
+      type: object
+      properties:
+        cash_flows:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              interest:
+                type: number
+              commitment_fee:
+                type: number
+        metrics:
+          $ref: '#/components/schemas/LeverageMetrics'
+
+    LeverageMetrics:
+      title: LeverageMetrics
+      type: object
+      properties:
+        avg_leverage:
+          type: number
+        max_drawn:
+          type: number
+        total_interest:
+          type: number

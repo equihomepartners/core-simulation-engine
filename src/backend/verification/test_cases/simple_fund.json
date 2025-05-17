@@ -1,0 +1,64 @@
+{
+  "id": "simple_fund",
+  "name": "Simple Fund Test Case",
+  "description": "A simple test case with a small fund and basic parameters to verify core calculations",
+  "config": {
+    "fund_size": 10000000,
+    "fund_term": 5,
+    "gp_commitment_percentage": 0.05,
+    "hurdle_rate": 0.08,
+    "carried_interest_rate": 0.20,
+    "waterfall_structure": "european",
+    "monte_carlo_enabled": false,
+    "optimization_enabled": false,
+    "stress_testing_enabled": false,
+    "external_data_enabled": false,
+    "generate_reports": true,
+    "base_appreciation_rate": 0.03,
+    "appreciation_volatility": 0.01,
+    "base_default_rate": 0.01,
+    "default_volatility": 0.005,
+    "correlation": 0.3,
+    "avg_loan_size": 250000,
+    "loan_size_std_dev": 50000,
+    "min_loan_size": 100000,
+    "max_loan_size": 500000,
+    "avg_loan_term": 3,
+    "avg_loan_interest_rate": 0.06,
+    "avg_loan_ltv": 0.75,
+    "zone_allocations": {
+      "green": 0.6,
+      "orange": 0.3,
+      "red": 0.1
+    },
+    "management_fee_rate": 0.02,
+    "management_fee_basis": "committed_capital",
+    "fund_expenses": 0.01,
+    "distribution_frequency": "annual",
+    "distribution_policy": "available_cash",
+    "reinvestment_period": 3,
+    "avg_loan_exit_year": 3,
+    "exit_year_std_dev": 0.5,
+    "early_exit_probability": 0.2
+  },
+  "expected_results": {
+    "performance_metrics": {
+      "irr": 0.12,
+      "moic": 1.5,
+      "tvpi": 1.5,
+      "dpi": 1.5,
+      "rvpi": 0.0,
+      "payback_period": 3.5
+    },
+    "waterfall_results": {
+      "total_gp_distribution": 600000,
+      "total_lp_distribution": 14400000,
+      "gp_carried_interest": 100000
+    },
+    "cash_flows": {
+      "total_inflows": 15000000,
+      "total_outflows": 10000000,
+      "net_cash_flow": 5000000
+    }
+  }
+}

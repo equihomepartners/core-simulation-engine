@@ -1,0 +1,156 @@
+{
+  "timestamp": "2025-04-15T08:13:19.092019",
+  "summary": {
+    "total": 12,
+    "passed": 1,
+    "failed": 6,
+    "errors": 5,
+    "pass_rate": 0.08333333333333333
+  },
+  "phases": {
+    "phase1": {
+      "name": "Phase 1: Portfolio Generation",
+      "summary": {
+        "total": 5,
+        "passed": 1,
+        "failed": 4,
+        "errors": 0,
+        "pass_rate": 0.2
+      },
+      "tests": [
+        {
+          "id": "TestPhase1PortfolioGeneration.test_basic_portfolio_generation",
+          "name": "test_basic_portfolio_generation",
+          "description": "Test basic portfolio generation with default parameters.",
+          "complexity": "basic",
+          "status": "failed",
+          "duration": 0.00448298454284668,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 96, in test_basic_portfolio_generation\n    self.assertAlmostEqual(float(loan.ltv), self.basic_config['avg_loan_ltv'], delta=0.1)\nAssertionError: 0.5694569199814239 != 0.75 within 0.1 delta (0.1805430800185761 difference)\n"
+        },
+        {
+          "id": "TestPhase1PortfolioGeneration.test_different_fund_sizes",
+          "name": "test_different_fund_sizes",
+          "description": "Test portfolio generation with different fund sizes.",
+          "complexity": "intermediate",
+          "status": "passed",
+          "duration": 0.004729747772216797,
+          "logs": [],
+          "error": null
+        },
+        {
+          "id": "TestPhase1PortfolioGeneration.test_different_loan_parameters",
+          "name": "test_different_loan_parameters",
+          "description": "Test portfolio generation with different loan parameters.",
+          "complexity": "intermediate",
+          "status": "failed",
+          "duration": 0.0018520355224609375,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 152, in test_different_loan_parameters\n    self.assertLess(len(portfolio.loans), len(generate_portfolio_from_config(self.basic_config).loans))\nAssertionError: 40 not less than 40\n"
+        },
+        {
+          "id": "TestPhase1PortfolioGeneration.test_different_zone_allocations",
+          "name": "test_different_zone_allocations",
+          "description": "Test portfolio generation with different zone allocations.",
+          "complexity": "intermediate",
+          "status": "failed",
+          "duration": 0.0006930828094482422,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 187, in test_different_zone_allocations\n    self.assertAlmostEqual(zone_percentages['green'], config['zone_allocations']['green'], delta=0.1)\nAssertionError: 0.075 != 0.2 within 0.1 delta (0.125 difference)\n"
+        },
+        {
+          "id": "TestPhase1PortfolioGeneration.test_random_seed_reproducibility",
+          "name": "test_random_seed_reproducibility",
+          "description": "Test portfolio generation with random seeds for reproducibility.",
+          "complexity": "advanced",
+          "status": "failed",
+          "duration": 0.001332998275756836,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 213, in test_random_seed_reproducibility\n    self.assertEqual(portfolio1.loans[i].loan_amount, portfolio2.loans[i].loan_amount)\nAssertionError: Decimal('232894.53004299614') != Decimal('282658.6997151515')\n"
+        }
+      ]
+    },
+    "phase2": {
+      "name": "Phase 2: Market Conditions",
+      "summary": {
+        "total": 7,
+        "passed": 0,
+        "failed": 2,
+        "errors": 5,
+        "pass_rate": 0.0
+      },
+      "tests": [
+        {
+          "id": "TestPhase2MarketConditions.test_basic_market_conditions",
+          "name": "test_basic_market_conditions",
+          "description": "Test basic market conditions generation with default parameters.",
+          "complexity": "basic",
+          "status": "failed",
+          "duration": 0.0026929378509521484,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 83, in test_basic_market_conditions\n    self.assertEqual(len(market_conditions), self.basic_config['fund_term'] + 1)  # +1 for year 0\nAssertionError: 5 != 6\n"
+        },
+        {
+          "id": "TestPhase2MarketConditions.test_different_appreciation_rates",
+          "name": "test_different_appreciation_rates",
+          "description": "Test market conditions with different appreciation rates.",
+          "complexity": "intermediate",
+          "status": "error",
+          "duration": 0.0009350776672363281,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 129, in test_different_appreciation_rates\n    actual_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 129, in <listcomp>\n    actual_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'appreciation_rates'\n"
+        },
+        {
+          "id": "TestPhase2MarketConditions.test_different_correlations",
+          "name": "test_different_correlations",
+          "description": "Test market conditions with different correlations.",
+          "complexity": "intermediate",
+          "status": "error",
+          "duration": 0.0007519721984863281,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 202, in test_different_correlations\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 202, in <listcomp>\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'appreciation_rates'\n"
+        },
+        {
+          "id": "TestPhase2MarketConditions.test_different_default_rates",
+          "name": "test_different_default_rates",
+          "description": "Test market conditions with different default rates.",
+          "complexity": "intermediate",
+          "status": "error",
+          "duration": 0.000926971435546875,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 152, in test_different_default_rates\n    actual_rates = [year_data['default_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 152, in <listcomp>\n    actual_rates = [year_data['default_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'default_rates'\n"
+        },
+        {
+          "id": "TestPhase2MarketConditions.test_different_volatilities",
+          "name": "test_different_volatilities",
+          "description": "Test market conditions with different volatilities.",
+          "complexity": "intermediate",
+          "status": "error",
+          "duration": 0.0009379386901855469,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 175, in test_different_volatilities\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 175, in <listcomp>\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'appreciation_rates'\n"
+        },
+        {
+          "id": "TestPhase2MarketConditions.test_integration_with_portfolio",
+          "name": "test_integration_with_portfolio",
+          "description": "Test integration of portfolio and market conditions.",
+          "complexity": "advanced",
+          "status": "failed",
+          "duration": 0.0007648468017578125,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 244, in test_integration_with_portfolio\n    self.assertIn(str(year), market_conditions)\nAssertionError: '0' not found in {0: {'appreciation_rate': 0.01817372816940566, 'default_rate': 0.020659751518679794, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'rising', 'economic_outlook': 'stable'}, 1: {'appreciation_rate': 0.013475860535634772, 'default_rate': 0.009376511525687015, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'stable', 'economic_outlook': 'stable'}, 2: {'appreciation_rate': 0.005205528696370136, 'default_rate': 0.017889464553597856, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'rising', 'economic_outlook': 'stable'}, 3: {'appreciation_rate': 0.04604047692156374, 'default_rate': 0.003733947820287238, 'housing_market_trend': 'appreciating', 'interest_rate_environment': 'falling', 'economic_outlook': 'expansion'}, 4: {'appreciation_rate': 0.022085445789278086, 'default_rate': 0.008118876786636623, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'stable', 'economic_outlook': 'stable'}}\n"
+        },
+        {
+          "id": "TestPhase2MarketConditions.test_random_seed_reproducibility",
+          "name": "test_random_seed_reproducibility",
+          "description": "Test market conditions with random seeds for reproducibility.",
+          "complexity": "advanced",
+          "status": "error",
+          "duration": 0.000766754150390625,
+          "logs": [],
+          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 303, in test_random_seed_reproducibility\n    market_conditions1[year_str]['appreciation_rates']['green'],\nKeyError: '0'\n"
+        }
+      ]
+    }
+  }
+}

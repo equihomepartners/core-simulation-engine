@@ -1,0 +1,11 @@
+{
+  "title": "Fund Risk Analysis Report",
+  "metrics": [
+    "sharpe_ratio", "max_drawdown", "volatility", "var", "cvar"
+  ],
+  "sections": [
+    "fund_parameters",
+    "risk_metrics",
+    "market_conditions"
+  ]
+} 

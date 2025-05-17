@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation Engine Testing Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 30px;
+        }
+        .footer {
+            padding-top: 20px;
+            border-top: 1px solid #e5e5e5;
+            margin-top: 30px;
+            color: #777;
+        }
+        .phase-card {
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .phase-card:hover {
+            transform: translateY(-5px);
+        }
+        .phase-header {
+            padding: 15px;
+            border-bottom: 1px solid #e5e5e5;
+            background-color: #f8f9fa;
+            border-radius: 10px 10px 0 0;
+        }
+        .phase-body {
+            padding: 20px;
+        }
+        .passed {
+            color: #28a745;
+        }
+        .failed {
+            color: #dc3545;
+        }
+        .warning {
+            color: #fd7e14;
+        }
+        .progress {
+            height: 25px;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            line-height: 25px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .config-section, .results-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .json-viewer {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .comparison-table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .comparison-table th {
+            background-color: #f8f9fa;
+            padding: 10px;
+        }
+        .comparison-table td {
+            padding: 10px;
+        }
+        .comparison-table .mismatch {
+            background-color: #ffdddd;
+        }
+        .nav-tabs {
+            margin-bottom: 20px;
+        }
+        .tab-content {
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .phase-badge {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        .complexity-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+        .phase-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+        .summary-box {
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .summary-box h3 {
+            margin-top: 0;
+            font-size: 1.2rem;
+        }
+        .summary-box .number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .phase1-color { background-color: #e6f7ff; border-left: 5px solid #1890ff; }
+        .phase2-color { background-color: #f6ffed; border-left: 5px solid #52c41a; }
+        .phase3-color { background-color: #fff7e6; border-left: 5px solid #fa8c16; }
+        .phase4-color { background-color: #f9f0ff; border-left: 5px solid #722ed1; }
+        .phase5-color { background-color: #fff1f0; border-left: 5px solid #f5222d; }
+        .phase6-color { background-color: #e6fffb; border-left: 5px solid #13c2c2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1>Simulation Engine Testing Dashboard</h1>
+                    <p class="lead">Comprehensive testing results for the simulation engine</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button id="runAllBtn" class="btn btn-primary">Run All Tests</button>
+                    <button id="refreshBtn" class="btn btn-secondary ms-2">Refresh Results</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Testing Summary</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="progress">
+                                    <div id="overallProgressBar" class="progress-bar bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                </div>
+                                <div id="overallProgressStatus" class="text-center mb-3">Overall Test Progress</div>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row">
+                                    <div class="col-md-3 text-center">
+                                        <h3 id="totalTests">0</h3>
+                                        <p>Total Tests</p>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <h3 id="passedTests" class="passed">0</h3>
+                                        <p>Passed</p>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <h3 id="failedTests" class="failed">0</h3>
+                                        <p>Failed</p>
+                                    </div>
+                                    <div class="col-md-3 text-center">
+                                        <h3 id="pendingTests" class="warning">0</h3>
+                                        <p>Pending</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase Overview Section -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Testing Phases</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Phase 1 -->
+                            <div class="col-md-4 mb-4">
+                                <div class="summary-box phase1-color">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h3><i class="bi bi-database phase-icon"></i> Phase 1: Portfolio Generation</h3>
+                                        <span class="badge bg-danger">0% Complete</span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 text-center">
+                                            <div class="number">0</div>
+                                            <div>Tests</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number passed">0</div>
+                                            <div>Passed</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number failed">0</div>
+                                            <div>Failed</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-end">
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#phase1Details">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Phase 2 -->
+                            <div class="col-md-4 mb-4">
+                                <div class="summary-box phase2-color">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h3><i class="bi bi-graph-up phase-icon"></i> Phase 2: Market Conditions</h3>
+                                        <span class="badge bg-danger">0% Complete</span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 text-center">
+                                            <div class="number">0</div>
+                                            <div>Tests</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number passed">0</div>
+                                            <div>Passed</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number failed">0</div>
+                                            <div>Failed</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-end">
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#phase2Details">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Phase 3 -->
+                            <div class="col-md-4 mb-4">
+                                <div class="summary-box phase3-color">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h3><i class="bi bi-clock-history phase-icon"></i> Phase 3: Loan Lifecycle</h3>
+                                        <span class="badge bg-danger">0% Complete</span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 text-center">
+                                            <div class="number">0</div>
+                                            <div>Tests</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number passed">0</div>
+                                            <div>Passed</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number failed">0</div>
+                                            <div>Failed</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-end">
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#phase3Details">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- Phase 4 -->
+                            <div class="col-md-4 mb-4">
+                                <div class="summary-box phase4-color">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h3><i class="bi bi-cash-stack phase-icon"></i> Phase 4: Cash Flows</h3>
+                                        <span class="badge bg-danger">0% Complete</span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 text-center">
+                                            <div class="number">0</div>
+                                            <div>Tests</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number passed">0</div>
+                                            <div>Passed</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number failed">0</div>
+                                            <div>Failed</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-end">
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#phase4Details">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Phase 5 -->
+                            <div class="col-md-4 mb-4">
+                                <div class="summary-box phase5-color">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h3><i class="bi bi-diagram-3 phase-icon"></i> Phase 5: Waterfall</h3>
+                                        <span class="badge bg-danger">0% Complete</span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 text-center">
+                                            <div class="number">0</div>
+                                            <div>Tests</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number passed">0</div>
+                                            <div>Passed</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number failed">0</div>
+                                            <div>Failed</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-end">
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#phase5Details">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Phase 6 -->
+                            <div class="col-md-4 mb-4">
+                                <div class="summary-box phase6-color">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h3><i class="bi bi-gear-wide-connected phase-icon"></i> Phase 6: Complete System</h3>
+                                        <span class="badge bg-danger">0% Complete</span>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 text-center">
+                                            <div class="number">0</div>
+                                            <div>Tests</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number passed">0</div>
+                                            <div>Passed</div>
+                                        </div>
+                                        <div class="col-4 text-center">
+                                            <div class="number failed">0</div>
+                                            <div>Failed</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 text-end">
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="collapse" data-bs-target="#phase6Details">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Test Views -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <!-- Phase 1 Details -->
+                <div class="collapse" id="phase1Details">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h3>Phase 1: Portfolio Generation - Detailed Tests</h3>
+                        </div>
+                        <div class="card-body">
+                            <!-- Complexity Filter -->
+                            <div class="mb-4">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-outline-primary active">All</button>
+                                    <button type="button" class="btn btn-outline-primary">Basic</button>
+                                    <button type="button" class="btn btn-outline-primary">Intermediate</button>
+                                    <button type="button" class="btn btn-outline-primary">Advanced</button>
+                                    <button type="button" class="btn btn-outline-primary">Edge Cases</button>
+                                    <button type="button" class="btn btn-outline-primary">Stress Tests</button>
+                                </div>
+                            </div>
+
+                            <!-- Test Results Table -->
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Test ID</th>
+                                            <th>Description</th>
+                                            <th>Complexity</th>
+                                            <th>Status</th>
+                                            <th>Duration</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="phase1TestTable">
+                                        <!-- Test rows will be populated dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Visualization Section -->
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4>Zone Allocation Distribution</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="chart-container" id="phase1ZoneChart">
+                                                <div class="text-center text-muted">
+                                                    <p>No data available</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4>Loan Size Distribution</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="chart-container" id="phase1LoanSizeChart">
+                                                <div class="text-center text-muted">
+                                                    <p>No data available</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Key Metrics Section -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4>Portfolio Key Metrics</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Metric</th>
+                                                            <th>Value</th>
+                                                            <th>Description</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="phase1MetricsTable">
+                                                        <!-- Metrics will be populated dynamically -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Loan Details Section -->
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h4>Sample Loans</h4>
+                                            <button class="btn btn-sm btn-primary" id="viewAllLoansBtn">View All Loans</button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>ID</th>
+                                                            <th>Amount</th>
+                                                            <th>Property Value</th>
+                                                            <th>LTV</th>
+                                                            <th>Interest Rate</th>
+                                                            <th>Zone</th>
+                                                            <th>Expected Exit Year</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="phase1LoansTable">
+                                                        <!-- Loans will be populated dynamically -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Detail Modal -->
+        <div class="modal fade" id="testDetailModal" tabindex="-1" aria-labelledby="testDetailModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="testDetailModalLabel">Test Details: P1-001 - Basic portfolio generation</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#config-tab" type="button" role="tab">Configuration</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#expected-tab" type="button" role="tab">Expected Results</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#actual-tab" type="button" role="tab">Actual Results</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#logs-tab" type="button" role="tab">Logs</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#visualization-tab" type="button" role="tab">Visualization</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content p-3">
+                            <div class="tab-pane fade show active" id="config-tab" role="tabpanel">
+                                <h4>Test Configuration</h4>
+                                <div class="json-viewer">
+{
+  "fund_size": 10000000,
+  "fund_term": 5,
+  "gp_commitment_percentage": 0.05,
+  "avg_loan_size": 250000,
+  "loan_size_std_dev": 50000,
+  "min_loan_size": 100000,
+  "max_loan_size": 500000,
+  "zone_allocations": {
+    "green": 0.6,
+    "orange": 0.3,
+    "red": 0.1
+  }
+}
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="expected-tab" role="tabpanel">
+                                <h4>Expected Results</h4>
+                                <div class="json-viewer">
+{
+  "portfolio": {
+    "total_loan_amount": 10000000,
+    "loan_count": 40,
+    "zone_distribution": {
+      "green": 24,
+      "orange": 12,
+      "red": 4
+    },
+    "avg_loan_size_actual": 250000
+  }
+}
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="actual-tab" role="tabpanel">
+                                <h4>Actual Results</h4>
+                                <div class="json-viewer">
+{
+  "portfolio": {
+    "total_loan_amount": 10000000,
+    "loan_count": 40,
+    "zone_distribution": {
+      "green": 24,
+      "orange": 12,
+      "red": 4
+    },
+    "avg_loan_size_actual": 250000
+  }
+}
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="logs-tab" role="tabpanel">
+                                <h4>Test Logs</h4>
+                                <div class="json-viewer">
+2025-01-25 10:15:32 INFO: Starting test P1-001
+2025-01-25 10:15:32 INFO: Initializing portfolio generation
+2025-01-25 10:15:32 INFO: Creating 40 loans with average size 250000
+2025-01-25 10:15:32 INFO: Allocating loans to zones: green=24, orange=12, red=4
+2025-01-25 10:15:32 INFO: Portfolio generation complete
+2025-01-25 10:15:32 INFO: Verifying portfolio properties
+2025-01-25 10:15:32 INFO: All assertions passed
+2025-01-25 10:15:32 INFO: Test P1-001 completed successfully in 0.45s
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="visualization-tab" role="tabpanel">
+                                <h4>Test Visualization</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5>Zone Allocation</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="chart-container">
+                                                    <div class="text-center text-muted">
+                                                        [Zone Allocation Pie Chart]<br>
+                                                        <small>Green: 60%, Orange: 30%, Red: 10%</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h5>Loan Size Distribution</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="chart-container">
+                                                    <div class="text-center text-muted">
+                                                        [Loan Size Histogram]<br>
+                                                        <small>Mean: $250,000, StdDev: $50,000</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Run Test Again</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JavaScript Dependencies -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize tooltips
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+
+                // Embed test results directly
+                const testResults = {
+                  "timestamp": "2025-04-15T08:13:19.092019",
+                  "summary": {
+                    "total": 12,
+                    "passed": 1,
+                    "failed": 6,
+                    "errors": 5,
+                    "pass_rate": 0.08333333333333333
+                  },
+                  "phases": {
+                    "phase1": {
+                      "name": "Phase 1: Portfolio Generation",
+                      "summary": {
+                        "total": 5,
+                        "passed": 1,
+                        "failed": 4,
+                        "errors": 0,
+                        "pass_rate": 0.2
+                      },
+                      "tests": [
+                        {
+                          "id": "TestPhase1PortfolioGeneration.test_basic_portfolio_generation",
+                          "name": "test_basic_portfolio_generation",
+                          "description": "Test basic portfolio generation with default parameters.",
+                          "complexity": "basic",
+                          "status": "failed",
+                          "duration": 0.00448298454284668,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 96, in test_basic_portfolio_generation\n    self.assertAlmostEqual(float(loan.ltv), self.basic_config['avg_loan_ltv'], delta=0.1)\nAssertionError: 0.5694569199814239 != 0.75 within 0.1 delta (0.1805430800185761 difference)\n"
+                        },
+                        {
+                          "id": "TestPhase1PortfolioGeneration.test_different_fund_sizes",
+                          "name": "test_different_fund_sizes",
+                          "description": "Test portfolio generation with different fund sizes.",
+                          "complexity": "intermediate",
+                          "status": "passed",
+                          "duration": 0.004729747772216797,
+                          "logs": [],
+                          "error": null
+                        },
+                        {
+                          "id": "TestPhase1PortfolioGeneration.test_different_loan_parameters",
+                          "name": "test_different_loan_parameters",
+                          "description": "Test portfolio generation with different loan parameters.",
+                          "complexity": "intermediate",
+                          "status": "failed",
+                          "duration": 0.0018520355224609375,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 152, in test_different_loan_parameters\n    self.assertLess(len(portfolio.loans), len(generate_portfolio_from_config(self.basic_config).loans))\nAssertionError: 40 not less than 40\n"
+                        },
+                        {
+                          "id": "TestPhase1PortfolioGeneration.test_different_zone_allocations",
+                          "name": "test_different_zone_allocations",
+                          "description": "Test portfolio generation with different zone allocations.",
+                          "complexity": "intermediate",
+                          "status": "failed",
+                          "duration": 0.0006930828094482422,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 187, in test_different_zone_allocations\n    self.assertAlmostEqual(zone_percentages['green'], config['zone_allocations']['green'], delta=0.1)\nAssertionError: 0.075 != 0.2 within 0.1 delta (0.125 difference)\n"
+                        },
+                        {
+                          "id": "TestPhase1PortfolioGeneration.test_random_seed_reproducibility",
+                          "name": "test_random_seed_reproducibility",
+                          "description": "Test portfolio generation with random seeds for reproducibility.",
+                          "complexity": "advanced",
+                          "status": "failed",
+                          "duration": 0.001332998275756836,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 213, in test_random_seed_reproducibility\n    self.assertEqual(portfolio1.loans[i].loan_amount, portfolio2.loans[i].loan_amount)\nAssertionError: Decimal('232894.53004299614') != Decimal('282658.6997151515')\n"
+                        }
+                      ]
+                    },
+                    "phase2": {
+                      "name": "Phase 2: Market Conditions",
+                      "summary": {
+                        "total": 7,
+                        "passed": 0,
+                        "failed": 2,
+                        "errors": 5,
+                        "pass_rate": 0.0
+                      },
+                      "tests": [
+                        {
+                          "id": "TestPhase2MarketConditions.test_basic_market_conditions",
+                          "name": "test_basic_market_conditions",
+                          "description": "Test basic market conditions generation with default parameters.",
+                          "complexity": "basic",
+                          "status": "failed",
+                          "duration": 0.0026929378509521484,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 83, in test_basic_market_conditions\n    self.assertEqual(len(market_conditions), self.basic_config['fund_term'] + 1)  # +1 for year 0\nAssertionError: 5 != 6\n"
+                        },
+                        {
+                          "id": "TestPhase2MarketConditions.test_different_appreciation_rates",
+                          "name": "test_different_appreciation_rates",
+                          "description": "Test market conditions with different appreciation rates.",
+                          "complexity": "intermediate",
+                          "status": "error",
+                          "duration": 0.0009350776672363281,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 129, in test_different_appreciation_rates\n    actual_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 129, in <listcomp>\n    actual_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'appreciation_rates'\n"
+                        },
+                        {
+                          "id": "TestPhase2MarketConditions.test_different_correlations",
+                          "name": "test_different_correlations",
+                          "description": "Test market conditions with different correlations.",
+                          "complexity": "intermediate",
+                          "status": "error",
+                          "duration": 0.0007519721984863281,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 202, in test_different_correlations\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 202, in <listcomp>\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'appreciation_rates'\n"
+                        },
+                        {
+                          "id": "TestPhase2MarketConditions.test_different_default_rates",
+                          "name": "test_different_default_rates",
+                          "description": "Test market conditions with different default rates.",
+                          "complexity": "intermediate",
+                          "status": "error",
+                          "duration": 0.000926971435546875,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 152, in test_different_default_rates\n    actual_rates = [year_data['default_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 152, in <listcomp>\n    actual_rates = [year_data['default_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'default_rates'\n"
+                        },
+                        {
+                          "id": "TestPhase2MarketConditions.test_different_volatilities",
+                          "name": "test_different_volatilities",
+                          "description": "Test market conditions with different volatilities.",
+                          "complexity": "intermediate",
+                          "status": "error",
+                          "duration": 0.0009379386901855469,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 175, in test_different_volatilities\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 175, in <listcomp>\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'appreciation_rates'\n"
+                        },
+                        {
+                          "id": "TestPhase2MarketConditions.test_integration_with_portfolio",
+                          "name": "test_integration_with_portfolio",
+                          "description": "Test integration of portfolio and market conditions.",
+                          "complexity": "advanced",
+                          "status": "failed",
+                          "duration": 0.0007648468017578125,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 244, in test_integration_with_portfolio\n    self.assertIn(str(year), market_conditions)\nAssertionError: '0' not found in {0: {'appreciation_rate': 0.01817372816940566, 'default_rate': 0.020659751518679794, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'rising', 'economic_outlook': 'stable'}, 1: {'appreciation_rate': 0.013475860535634772, 'default_rate': 0.009376511525687015, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'stable', 'economic_outlook': 'stable'}, 2: {'appreciation_rate': 0.005205528696370136, 'default_rate': 0.017889464553597856, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'rising', 'economic_outlook': 'stable'}, 3: {'appreciation_rate': 0.04604047692156374, 'default_rate': 0.003733947820287238, 'housing_market_trend': 'appreciating', 'interest_rate_environment': 'falling', 'economic_outlook': 'expansion'}, 4: {'appreciation_rate': 0.022085445789278086, 'default_rate': 0.008118876786636623, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'stable', 'economic_outlook': 'stable'}}\n"
+                        },
+                        {
+                          "id": "TestPhase2MarketConditions.test_random_seed_reproducibility",
+                          "name": "test_random_seed_reproducibility",
+                          "description": "Test market conditions with random seeds for reproducibility.",
+                          "complexity": "advanced",
+                          "status": "error",
+                          "duration": 0.000766754150390625,
+                          "logs": [],
+                          "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 303, in test_random_seed_reproducibility\n    market_conditions1[year_str]['appreciation_rates']['green'],\nKeyError: '0'\n"
+                        }
+                      ]
+                    }
+                  }
+                };
+
+                // Use embedded test results
+                updateDashboard(testResults);
+
+                // Update refresh button
+                document.getElementById('refreshBtn').addEventListener('click', function() {
+                    window.location.reload();
+                });
+
+                // Run all tests button
+                document.getElementById('runAllBtn').addEventListener('click', function() {
+                    alert('Running all tests...');
+                    // In a real implementation, this would trigger an API call to run all tests
+                });
+            });
+
+            function updateDashboard(data) {
+                // Update summary
+                document.getElementById('totalTests').textContent = data.summary.total;
+                document.getElementById('passedTests').textContent = data.summary.passed;
+                document.getElementById('failedTests').textContent = data.summary.failed + data.summary.errors;
+                document.getElementById('pendingTests').textContent = 0;
+
+                // Update progress bar
+                const passRate = data.summary.pass_rate * 100;
+                const progressBar = document.getElementById('overallProgressBar');
+                progressBar.style.width = passRate + '%';
+                progressBar.textContent = passRate.toFixed(1) + '%';
+
+                if (passRate > 80) {
+                    progressBar.classList.remove('bg-danger', 'bg-warning');
+                    progressBar.classList.add('bg-success');
+                } else if (passRate > 50) {
+                    progressBar.classList.remove('bg-danger', 'bg-success');
+                    progressBar.classList.add('bg-warning');
+                } else {
+                    progressBar.classList.remove('bg-success', 'bg-warning');
+                    progressBar.classList.add('bg-danger');
+                }
+
+                // Update phase cards
+                updatePhaseCard('phase1', data.phases.phase1);
+                updatePhaseCard('phase2', data.phases.phase2);
+
+                // Update test details
+                if (data.phases.phase1) {
+                    updatePhaseDetails('phase1', data.phases.phase1);
+                }
+                if (data.phases.phase2) {
+                    updatePhaseDetails('phase2', data.phases.phase2);
+                }
+            }
+
+            function updatePhaseCard(phaseId, phaseData) {
+                if (!phaseData) return;
+
+                const phaseCard = document.querySelector(`.${phaseId}-color`);
+                if (!phaseCard) return;
+
+                // Update test counts
+                const totalTests = phaseData.summary.total;
+                const passedTests = phaseData.summary.passed;
+                const failedTests = phaseData.summary.failed + phaseData.summary.errors;
+
+                phaseCard.querySelector('.number:nth-of-type(1)').textContent = totalTests;
+                phaseCard.querySelector('.number:nth-of-type(2)').textContent = passedTests;
+                phaseCard.querySelector('.number:nth-of-type(3)').textContent = failedTests;
+
+                // Update progress badge
+                const passRate = phaseData.summary.pass_rate * 100;
+                const badge = phaseCard.querySelector('.badge');
+                badge.textContent = passRate.toFixed(0) + '% Complete';
+
+                if (passRate > 80) {
+                    badge.classList.remove('bg-danger', 'bg-warning');
+                    badge.classList.add('bg-success');
+                } else if (passRate > 50) {
+                    badge.classList.remove('bg-danger', 'bg-success');
+                    badge.classList.add('bg-warning');
+                } else {
+                    badge.classList.remove('bg-success', 'bg-warning');
+                    badge.classList.add('bg-danger');
+                }
+            }
+
+            function updatePhaseDetails(phaseId, phaseData) {
+                if (!phaseData || !phaseData.tests) return;
+
+                const detailsDiv = document.getElementById(`${phaseId}Details`);
+                if (!detailsDiv) return;
+
+                const tableBody = document.getElementById(`${phaseId}TestTable`);
+                if (!tableBody) return;
+
+                // Clear existing rows
+                tableBody.innerHTML = '';
+
+                // Add rows for each test
+                phaseData.tests.forEach(test => {
+                    const row = document.createElement('tr');
+
+                    // Test ID
+                    const idCell = document.createElement('td');
+                    idCell.textContent = test.id.split('.').pop();
+                    row.appendChild(idCell);
+
+                    // Description
+                    const descCell = document.createElement('td');
+                    descCell.textContent = test.description;
+                    row.appendChild(descCell);
+
+                    // Complexity
+                    const complexityCell = document.createElement('td');
+                    const complexityBadge = document.createElement('span');
+                    complexityBadge.classList.add('badge');
+
+                    switch (test.complexity) {
+                        case 'basic':
+                            complexityBadge.classList.add('bg-info');
+                            break;
+                        case 'intermediate':
+                            complexityBadge.classList.add('bg-warning');
+                            break;
+                        case 'advanced':
+                            complexityBadge.classList.add('bg-danger');
+                            break;
+                        default:
+                            complexityBadge.classList.add('bg-secondary');
+                    }
+
+                    complexityBadge.textContent = test.complexity.charAt(0).toUpperCase() + test.complexity.slice(1);
+                    complexityCell.appendChild(complexityBadge);
+                    row.appendChild(complexityCell);
+
+                    // Status
+                    const statusCell = document.createElement('td');
+                    const statusBadge = document.createElement('span');
+                    statusBadge.classList.add('badge');
+
+                    switch (test.status) {
+                        case 'passed':
+                            statusBadge.classList.add('bg-success');
+                            statusBadge.textContent = 'Passed';
+                            break;
+                        case 'failed':
+                            statusBadge.classList.add('bg-danger');
+                            statusBadge.textContent = 'Failed';
+                            break;
+                        case 'error':
+                            statusBadge.classList.add('bg-danger');
+                            statusBadge.textContent = 'Error';
+                            break;
+                        default:
+                            statusBadge.classList.add('bg-secondary');
+                            statusBadge.textContent = 'Pending';
+                    }
+
+                    statusCell.appendChild(statusBadge);
+                    row.appendChild(statusCell);
+
+                    // Duration
+                    const durationCell = document.createElement('td');
+                    durationCell.textContent = test.duration.toFixed(2) + 's';
+                    row.appendChild(durationCell);
+
+                    // Actions
+                    const actionsCell = document.createElement('td');
+                    const viewButton = document.createElement('button');
+                    viewButton.classList.add('btn', 'btn-sm', 'btn-primary');
+                    viewButton.textContent = 'View Details';
+                    viewButton.setAttribute('data-bs-toggle', 'modal');
+                    viewButton.setAttribute('data-bs-target', '#testDetailModal');
+                    viewButton.addEventListener('click', function() {
+                        showTestDetails(test);
+                    });
+                    actionsCell.appendChild(viewButton);
+                    row.appendChild(actionsCell);
+
+                    tableBody.appendChild(row);
+                });
+
+                // Load and display test results
+                if (phaseId === 'phase1') {
+                    loadPhase1Results();
+                } else if (phaseId === 'phase2') {
+                    loadPhase2Results();
+                }
+            }
+
+            function loadPhase1Results() {
+                // Embed portfolio data directly
+                const portfolioData = {
+                  "loans": [
+                    {
+                      "id": "loan_1",
+                      "loan_amount": "194092.9931781412",
+                      "property_value": "292162.7436355304844816003076",
+                      "ltv": "0.6643317719533394",
+                      "zone": "green",
+                      "interest_rate": "0.05",
+                      "origination_fee_rate": "0.02",
+                      "origination_fee": "3881.859863562824",
+                      "appreciation_rate": "0.03",
+                      "appreciation_share_rate": "0.5",
+                      "origination_year": 0,
+                      "expected_exit_year": 2,
+                      "actual_exit_year": null,
+                      "is_default": false,
+                      "is_exited": false,
+                      "recovery_rate": "0.7"
+                    },
+                    {
+                      "id": "loan_2",
+                      "loan_amount": "319470.7257712822",
+                      "property_value": "447736.7947551464422984419688",
+                      "ltv": "0.7135235020074483",
+                      "zone": "red",
+                      "interest_rate": "0.05",
+                      "origination_fee_rate": "0.02",
+                      "origination_fee": "6389.414515425644",
+                      "appreciation_rate": "0.08",
+                      "appreciation_share_rate": "0.5",
+                      "origination_year": 0,
+                      "expected_exit_year": 3,
+                      "actual_exit_year": null,
+                      "is_default": false,
+                      "is_exited": false,
+                      "recovery_rate": "0.7"
+                    },
+                    {
+                      "id": "loan_3",
+                      "loan_amount": "309934.81016723457",
+                      "property_value": "557832.3746616961586334249628",
+                      "ltv": "0.5556056339598398",
+                      "zone": "red",
+                      "interest_rate": "0.05",
+                      "origination_fee_rate": "0.02",
+                      "origination_fee": "6198.6962033446914",
+                      "appreciation_rate": "0.08",
+                      "appreciation_share_rate": "0.5",
+                      "origination_year": 0,
+                      "expected_exit_year": 3,
+                      "actual_exit_year": null,
+                      "is_default": false,
+                      "is_exited": false,
+                      "recovery_rate": "0.7"
+                    },
+                    {
+                      "id": "loan_4",
+                      "loan_amount": "222610.30730759128",
+                      "property_value": "340489.7453012724517212925939",
+                      "ltv": "0.6537944545455283",
+                      "zone": "red",
+                      "interest_rate": "0.05",
+                      "origination_fee_rate": "0.02",
+                      "origination_fee": "4452.2061461518256",
+                      "appreciation_rate": "0.08",
+                      "appreciation_share_rate": "0.5",
+                      "origination_year": 0,
+                      "expected_exit_year": 2,
+                      "actual_exit_year": null,
+                      "is_default": false,
+                      "is_exited": false,
+                      "recovery_rate": "0.7"
+                    },
+                    {
+                      "id": "loan_5",
+                      "loan_amount": "302557.99219303817",
+                      "property_value": "445978.4948849918903982179394",
+                      "ltv": "0.6784138600025126",
+                      "zone": "orange",
+                      "interest_rate": "0.05",
+                      "origination_fee_rate": "0.02",
+                      "origination_fee": "6051.1598438607634",
+                      "appreciation_rate": "0.05",
+                      "appreciation_share_rate": "0.5",
+                      "origination_year": 0,
+                      "expected_exit_year": 3,
+                      "actual_exit_year": null,
+                      "is_default": false,
+                      "is_exited": false,
+                      "recovery_rate": "0.7"
+                    },
+                    {
+                      "id": "loan_6",
+                      "loan_amount": "198557.5028300005",
+                      "property_value": "316006.4186549672719520870207",
+                      "ltv": "0.6283337651023988",
+                      "zone": "green",
+                      "interest_rate": "0.05",
+                      "origination_fee_rate": "0.02",
+                      "origination_fee": "3971.150056600010",
+                      "appreciation_rate": "0.03",
+                      "appreciation_share_rate": "0.5",
+                      "origination_year": 0,
+                      "expected_exit_year": 2,
+                      "actual_exit_year": null,
+                      "is_default": false,
+                      "is_exited": false,
+                      "recovery_rate": "0.7"
+                    },
+                    {
+                      "id": "loan_7",
+                      "loan_amount": "291393.33806884696",
+                      "property_value": "460940.4734854713846041793682",
+                      "ltv": "0.6321712993988833",
+                      "zone": "orange",
+                      "interest_rate": "0.05",
+                      "origination_fee_rate": "0.02",
+                      "origination_fee": "5827.8667613769392",
+                      "appreciation_rate": "0.05",
+                      "appreciation_share_rate": "0.5",
+                      "origination_year": 0,
+                      "expected_exit_year": 3,
+                      "actual_exit_year": null,
+                      "is_default": false,
+                      "is_exited": false,
+                      "recovery_rate": "0.7"
+                    },
+                    {
+                      "id": "loan_8",
+                      "loan_amount": "243841.54676628302",
+                      "property_value": "386016.2264782691790072705705",
+                      "ltv": "0.6316872971660172",
+                      "zone": "orange",
+                      "interest_rate": "0.05",
+                      "origination_fee_rate": "0.02",
+                      "origination_fee": "4876.8309353256604",
+                      "appreciation_rate": "0.05",
+                      "appreciation_share_rate": "0.5",
+                      "origination_year": 0,
+                      "expected_exit_year": 3,
+                      "actual_exit_year": null,
+                      "is_default": false,
+                      "is_exited": false,
+                      "recovery_rate": "0.7"
+                    },
+                    {
+                      "id": "loan_9",
+                      "loan_amount": "235447.9034282526",
+                      "property_value": "373272.3736866355220001151494",
+                      "ltv": "0.630767021686723",
+                      "zone": "red",
+                      "interest_rate": "0.05",
+                      "origination_fee_rate": "0.02",
+                      "origination_fee": "4708.958068565052",
+                      "appreciation_rate": "0.08",
+                      "appreciation_share_rate": "0.5",
+                      "origination_year": 0,
+                      "expected_exit_year": 3,
+                      "actual_exit_year": null,
+                      "is_default": false,
+                      "is_exited": false,
+                      "recovery_rate": "0.7"
+                    },
+                    {
+                      "id": "loan_10",
+                      "loan_amount": "175711.79241149285",
+                      "property_value": "256613.9097947078949483479827",
+                      "ltv": "0.6847321431330942",
+                      "zone": "orange",
+                      "interest_rate": "0.05",
+                      "origination_fee_rate": "0.02",
+                      "origination_fee": "3514.2358482298570",
+                      "appreciation_rate": "0.05",
+                      "appreciation_share_rate": "0.5",
+                      "origination_year": 0,
+                      "expected_exit_year": 3,
+                      "actual_exit_year": null,
+                      "is_default": false,
+                      "is_exited": false,
+                      "recovery_rate": "0.7"
+                    }
+                  ],
+                  "metrics": {
+                    "loan_count": 40,
+                    "total_loan_amount": "10257725.13406263361",
+                    "total_property_value": "15796237.40358601166752763409",
+                    "weighted_average_ltv": "0.6493777519280608820777223881",
+                    "weighted_average_interest_rate": "0.05",
+                    "weighted_average_appreciation_rate": "0.04475849861014074359519359905",
+                    "zone_distribution": {
+                      "green": {
+                        "count": 17,
+                        "amount": "4319489.64736071704",
+                        "percentage": "0.4210962558371806593720562256"
+                      },
+                      "orange": {
+                        "count": 19,
+                        "amount": "4850771.74002755592",
+                        "percentage": "0.4728896199333407812067863221"
+                      },
+                      "red": {
+                        "count": 4,
+                        "amount": "1087463.74667436065",
+                        "percentage": "0.1060141242294785594211574523"
+                      }
+                    },
+                    "expected_default_rate": "0.04266781853635850818989618584",
+                    "expected_return": "0.05957890374416281934062794377"
+                  }
+                };
+
+                // Use embedded portfolio data
+                displayPhase1Metrics(portfolioData);
+                displayPhase1Loans(portfolioData);
+                displayPhase1Charts(portfolioData);
+            }
+
+            function displayPhase1Metrics(data) {
+                const metricsTable = document.getElementById('phase1MetricsTable');
+                if (!metricsTable) return;
+
+                // Clear existing rows
+                metricsTable.innerHTML = '';
+
+                // Check if data exists
+                if (!data || !data.loans) {
+                    const row = document.createElement('tr');
+                    const cell = document.createElement('td');
+                    cell.colSpan = 3;
+                    cell.textContent = 'No data available';
+                    cell.classList.add('text-center');
+                    row.appendChild(cell);
+                    metricsTable.appendChild(row);
+                    return;
+                }
+
+                // Calculate metrics
+                const totalLoans = data.loans.length;
+                const totalLoanAmount = data.loans.reduce((sum, loan) => sum + parseFloat(loan.loan_amount), 0);
+                const avgLoanAmount = totalLoanAmount / totalLoans;
+                const totalPropertyValue = data.loans.reduce((sum, loan) => sum + parseFloat(loan.property_value), 0);
+                const avgLTV = data.loans.reduce((sum, loan) => sum + parseFloat(loan.ltv), 0) / totalLoans;
+                const avgInterestRate = data.loans.reduce((sum, loan) => sum + parseFloat(loan.interest_rate), 0) / totalLoans;
+
+                // Zone distribution
+                const zoneDistribution = {};
+                data.loans.forEach(loan => {
+                    zoneDistribution[loan.zone] = (zoneDistribution[loan.zone] || 0) + 1;
+                });
+
+                // Add metrics rows
+                const metrics = [
+                    { name: 'Total Loans', value: totalLoans, description: 'Total number of loans in the portfolio' },
+                    { name: 'Total Loan Amount', value: `$${totalLoanAmount.toLocaleString()}`, description: 'Total amount of all loans in the portfolio' },
+                    { name: 'Average Loan Amount', value: `$${avgLoanAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`, description: 'Average amount per loan' },
+                    { name: 'Total Property Value', value: `$${totalPropertyValue.toLocaleString()}`, description: 'Total value of all properties in the portfolio' },
+                    { name: 'Average LTV', value: `${(avgLTV * 100).toFixed(2)}%`, description: 'Average loan-to-value ratio' },
+                    { name: 'Average Interest Rate', value: `${(avgInterestRate * 100).toFixed(2)}%`, description: 'Average interest rate across all loans' },
+                    { name: 'Green Zone Loans', value: zoneDistribution.green || 0, description: 'Number of loans in green zones' },
+                    { name: 'Orange Zone Loans', value: zoneDistribution.orange || 0, description: 'Number of loans in orange zones' },
+                    { name: 'Red Zone Loans', value: zoneDistribution.red || 0, description: 'Number of loans in red zones' }
+                ];
+
+                metrics.forEach(metric => {
+                    const row = document.createElement('tr');
+
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = metric.name;
+                    row.appendChild(nameCell);
+
+                    const valueCell = document.createElement('td');
+                    valueCell.textContent = metric.value;
+                    row.appendChild(valueCell);
+
+                    const descCell = document.createElement('td');
+                    descCell.textContent = metric.description;
+                    row.appendChild(descCell);
+
+                    metricsTable.appendChild(row);
+                });
+            }
+
+            function displayPhase1Loans(data) {
+                const loansTable = document.getElementById('phase1LoansTable');
+                if (!loansTable) return;
+
+                // Clear existing rows
+                loansTable.innerHTML = '';
+
+                // Check if data exists
+                if (!data || !data.loans || data.loans.length === 0) {
+                    const row = document.createElement('tr');
+                    const cell = document.createElement('td');
+                    cell.colSpan = 7;
+                    cell.textContent = 'No loans available';
+                    cell.classList.add('text-center');
+                    row.appendChild(cell);
+                    loansTable.appendChild(row);
+                    return;
+                }
+
+                // Display first 10 loans
+                const loansToShow = data.loans.slice(0, 10);
+
+                loansToShow.forEach((loan, index) => {
+                    const row = document.createElement('tr');
+
+                    // ID
+                    const idCell = document.createElement('td');
+                    idCell.textContent = index + 1;
+                    row.appendChild(idCell);
+
+                    // Amount
+                    const amountCell = document.createElement('td');
+                    amountCell.textContent = `$${parseFloat(loan.loan_amount).toLocaleString()}`;
+                    row.appendChild(amountCell);
+
+                    // Property Value
+                    const valueCell = document.createElement('td');
+                    valueCell.textContent = `$${parseFloat(loan.property_value).toLocaleString()}`;
+                    row.appendChild(valueCell);
+
+                    // LTV
+                    const ltvCell = document.createElement('td');
+                    ltvCell.textContent = `${(parseFloat(loan.ltv) * 100).toFixed(2)}%`;
+                    row.appendChild(ltvCell);
+
+                    // Interest Rate
+                    const rateCell = document.createElement('td');
+                    rateCell.textContent = `${(parseFloat(loan.interest_rate) * 100).toFixed(2)}%`;
+                    row.appendChild(rateCell);
+
+                    // Zone
+                    const zoneCell = document.createElement('td');
+                    const zoneBadge = document.createElement('span');
+                    zoneBadge.classList.add('badge');
+
+                    switch (loan.zone) {
+                        case 'green':
+                            zoneBadge.classList.add('bg-success');
+                            break;
+                        case 'orange':
+                            zoneBadge.classList.add('bg-warning');
+                            break;
+                        case 'red':
+                            zoneBadge.classList.add('bg-danger');
+                            break;
+                        default:
+                            zoneBadge.classList.add('bg-secondary');
+                    }
+
+                    zoneBadge.textContent = loan.zone.charAt(0).toUpperCase() + loan.zone.slice(1);
+                    zoneCell.appendChild(zoneBadge);
+                    row.appendChild(zoneCell);
+
+                    // Expected Exit Year
+                    const exitCell = document.createElement('td');
+                    exitCell.textContent = loan.expected_exit_year;
+                    row.appendChild(exitCell);
+
+                    loansTable.appendChild(row);
+                });
+
+                // Add a note if there are more loans
+                if (data.loans.length > 10) {
+                    const row = document.createElement('tr');
+                    const cell = document.createElement('td');
+                    cell.colSpan = 7;
+                    cell.textContent = `... and ${data.loans.length - 10} more loans`;
+                    cell.classList.add('text-center', 'text-muted');
+                    row.appendChild(cell);
+                    loansTable.appendChild(row);
+                }
+            }
+
+            function displayPhase1Charts(data) {
+                // For now, just display a placeholder
+                // In a real implementation, we would use a charting library like Chart.js
+                const zoneChart = document.getElementById('phase1ZoneChart');
+                const loanSizeChart = document.getElementById('phase1LoanSizeChart');
+
+                if (!data || !data.loans || data.loans.length === 0) {
+                    return;
+                }
+
+                // Zone distribution
+                const zoneDistribution = {};
+                data.loans.forEach(loan => {
+                    zoneDistribution[loan.zone] = (zoneDistribution[loan.zone] || 0) + 1;
+                });
+
+                // Display zone distribution
+                zoneChart.innerHTML = `
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <span class="badge bg-success p-2 m-1">Green: ${zoneDistribution.green || 0} (${((zoneDistribution.green || 0) / data.loans.length * 100).toFixed(1)}%)</span>
+                            <span class="badge bg-warning p-2 m-1">Orange: ${zoneDistribution.orange || 0} (${((zoneDistribution.orange || 0) / data.loans.length * 100).toFixed(1)}%)</span>
+                            <span class="badge bg-danger p-2 m-1">Red: ${zoneDistribution.red || 0} (${((zoneDistribution.red || 0) / data.loans.length * 100).toFixed(1)}%)</span>
+                        </div>
+                        <p class="text-muted">Zone distribution of loans in the portfolio</p>
+                    </div>
+                `;
+
+                // Loan size distribution
+                // Group loans by size ranges
+                const sizeRanges = {
+                    '<100k': 0,
+                    '100k-200k': 0,
+                    '200k-300k': 0,
+                    '300k-400k': 0,
+                    '400k-500k': 0,
+                    '>500k': 0
+                };
+
+                data.loans.forEach(loan => {
+                    const amount = parseFloat(loan.loan_amount);
+                    if (amount < 100000) sizeRanges['<100k']++;
+                    else if (amount < 200000) sizeRanges['100k-200k']++;
+                    else if (amount < 300000) sizeRanges['200k-300k']++;
+                    else if (amount < 400000) sizeRanges['300k-400k']++;
+                    else if (amount < 500000) sizeRanges['400k-500k']++;
+                    else sizeRanges['>500k']++;
+                });
+
+                // Display loan size distribution
+                loanSizeChart.innerHTML = `
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <span class="badge bg-info p-2 m-1"><100k: ${sizeRanges['<100k']}</span>
+                            <span class="badge bg-info p-2 m-1">100k-200k: ${sizeRanges['100k-200k']}</span>
+                            <span class="badge bg-info p-2 m-1">200k-300k: ${sizeRanges['200k-300k']}</span>
+                            <span class="badge bg-info p-2 m-1">300k-400k: ${sizeRanges['300k-400k']}</span>
+                            <span class="badge bg-info p-2 m-1">400k-500k: ${sizeRanges['400k-500k']}</span>
+                            <span class="badge bg-info p-2 m-1">>500k: ${sizeRanges['>500k']}</span>
+                        </div>
+                        <p class="text-muted">Distribution of loan sizes in the portfolio</p>
+                    </div>
+                `;
+            }
+
+            function loadPhase2Results() {
+                // Try to load the Phase 2 data from test_results directory
+                const possiblePaths = [
+                    'test_results/phase2_integrated.json',
+                    '../backend/test_results/phase2_integrated.json',
+                    '../backend/frontend/test_results/phase2_integrated.json'
+                ];
+
+                let loadedResults = false;
+
+                function tryNextPath(index) {
+                    if (index >= possiblePaths.length) {
+                        console.error('Failed to load Phase 2 data from all paths');
+                        // Create a placeholder data for demonstration
+                        const placeholderData = {
+                            portfolio: {
+                                loans: [
+                                    {
+                                        loan_amount: '250000',
+                                        property_value: '333333.33',
+                                        ltv: '0.75',
+                                        interest_rate: '0.06',
+                                        zone: 'green',
+                                        expected_exit_year: 3
+                                    }
+                                ]
+                            },
+                            market_conditions: {
+                                '0': {
+                                    'appreciation_rates': {
+                                        'green': 0.03,
+                                        'orange': 0.025,
+                                        'red': 0.02
+                                    },
+                                    'default_rates': {
+                                        'green': 0.01,
+                                        'orange': 0.015,
+                                        'red': 0.02
+                                    }
+                                },
+                                '1': {
+                                    'appreciation_rates': {
+                                        'green': 0.035,
+                                        'orange': 0.03,
+                                        'red': 0.025
+                                    },
+                                    'default_rates': {
+                                        'green': 0.01,
+                                        'orange': 0.015,
+                                        'red': 0.02
+                                    }
+                                }
+                            }
+                        };
+                        displayPhase2Results(placeholderData);
+                        return;
+                    }
+
+                    fetch(possiblePaths[index])
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log(`Loaded Phase 2 data from ${possiblePaths[index]}:`, data);
+                            displayPhase2Results(data);
+                            loadedResults = true;
+                        })
+                        .catch(error => {
+                            console.error(`Error loading Phase 2 data from ${possiblePaths[index]}:`, error);
+                            if (!loadedResults) {
+                                tryNextPath(index + 1);
+                            }
+                        });
+                }
+
+                tryNextPath(0);
+            }
+
+            function displayPhase2Results(data) {
+                // This would display Phase 2 results (portfolio + market conditions)
+                // For now, just log the data
+                console.log('Phase 2 results:', data);
+            }
+
+            function showTestDetails(test) {
+                // Update modal title
+                const modalTitle = document.getElementById('testDetailModalLabel');
+                modalTitle.textContent = `Test Details: ${test.id.split('.').pop()} - ${test.description}`;
+
+                // Update logs tab
+                const logsTab = document.getElementById('logs-tab');
+                const logsViewer = logsTab.querySelector('.json-viewer');
+
+                if (test.error) {
+                    logsViewer.textContent = test.error;
+                } else if (test.logs && test.logs.length > 0) {
+                    logsViewer.textContent = test.logs.join('\n');
+                } else {
+                    logsViewer.textContent = 'No logs available';
+                }
+            }
+        </script>
+</div>
+</body>
+</html>

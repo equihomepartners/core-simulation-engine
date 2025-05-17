@@ -1,0 +1,12 @@
+{
+  "title": "Fund Investor Report",
+  "metrics": [
+    "irr", "equity_multiple", "roi", "distribution_yield"
+  ],
+  "sections": [
+    "fund_parameters",
+    "performance_metrics",
+    "cash_flow_summary",
+    "waterfall_distribution"
+  ]
+} 

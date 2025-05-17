@@ -1,0 +1,365 @@
+{
+  "0": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "10077367.98406627634",
+      "active_property_value": "15565514.90505555288209216099",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "503868.3992033138170",
+      "appreciation_income": "0",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 29,
+          "amount": "7316263.86479488633",
+          "percentage": "0.7260093981248793786517223734"
+        },
+        "orange": {
+          "count": 10,
+          "amount": "2487760.45351562601",
+          "percentage": "0.2468660921630650089934563779"
+        },
+        "red": {
+          "count": 1,
+          "amount": "273343.665755764",
+          "percentage": "0.02712450971205561235482124874"
+        }
+      }
+    }
+  },
+  "1": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "10077367.98406627634",
+      "active_property_value": "16129679.70011715610670799803",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "503868.3992033138170",
+      "appreciation_income": "282082.3975308016123079185196",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 29,
+          "amount": "7316263.86479488633",
+          "percentage": "0.7260093981248793786517223734"
+        },
+        "orange": {
+          "count": 10,
+          "amount": "2487760.45351562601",
+          "percentage": "0.2468660921630650089934563779"
+        },
+        "red": {
+          "count": 1,
+          "amount": "273343.665755764",
+          "percentage": "0.02712450971205561235482124874"
+        }
+      }
+    }
+  },
+  "2": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "10077367.98406627634",
+      "active_property_value": "16716182.14768676818223969954",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "503868.3992033138170",
+      "appreciation_income": "293251.2237848060377658507728",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 29,
+          "amount": "7316263.86479488633",
+          "percentage": "0.7260093981248793786517223734"
+        },
+        "orange": {
+          "count": 10,
+          "amount": "2487760.45351562601",
+          "percentage": "0.2468660921630650089934563779"
+        },
+        "red": {
+          "count": 1,
+          "amount": "273343.665755764",
+          "percentage": "0.02712450971205561235482124874"
+        }
+      }
+    }
+  },
+  "3": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "10077367.98406627634",
+      "active_property_value": "17326007.23207329052570518989",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "503868.3992033138170",
+      "appreciation_income": "304912.5421932611717327451596",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 29,
+          "amount": "7316263.86479488633",
+          "percentage": "0.7260093981248793786517223734"
+        },
+        "orange": {
+          "count": 10,
+          "amount": "2487760.45351562601",
+          "percentage": "0.2468660921630650089934563779"
+        },
+        "red": {
+          "count": 1,
+          "amount": "273343.665755764",
+          "percentage": "0.02712450971205561235482124874"
+        }
+      }
+    }
+  },
+  "4": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "10077367.98406627634",
+      "active_property_value": "17960188.76739564290330997968",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "503868.3992033138170",
+      "appreciation_income": "317090.7676611761888023949074",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 29,
+          "amount": "7316263.86479488633",
+          "percentage": "0.7260093981248793786517223734"
+        },
+        "orange": {
+          "count": 10,
+          "amount": "2487760.45351562601",
+          "percentage": "0.2468660921630650089934563779"
+        },
+        "red": {
+          "count": 1,
+          "amount": "273343.665755764",
+          "percentage": "0.02712450971205561235482124874"
+        }
+      }
+    }
+  },
+  "5": {
+    "active_loan_count": 40,
+    "exited_loan_count": 0,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 40,
+      "active_loan_amount": "10077367.98406627634",
+      "active_property_value": "18619812.10949462700618484835",
+      "exited_loan_count": 0,
+      "exited_value": 0,
+      "interest_income": "503868.3992033138170",
+      "appreciation_income": "329811.6710494920514374343101",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 29,
+          "amount": "7316263.86479488633",
+          "percentage": "0.7260093981248793786517223734"
+        },
+        "orange": {
+          "count": 10,
+          "amount": "2487760.45351562601",
+          "percentage": "0.2468660921630650089934563779"
+        },
+        "red": {
+          "count": 1,
+          "amount": "273343.665755764",
+          "percentage": "0.02712450971205561235482124874"
+        }
+      }
+    }
+  },
+  "6": {
+    "active_loan_count": 32,
+    "exited_loan_count": 8,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 32,
+      "active_loan_amount": "7971569.19881898391",
+      "active_property_value": "15410966.95224712725600672024",
+      "exited_loan_count": 8,
+      "exited_value": "2322675.944615378420430477586",
+      "interest_income": "398578.4599409491955",
+      "appreciation_income": "280350.5475339938711471007794",
+      "default_count": 1,
+      "default_rate": "0.125",
+      "zone_distribution": {
+        "green": {
+          "count": 22,
+          "amount": "5529867.90114453250",
+          "percentage": "0.6936987891874289859572280522"
+        },
+        "orange": {
+          "count": 9,
+          "amount": "2168357.63191868741",
+          "percentage": "0.2720113917144365052087915386"
+        },
+        "red": {
+          "count": 1,
+          "amount": "273343.665755764",
+          "percentage": "0.03428981909813450883398040927"
+        }
+      }
+    }
+  },
+  "7": {
+    "active_loan_count": 21,
+    "exited_loan_count": 19,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 21,
+      "active_loan_amount": "5193922.91674041805",
+      "active_property_value": "10508024.06149928133947517404",
+      "exited_loan_count": 11,
+      "exited_value": "3346481.009317071999492299430",
+      "interest_income": "259696.1458370209025",
+      "appreciation_income": "202017.7645704189460781031690",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 13,
+          "amount": "3221224.65127297841",
+          "percentage": "0.6201910777094362525604684471"
+        },
+        "orange": {
+          "count": 7,
+          "amount": "1699354.59971167564",
+          "percentage": "0.3271813284395352545121194794"
+        },
+        "red": {
+          "count": 1,
+          "amount": "273343.665755764",
+          "percentage": "0.05262759385102849292741207343"
+        }
+      }
+    }
+  },
+  "8": {
+    "active_loan_count": 12,
+    "exited_loan_count": 28,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 12,
+      "active_loan_amount": "3079308.55402756346",
+      "active_property_value": "6445482.562897020696042496933",
+      "exited_loan_count": 9,
+      "exited_value": "2765759.780569900727138226938",
+      "interest_income": "153965.4277013781730",
+      "appreciation_income": "114963.7145406394596908017102",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 8,
+          "amount": "2062897.50544989892",
+          "percentage": "0.6699223118617795854549138868"
+        },
+        "orange": {
+          "count": 4,
+          "amount": "1016411.04857766454",
+          "percentage": "0.3300776881382204145450861132"
+        },
+        "red": {
+          "count": 0,
+          "amount": 0,
+          "percentage": "0E+11"
+        }
+      }
+    }
+  },
+  "9": {
+    "active_loan_count": 5,
+    "exited_loan_count": 35,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 5,
+      "active_loan_amount": "1233180.47445746007",
+      "active_property_value": "2823178.363692681605489149631",
+      "exited_loan_count": 7,
+      "exited_value": "2008053.452336095477698125212",
+      "interest_income": "61659.0237228730035",
+      "appreciation_income": "52073.32198979178175215511580",
+      "default_count": 2,
+      "default_rate": "0.2857142857142857142857142857",
+      "zone_distribution": {
+        "green": {
+          "count": 3,
+          "amount": "737424.78336228535",
+          "percentage": "0.5979861006854788932713783607"
+        },
+        "orange": {
+          "count": 2,
+          "amount": "495755.69109517472",
+          "percentage": "0.4020138993145211067286216393"
+        },
+        "red": {
+          "count": 0,
+          "amount": 0,
+          "percentage": "0E+11"
+        }
+      }
+    }
+  },
+  "10": {
+    "active_loan_count": 0,
+    "exited_loan_count": 40,
+    "new_reinvestment_count": 0,
+    "metrics": {
+      "active_loan_count": 0,
+      "active_loan_amount": 0,
+      "active_property_value": 0,
+      "exited_loan_count": 5,
+      "exited_value": "1689288.766518222790118279406",
+      "interest_income": 0,
+      "appreciation_income": "0",
+      "default_count": 0,
+      "default_rate": "0",
+      "zone_distribution": {
+        "green": {
+          "count": 0,
+          "amount": 0,
+          "percentage": "0"
+        },
+        "orange": {
+          "count": 0,
+          "amount": 0,
+          "percentage": "0"
+        },
+        "red": {
+          "count": 0,
+          "amount": 0,
+          "percentage": "0"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,386 @@
+{
+  "cash_flows": {
+    "0": {
+      "capital_calls": "3333333.333333333333333333333",
+      "loan_deployments": "-2202086.78470442645",
+      "origination_fees": "44041.7356940885290",
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "0",
+      "exit_proceeds": 0,
+      "management_fees": "0.000",
+      "fund_expenses": "-100000",
+      "reinvestment": "0",
+      "net_cash_flow": "1574430.918383588221833333333",
+      "cumulative_cash_flow": "1574430.918383588221833333333",
+      "cash_balance": "1574430.918383588221833333333",
+      "market_conditions": {
+        "housing_market_trend": "stable",
+        "interest_rate_environment": "stable",
+        "economic_outlook": "stable"
+      }
+    },
+    "1": {
+      "capital_calls": "3333333.333333333333333333333",
+      "loan_deployments": "-2290692.78249237926",
+      "origination_fees": "45813.8556498475852",
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "465570.5728515063574409746542",
+      "exit_proceeds": 0,
+      "management_fees": "0E-7",
+      "fund_expenses": "-50000.000",
+      "reinvestment": "0",
+      "net_cash_flow": "2003167.613402900825474307987",
+      "cumulative_cash_flow": "3577598.531786489047307641320",
+      "cash_balance": "3577598.531786489047307641320",
+      "market_conditions": {
+        "housing_market_trend": "appreciating",
+        "interest_rate_environment": "stable",
+        "economic_outlook": "expansion"
+      }
+    },
+    "2": {
+      "capital_calls": "3333333.333333333333333333333",
+      "loan_deployments": "-5701365.13069188796",
+      "origination_fees": "114027.3026138377592",
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "417465.7875721930095045960086",
+      "exit_proceeds": 0,
+      "management_fees": "0E-9",
+      "fund_expenses": "-50000.000",
+      "reinvestment": "0",
+      "net_cash_flow": "-1387396.073111931048462070658",
+      "cumulative_cash_flow": "2190202.458674557998845570662",
+      "cash_balance": "2190202.458674557998845570662",
+      "market_conditions": {
+        "housing_market_trend": "appreciating",
+        "interest_rate_environment": "rising",
+        "economic_outlook": "expansion"
+      }
+    },
+    "3": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "330399.2696785990138610929972",
+      "exit_proceeds": 0,
+      "management_fees": "0.00000",
+      "fund_expenses": "-50000.000",
+      "reinvestment": "0",
+      "net_cash_flow": "779541.9037391918233610929972",
+      "cumulative_cash_flow": "2969744.362413749822206663659",
+      "cash_balance": "2969744.362413749822206663659",
+      "market_conditions": {
+        "housing_market_trend": "stable",
+        "interest_rate_environment": "rising",
+        "economic_outlook": "stable"
+      }
+    },
+    "4": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "419435.9607949770465855067730",
+      "exit_proceeds": 0,
+      "management_fees": "0.000",
+      "fund_expenses": "-50000.000",
+      "reinvestment": "0",
+      "net_cash_flow": "868578.5948555698560855067730",
+      "cumulative_cash_flow": "3838322.957269319678292170432",
+      "cash_balance": "3838322.957269319678292170432",
+      "market_conditions": {
+        "housing_market_trend": "stable",
+        "interest_rate_environment": "stable",
+        "economic_outlook": "stable"
+      }
+    },
+    "5": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "499142.6340605928095",
+      "appreciation_income": "285126.0627333252963397280452",
+      "exit_proceeds": 0,
+      "management_fees": "0E-7",
+      "fund_expenses": "-50000.000",
+      "reinvestment": "0",
+      "net_cash_flow": "734268.6967939181058397280452",
+      "cumulative_cash_flow": "4572591.654063237784131898477",
+      "cash_balance": "4572591.654063237784131898477",
+      "market_conditions": {
+        "housing_market_trend": "depreciating",
+        "interest_rate_environment": "stable",
+        "economic_outlook": "recession"
+      }
+    },
+    "6": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "412893.9096081751065",
+      "appreciation_income": "285791.8339174770795328588880",
+      "exit_proceeds": 0,
+      "management_fees": "0E-9",
+      "fund_expenses": "-50000.000",
+      "reinvestment": "0",
+      "net_cash_flow": "648685.7435256521860328588880",
+      "cumulative_cash_flow": "5221277.397588889970164757365",
+      "cash_balance": "5221277.397588889970164757365",
+      "market_conditions": {
+        "housing_market_trend": "depreciating",
+        "interest_rate_environment": "falling",
+        "economic_outlook": "recession"
+      }
+    },
+    "7": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "283818.3994679872365",
+      "appreciation_income": "363860.2380845813945660157774",
+      "exit_proceeds": 0,
+      "management_fees": "0.00000",
+      "fund_expenses": "-50000.000",
+      "reinvestment": "0",
+      "net_cash_flow": "597678.6375525686310660157774",
+      "cumulative_cash_flow": "5818956.035141458601230773142",
+      "cash_balance": "5818956.035141458601230773142",
+      "market_conditions": {
+        "housing_market_trend": "stable",
+        "interest_rate_environment": "falling",
+        "economic_outlook": "stable"
+      }
+    },
+    "8": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "169808.3241330707880",
+      "appreciation_income": "347376.1307770431635963215604",
+      "exit_proceeds": 0,
+      "management_fees": "0E-7",
+      "fund_expenses": "-50000.000",
+      "reinvestment": "0",
+      "net_cash_flow": "467184.4549101139515963215604",
+      "cumulative_cash_flow": "6286140.490051572552827094702",
+      "cash_balance": "6286140.490051572552827094702",
+      "market_conditions": {
+        "housing_market_trend": "appreciating",
+        "interest_rate_environment": "stable",
+        "economic_outlook": "expansion"
+      }
+    },
+    "9": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "40073.030218148235",
+      "appreciation_income": "36093.71800166938232888978215",
+      "exit_proceeds": 0,
+      "management_fees": "0E-9",
+      "fund_expenses": "-50000.000",
+      "reinvestment": "0",
+      "net_cash_flow": "26166.74821981761732888978215",
+      "cumulative_cash_flow": "6312307.238271390170155984484",
+      "cash_balance": "6312307.238271390170155984484",
+      "market_conditions": {
+        "housing_market_trend": "appreciating",
+        "interest_rate_environment": "rising",
+        "economic_outlook": "expansion"
+      }
+    },
+    "10": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": 0,
+      "appreciation_income": "0",
+      "exit_proceeds": 0,
+      "management_fees": "0.00000",
+      "fund_expenses": "-50000.000",
+      "reinvestment": "0",
+      "net_cash_flow": "-50000.00000",
+      "cumulative_cash_flow": "6262307.238271390170155984484",
+      "cash_balance": "6262307.238271390170155984484",
+      "market_conditions": {
+        "housing_market_trend": "stable",
+        "interest_rate_environment": "rising",
+        "economic_outlook": "stable"
+      }
+    },
+    "11": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "0",
+      "appreciation_income": "0",
+      "exit_proceeds": "0",
+      "management_fees": "0",
+      "fund_expenses": "0",
+      "reinvestment": "0",
+      "net_cash_flow": "0",
+      "cumulative_cash_flow": "6262307.238271390170155984484",
+      "cash_balance": "6262307.238271390170155984484",
+      "market_conditions": null
+    },
+    "12": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "0",
+      "appreciation_income": "0",
+      "exit_proceeds": "0",
+      "management_fees": "0",
+      "fund_expenses": "0",
+      "reinvestment": "0",
+      "net_cash_flow": "0",
+      "cumulative_cash_flow": "6262307.238271390170155984484",
+      "cash_balance": "6262307.238271390170155984484",
+      "market_conditions": null
+    },
+    "13": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "0",
+      "appreciation_income": "0",
+      "exit_proceeds": "0",
+      "management_fees": "0",
+      "fund_expenses": "0",
+      "reinvestment": "0",
+      "net_cash_flow": "0",
+      "cumulative_cash_flow": "6262307.238271390170155984484",
+      "cash_balance": "6262307.238271390170155984484",
+      "market_conditions": null
+    },
+    "14": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "0",
+      "appreciation_income": "0",
+      "exit_proceeds": "0",
+      "management_fees": "0",
+      "fund_expenses": "0",
+      "reinvestment": "0",
+      "net_cash_flow": "0",
+      "cumulative_cash_flow": "6262307.238271390170155984484",
+      "cash_balance": "6262307.238271390170155984484",
+      "market_conditions": null
+    },
+    "15": {
+      "capital_calls": "0",
+      "loan_deployments": "0",
+      "origination_fees": "0",
+      "interest_income": "0",
+      "appreciation_income": "0",
+      "exit_proceeds": "0",
+      "management_fees": "0",
+      "fund_expenses": "0",
+      "reinvestment": "0",
+      "net_cash_flow": "0",
+      "cumulative_cash_flow": "6262307.238271390170155984484",
+      "cash_balance": "6262307.238271390170155984484",
+      "market_conditions": null
+    }
+  },
+  "distributions": {
+    "0": {
+      "available_cash": "1574430.918383588221833333333",
+      "distribution_amount": "1574430.918383588221833333333",
+      "distribution_yield": "0",
+      "cumulative_distributions": "1574430.918383588221833333333"
+    },
+    "1": {
+      "available_cash": "3577598.531786489047307641320",
+      "distribution_amount": "3577598.531786489047307641320",
+      "distribution_yield": "0",
+      "cumulative_distributions": "5152029.450170077269140974653"
+    },
+    "2": {
+      "available_cash": "2190202.458674557998845570662",
+      "distribution_amount": "2190202.458674557998845570662",
+      "distribution_yield": "0",
+      "cumulative_distributions": "7342231.908844635267986545315"
+    },
+    "3": {
+      "available_cash": "2969744.362413749822206663659",
+      "distribution_amount": "2969744.362413749822206663659",
+      "distribution_yield": "0",
+      "cumulative_distributions": "10311976.27125838509019320897"
+    },
+    "4": {
+      "available_cash": "3838322.957269319678292170432",
+      "distribution_amount": "3838322.957269319678292170432",
+      "distribution_yield": "0",
+      "cumulative_distributions": "14150299.22852770476848537940"
+    },
+    "5": {
+      "available_cash": "4572591.654063237784131898477",
+      "distribution_amount": "4572591.654063237784131898477",
+      "distribution_yield": "0",
+      "cumulative_distributions": "18722890.88259094255261727788"
+    },
+    "6": {
+      "available_cash": "5221277.397588889970164757365",
+      "distribution_amount": "5221277.397588889970164757365",
+      "distribution_yield": "0",
+      "cumulative_distributions": "23944168.28017983252278203524"
+    },
+    "7": {
+      "available_cash": "5818956.035141458601230773142",
+      "distribution_amount": "5818956.035141458601230773142",
+      "distribution_yield": "0",
+      "cumulative_distributions": "29763124.31532129112401280838"
+    },
+    "8": {
+      "available_cash": "6286140.490051572552827094702",
+      "distribution_amount": "6286140.490051572552827094702",
+      "distribution_yield": "0",
+      "cumulative_distributions": "36049264.80537286367683990308"
+    },
+    "9": {
+      "available_cash": "6312307.238271390170155984484",
+      "distribution_amount": "6312307.238271390170155984484",
+      "distribution_yield": "0",
+      "cumulative_distributions": "42361572.04364425384699588756"
+    },
+    "10": {
+      "available_cash": "6262307.238271390170155984484",
+      "distribution_amount": "6262307.238271390170155984484",
+      "distribution_yield": "0",
+      "cumulative_distributions": "48623879.28191564401715187204"
+    },
+    "11": {
+      "available_cash": "6262307.238271390170155984484",
+      "distribution_amount": "6262307.238271390170155984484",
+      "distribution_yield": "0",
+      "cumulative_distributions": "54886186.52018703418730785652"
+    },
+    "12": {
+      "available_cash": "6262307.238271390170155984484",
+      "distribution_amount": "6262307.238271390170155984484",
+      "distribution_yield": "0",
+      "cumulative_distributions": "61148493.75845842435746384100"
+    },
+    "13": {
+      "available_cash": "6262307.238271390170155984484",
+      "distribution_amount": "6262307.238271390170155984484",
+      "distribution_yield": "0",
+      "cumulative_distributions": "67410800.99672981452761982548"
+    },
+    "14": {
+      "available_cash": "6262307.238271390170155984484",
+      "distribution_amount": "6262307.238271390170155984484",
+      "distribution_yield": "0",
+      "cumulative_distributions": "73673108.23500120469777580996"
+    },
+    "15": {
+      "available_cash": "6262307.238271390170155984484",
+      "distribution_amount": "6262307.238271390170155984484",
+      "distribution_yield": "0",
+      "cumulative_distributions": "79935415.47327259486793179444"
+    }
+  }
+}

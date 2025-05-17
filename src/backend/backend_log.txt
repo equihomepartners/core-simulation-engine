@@ -1,0 +1,13 @@
+INFO:     Will watch for changes in these directories: ['/Volumes/OWC Express 1M2/core-simulation-engine/src/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [72424] using StatReload
+Production dependency missing: No module named 'pypfopt'
+/Volumes/OWC Express 1M2/core-simulation-engine/venv/lib/python3.9/site-packages/pydantic/_internal/_config.py:373: UserWarning: Valid config keys have changed in V2:
+* 'schema_extra' has been renamed to 'json_schema_extra'
+  warnings.warn(message, UserWarning)
+INFO:     Started server process [72426]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:49976 - "GET /api/status HTTP/1.1" 404 Not Found
+Starting server with command: /Volumes/OWC Express 1M2/core-simulation-engine/venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+Error starting server: Command '['/Volumes/OWC Express 1M2/core-simulation-engine/venv/bin/python', '-m', 'uvicorn', 'main:app', '--host', '0.0.0.0', '--port', '8000', '--reload']' died with <Signals.SIGKILL: 9>.

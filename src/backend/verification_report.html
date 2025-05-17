@@ -1,0 +1,556 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Verification Report</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                h1, h2, h3 { color: #333; }
+                .summary { background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+                .passed { color: green; }
+                .failed { color: red; }
+                .error { color: orange; }
+                table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+                tr:nth-child(even) { background-color: #f9f9f9; }
+                .details { margin-top: 10px; padding: 10px; background-color: #f9f9f9; border-radius: 5px; }
+                .toggle-btn { cursor: pointer; color: blue; text-decoration: underline; }
+                .hidden { display: none; }
+                pre { background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }
+                .progress-bar { height: 20px; background-color: #e0e0e0; border-radius: 10px; margin-bottom: 10px; }
+                .progress { height: 100%; background-color: green; border-radius: 10px; }
+            </style>
+            <script>
+                function toggleDetails(id) {
+                    var element = document.getElementById(id);
+                    if (element.classList.contains('hidden')) {
+                        element.classList.remove('hidden');
+                    } else {
+                        element.classList.add('hidden');
+                    }
+                }
+            </script>
+        </head>
+        <body>
+            <h1>Verification Report</h1>
+            <div class="summary">
+                <h2>Summary</h2>
+                <p><strong>Verification ID:</strong> 026ae207-3913-45d8-beec-9f52b65fde91</p>
+                <p><strong>Timestamp:</strong> 2025-04-14T22:56:13.892080</p>
+                <p><strong>Total Test Cases:</strong> 3</p>
+                <p><strong>Passed:</strong> <span class="passed">0</span></p>
+                <p><strong>Failed:</strong> <span class="failed">3</span></p>
+                <p><strong>Error:</strong> <span class="error">0</span></p>
+                <p><strong>Pass Rate:</strong> 0.00%</p>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 0.0%;"></div>
+                </div>
+            </div>
+            
+            <h2>Test Case Results</h2>
+            <table>
+                <tr>
+                    <th>Test Case ID</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Execution Time</th>
+                    <th>Details</th>
+                </tr>
+        
+                <tr>
+                    <td>edge_case</td>
+                    <td>Edge Case Test</td>
+                    <td class="failed">FAILED</td>
+                    <td>0.01 seconds</td>
+                    <td><span class="toggle-btn" onclick="toggleDetails('details-edge_case')">Show/Hide Details</span></td>
+                </tr>
+            
+                <tr>
+                    <td colspan="5">
+                        <div id="details-edge_case" class="details hidden">
+                            <h3>Test Case Description</h3>
+                            <p>A test case with edge conditions to verify the system handles extreme values correctly</p>
+                            
+                            <h3>Configuration</h3>
+                            <pre>{
+  "fund_size": 1000000,
+  "fund_term": 15,
+  "gp_commitment_percentage": 0.1,
+  "hurdle_rate": 0.12,
+  "carried_interest_rate": 0.25,
+  "waterfall_structure": "european",
+  "monte_carlo_enabled": false,
+  "optimization_enabled": false,
+  "stress_testing_enabled": false,
+  "external_data_enabled": false,
+  "generate_reports": true,
+  "base_appreciation_rate": 0.01,
+  "appreciation_volatility": 0.05,
+  "base_default_rate": 0.05,
+  "default_volatility": 0.02,
+  "correlation": 0.8,
+  "avg_loan_size": 100000,
+  "loan_size_std_dev": 10000,
+  "min_loan_size": 50000,
+  "max_loan_size": 150000,
+  "avg_loan_term": 10,
+  "avg_loan_interest_rate": 0.1,
+  "avg_loan_ltv": 0.85,
+  "zone_allocations": {
+    "green": 0.2,
+    "orange": 0.3,
+    "red": 0.5
+  },
+  "management_fee_rate": 0.03,
+  "management_fee_basis": "net_asset_value",
+  "fund_expenses": 0.02,
+  "distribution_frequency": "monthly",
+  "distribution_policy": "income_only",
+  "reinvestment_period": 10,
+  "avg_loan_exit_year": 12,
+  "exit_year_std_dev": 2.0,
+  "early_exit_probability": 0.1
+}</pre>
+                            
+                            <h3>Comparison Results</h3>
+            <h4>Mismatches</h4><ul><li>Missing keys: {'performance_metrics', 'cash_flows', 'waterfall_results'}</li></ul>
+                            <h3>Expected vs Actual Results</h3>
+                            <div class="toggle-btn" onclick="toggleDetails('expected-edge_case')">Show/Hide Expected Results</div>
+                            <pre id="expected-edge_case" class="hidden">{
+  "performance_metrics": {
+    "irr": 0.08,
+    "moic": 1.3,
+    "tvpi": 1.3,
+    "dpi": 1.0,
+    "rvpi": 0.3,
+    "payback_period": 10.5
+  },
+  "waterfall_results": {
+    "total_gp_distribution": 130000,
+    "total_lp_distribution": 1170000,
+    "gp_carried_interest": 30000
+  },
+  "cash_flows": {
+    "total_inflows": 1300000,
+    "total_outflows": 1000000,
+    "net_cash_flow": 300000
+  }
+}</pre>
+                            
+                            <div class="toggle-btn" onclick="toggleDetails('actual-edge_case')">Show/Hide Actual Results</div>
+                            <pre id="actual-edge_case" class="hidden">{
+  "market_conditions": {
+    "0": {
+      "appreciation_rate": 0.01947696773436497,
+      "default_rate": 0.021808676942176964,
+      "housing_market_trend": "stable",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "stable"
+    },
+    "1": {
+      "appreciation_rate": 0.1075249834175062,
+      "default_rate": 0.03200519901046113,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "expansion"
+    },
+    "2": {
+      "appreciation_rate": 0.029334454305867168,
+      "default_rate": 0.03195152112281512,
+      "housing_market_trend": "stable",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "stable"
+    },
+    "3": {
+      "appreciation_rate": 0.042092923230440206,
+      "default_rate": 0.05211739029390457,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "stable"
+    },
+    "4": {
+      "appreciation_rate": 0.011462681532338375,
+      "default_rate": 0.05202157966070387,
+      "housing_market_trend": "stable",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "recession"
+    },
+    "5": {
+      "appreciation_rate": 0.062335516610594686,
+      "default_rate": 0.03582783876796526,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "expansion"
+    },
+    "6": {
+      "appreciation_rate": -0.021616168787772283,
+      "default_rate": 0.06391744530988631,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "rising",
+      "economic_outlook": "recession"
+    },
+    "7": {
+      "appreciation_rate": 0.07560450462014115,
+      "default_rate": 0.029501597583647825,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "expansion"
+    },
+    "8": {
+      "appreciation_rate": -0.004781373929639855,
+      "default_rate": 0.03680394000716886,
+      "housing_market_trend": "stable",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "recession"
+    },
+    "9": {
+      "appreciation_rate": 0.05093471296926478,
+      "default_rate": 0.03211643939287251,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "stable"
+    },
+    "10": {
+      "appreciation_rate": 0.06296431923096428,
+      "default_rate": 0.03685223648604382,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "expansion"
+    },
+    "11": {
+      "appreciation_rate": 0.0514680482008309,
+      "default_rate": 0.02625259633112978,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "expansion"
+    },
+    "12": {
+      "appreciation_rate": 0.09146983938393381,
+      "default_rate": 0.04621970966050632,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "expansion"
+    },
+    "13": {
+      "appreciation_rate": 0.05216260292714253,
+      "default_rate": 0.03855592328901498,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "stable"
+    },
+    "14": {
+      "appreciation_rate": -0.037092726161985536,
+      "default_rate": 0.06640430362485245,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "rising",
+      "economic_outlook": "recession"
+    }
+  },
+  "portfolio": {},
+  "errors": [
+    "Portfolio generation error: 'Loan' object has no attribute 'amount'"
+  ],
+  "error": "'Loan' object has no attribute 'amount'"
+}</pre>
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td>large_fund</td>
+                    <td>Large Fund Test Case</td>
+                    <td class="failed">FAILED</td>
+                    <td>0.02 seconds</td>
+                    <td><span class="toggle-btn" onclick="toggleDetails('details-large_fund')">Show/Hide Details</span></td>
+                </tr>
+            
+                <tr>
+                    <td colspan="5">
+                        <div id="details-large_fund" class="details hidden">
+                            <h3>Test Case Description</h3>
+                            <p>A test case with a large fund and complex parameters to verify calculations with larger numbers</p>
+                            
+                            <h3>Configuration</h3>
+                            <pre>{
+  "fund_size": 100000000,
+  "fund_term": 10,
+  "gp_commitment_percentage": 0.05,
+  "hurdle_rate": 0.08,
+  "carried_interest_rate": 0.2,
+  "waterfall_structure": "american",
+  "monte_carlo_enabled": false,
+  "optimization_enabled": false,
+  "stress_testing_enabled": false,
+  "external_data_enabled": false,
+  "generate_reports": true,
+  "base_appreciation_rate": 0.04,
+  "appreciation_volatility": 0.02,
+  "base_default_rate": 0.015,
+  "default_volatility": 0.01,
+  "correlation": 0.4,
+  "avg_loan_size": 1000000,
+  "loan_size_std_dev": 200000,
+  "min_loan_size": 500000,
+  "max_loan_size": 2000000,
+  "avg_loan_term": 5,
+  "avg_loan_interest_rate": 0.07,
+  "avg_loan_ltv": 0.7,
+  "zone_allocations": {
+    "green": 0.5,
+    "orange": 0.3,
+    "red": 0.2
+  },
+  "management_fee_rate": 0.02,
+  "management_fee_basis": "invested_capital",
+  "fund_expenses": 0.01,
+  "distribution_frequency": "quarterly",
+  "distribution_policy": "available_cash",
+  "reinvestment_period": 5,
+  "avg_loan_exit_year": 5,
+  "exit_year_std_dev": 1.0,
+  "early_exit_probability": 0.3
+}</pre>
+                            
+                            <h3>Comparison Results</h3>
+            <h4>Mismatches</h4><ul><li>Missing keys: {'performance_metrics', 'cash_flows', 'waterfall_results'}</li></ul>
+                            <h3>Expected vs Actual Results</h3>
+                            <div class="toggle-btn" onclick="toggleDetails('expected-large_fund')">Show/Hide Expected Results</div>
+                            <pre id="expected-large_fund" class="hidden">{
+  "performance_metrics": {
+    "irr": 0.15,
+    "moic": 1.8,
+    "tvpi": 1.8,
+    "dpi": 1.7,
+    "rvpi": 0.1,
+    "payback_period": 5.2
+  },
+  "waterfall_results": {
+    "total_gp_distribution": 9000000,
+    "total_lp_distribution": 171000000,
+    "gp_carried_interest": 4000000
+  },
+  "cash_flows": {
+    "total_inflows": 180000000,
+    "total_outflows": 100000000,
+    "net_cash_flow": 80000000
+  }
+}</pre>
+                            
+                            <div class="toggle-btn" onclick="toggleDetails('actual-large_fund')">Show/Hide Actual Results</div>
+                            <pre id="actual-large_fund" class="hidden">{
+  "market_conditions": {
+    "0": {
+      "appreciation_rate": 0.05891274848612865,
+      "default_rate": 0.013298612745288685,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "expansion"
+    },
+    "1": {
+      "appreciation_rate": 0.04081984013233924,
+      "default_rate": 0.03065999221441807,
+      "housing_market_trend": "stable",
+      "interest_rate_environment": "rising",
+      "economic_outlook": "stable"
+    },
+    "2": {
+      "appreciation_rate": 0.0595983536796663,
+      "default_rate": 0.0015648595559422194,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "expansion"
+    },
+    "3": {
+      "appreciation_rate": 0.03752329537428107,
+      "default_rate": 0.023959765624387973,
+      "housing_market_trend": "stable",
+      "interest_rate_environment": "rising",
+      "economic_outlook": "stable"
+    },
+    "4": {
+      "appreciation_rate": 0.02369160750852537,
+      "default_rate": 0.013720025498684021,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "stable"
+    },
+    "5": {
+      "appreciation_rate": 0.02903409584932629,
+      "default_rate": 0.03467343582701984,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "rising",
+      "economic_outlook": "stable"
+    },
+    "6": {
+      "appreciation_rate": 0.06850260591697215,
+      "default_rate": 0.00853495112037556,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "expansion"
+    },
+    "7": {
+      "appreciation_rate": 0.04873806331562107,
+      "default_rate": 0.017694802990049205,
+      "housing_market_trend": "stable",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "expansion"
+    },
+    "8": {
+      "appreciation_rate": 0.0549593368906844,
+      "default_rate": 0.01478183514412412,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "expansion"
+    },
+    "9": {
+      "appreciation_rate": 0.02628857779465986,
+      "default_rate": 0.0121880324579348,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "stable"
+    }
+  },
+  "portfolio": {},
+  "errors": [
+    "Portfolio generation error: 'Loan' object has no attribute 'amount'"
+  ],
+  "error": "'Loan' object has no attribute 'amount'"
+}</pre>
+                        </div>
+                    </td>
+                </tr>
+            
+                <tr>
+                    <td>simple_fund</td>
+                    <td>Simple Fund Test Case</td>
+                    <td class="failed">FAILED</td>
+                    <td>0.00 seconds</td>
+                    <td><span class="toggle-btn" onclick="toggleDetails('details-simple_fund')">Show/Hide Details</span></td>
+                </tr>
+            
+                <tr>
+                    <td colspan="5">
+                        <div id="details-simple_fund" class="details hidden">
+                            <h3>Test Case Description</h3>
+                            <p>A simple test case with a small fund and basic parameters to verify core calculations</p>
+                            
+                            <h3>Configuration</h3>
+                            <pre>{
+  "fund_size": 10000000,
+  "fund_term": 5,
+  "gp_commitment_percentage": 0.05,
+  "hurdle_rate": 0.08,
+  "carried_interest_rate": 0.2,
+  "waterfall_structure": "european",
+  "monte_carlo_enabled": false,
+  "optimization_enabled": false,
+  "stress_testing_enabled": false,
+  "external_data_enabled": false,
+  "generate_reports": true,
+  "base_appreciation_rate": 0.03,
+  "appreciation_volatility": 0.01,
+  "base_default_rate": 0.01,
+  "default_volatility": 0.005,
+  "correlation": 0.3,
+  "avg_loan_size": 250000,
+  "loan_size_std_dev": 50000,
+  "min_loan_size": 100000,
+  "max_loan_size": 500000,
+  "avg_loan_term": 3,
+  "avg_loan_interest_rate": 0.06,
+  "avg_loan_ltv": 0.75,
+  "zone_allocations": {
+    "green": 0.6,
+    "orange": 0.3,
+    "red": 0.1
+  },
+  "management_fee_rate": 0.02,
+  "management_fee_basis": "committed_capital",
+  "fund_expenses": 0.01,
+  "distribution_frequency": "annual",
+  "distribution_policy": "available_cash",
+  "reinvestment_period": 3,
+  "avg_loan_exit_year": 3,
+  "exit_year_std_dev": 0.5,
+  "early_exit_probability": 0.2
+}</pre>
+                            
+                            <h3>Comparison Results</h3>
+            <h4>Mismatches</h4><ul><li>Missing keys: {'performance_metrics', 'cash_flows', 'waterfall_results'}</li></ul>
+                            <h3>Expected vs Actual Results</h3>
+                            <div class="toggle-btn" onclick="toggleDetails('expected-simple_fund')">Show/Hide Expected Results</div>
+                            <pre id="expected-simple_fund" class="hidden">{
+  "performance_metrics": {
+    "irr": 0.12,
+    "moic": 1.5,
+    "tvpi": 1.5,
+    "dpi": 1.5,
+    "rvpi": 0.0,
+    "payback_period": 3.5
+  },
+  "waterfall_results": {
+    "total_gp_distribution": 600000,
+    "total_lp_distribution": 14400000,
+    "gp_carried_interest": 100000
+  },
+  "cash_flows": {
+    "total_inflows": 15000000,
+    "total_outflows": 10000000,
+    "net_cash_flow": 5000000
+  }
+}</pre>
+                            
+                            <div class="toggle-btn" onclick="toggleDetails('actual-simple_fund')">Show/Hide Actual Results</div>
+                            <pre id="actual-simple_fund" class="hidden">{
+  "market_conditions": {
+    "0": {
+      "appreciation_rate": 0.018241379458595962,
+      "default_rate": 0.012057761803101112,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "stable"
+    },
+    "1": {
+      "appreciation_rate": 0.04298786793759189,
+      "default_rate": 0.010290181562027049,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "expansion"
+    },
+    "2": {
+      "appreciation_rate": 0.018292923841718423,
+      "default_rate": 0.010336388349757922,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "stable"
+    },
+    "3": {
+      "appreciation_rate": 0.00991277645912646,
+      "default_rate": 0.009086088120464117,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "stable"
+    },
+    "4": {
+      "appreciation_rate": 0.04720335681978892,
+      "default_rate": 0.007041668678588469,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "expansion"
+    }
+  },
+  "portfolio": {},
+  "errors": [
+    "Portfolio generation error: 'Loan' object has no attribute 'amount'"
+  ],
+  "error": "'Loan' object has no attribute 'amount'"
+}</pre>
+                        </div>
+                    </td>
+                </tr>
+            
+            </table>
+        </body>
+        </html>
+        

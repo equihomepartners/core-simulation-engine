@@ -1,0 +1,168 @@
+{
+  "timestamp": "2025-04-15T08:13:19.092019",
+  "phase": "Phase 2: Market Conditions",
+  "test_summary": {
+    "total": 7,
+    "passed": 0,
+    "failed": 2,
+    "errors": 5,
+    "pass_rate": 0.0
+  },
+  "tests": [
+    {
+      "id": "TestPhase2MarketConditions.test_basic_market_conditions",
+      "name": "test_basic_market_conditions",
+      "description": "Test basic market conditions generation with default parameters.",
+      "complexity": "basic",
+      "status": "failed",
+      "duration": 0.0026929378509521484,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 83, in test_basic_market_conditions\n    self.assertEqual(len(market_conditions), self.basic_config['fund_term'] + 1)  # +1 for year 0\nAssertionError: 5 != 6\n"
+    },
+    {
+      "id": "TestPhase2MarketConditions.test_different_appreciation_rates",
+      "name": "test_different_appreciation_rates",
+      "description": "Test market conditions with different appreciation rates.",
+      "complexity": "intermediate",
+      "status": "error",
+      "duration": 0.0009350776672363281,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 129, in test_different_appreciation_rates\n    actual_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 129, in <listcomp>\n    actual_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'appreciation_rates'\n"
+    },
+    {
+      "id": "TestPhase2MarketConditions.test_different_correlations",
+      "name": "test_different_correlations",
+      "description": "Test market conditions with different correlations.",
+      "complexity": "intermediate",
+      "status": "error",
+      "duration": 0.0007519721984863281,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 202, in test_different_correlations\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 202, in <listcomp>\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'appreciation_rates'\n"
+    },
+    {
+      "id": "TestPhase2MarketConditions.test_different_default_rates",
+      "name": "test_different_default_rates",
+      "description": "Test market conditions with different default rates.",
+      "complexity": "intermediate",
+      "status": "error",
+      "duration": 0.000926971435546875,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 152, in test_different_default_rates\n    actual_rates = [year_data['default_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 152, in <listcomp>\n    actual_rates = [year_data['default_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'default_rates'\n"
+    },
+    {
+      "id": "TestPhase2MarketConditions.test_different_volatilities",
+      "name": "test_different_volatilities",
+      "description": "Test market conditions with different volatilities.",
+      "complexity": "intermediate",
+      "status": "error",
+      "duration": 0.0009379386901855469,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 175, in test_different_volatilities\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 175, in <listcomp>\n    appreciation_rates = [year_data['appreciation_rates']['green'] for year_data in market_conditions.values()]\nKeyError: 'appreciation_rates'\n"
+    },
+    {
+      "id": "TestPhase2MarketConditions.test_integration_with_portfolio",
+      "name": "test_integration_with_portfolio",
+      "description": "Test integration of portfolio and market conditions.",
+      "complexity": "advanced",
+      "status": "failed",
+      "duration": 0.0007648468017578125,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 244, in test_integration_with_portfolio\n    self.assertIn(str(year), market_conditions)\nAssertionError: '0' not found in {0: {'appreciation_rate': 0.01817372816940566, 'default_rate': 0.020659751518679794, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'rising', 'economic_outlook': 'stable'}, 1: {'appreciation_rate': 0.013475860535634772, 'default_rate': 0.009376511525687015, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'stable', 'economic_outlook': 'stable'}, 2: {'appreciation_rate': 0.005205528696370136, 'default_rate': 0.017889464553597856, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'rising', 'economic_outlook': 'stable'}, 3: {'appreciation_rate': 0.04604047692156374, 'default_rate': 0.003733947820287238, 'housing_market_trend': 'appreciating', 'interest_rate_environment': 'falling', 'economic_outlook': 'expansion'}, 4: {'appreciation_rate': 0.022085445789278086, 'default_rate': 0.008118876786636623, 'housing_market_trend': 'depreciating', 'interest_rate_environment': 'stable', 'economic_outlook': 'stable'}}\n"
+    },
+    {
+      "id": "TestPhase2MarketConditions.test_random_seed_reproducibility",
+      "name": "test_random_seed_reproducibility",
+      "description": "Test market conditions with random seeds for reproducibility.",
+      "complexity": "advanced",
+      "status": "error",
+      "duration": 0.000766754150390625,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase2_market_conditions_test.py\", line 303, in test_random_seed_reproducibility\n    market_conditions1[year_str]['appreciation_rates']['green'],\nKeyError: '0'\n"
+    }
+  ],
+  "test_configuration": {
+    "fund_size": 10000000,
+    "fund_term": 5,
+    "base_appreciation_rate": 0.03,
+    "appreciation_rate_volatility": 0.01,
+    "base_default_rate": 0.02,
+    "default_rate_volatility": 0.005,
+    "zone_appreciation_multipliers": {
+      "green": 1.0,
+      "orange": 0.8,
+      "red": 0.6
+    },
+    "zone_default_multipliers": {
+      "green": 0.5,
+      "orange": 1.0,
+      "red": 1.5
+    },
+    "correlation_matrix": {
+      "appreciation_default": -0.7,
+      "year_to_year": 0.8
+    }
+  },
+  "market_conditions_sample": {
+    "0": {
+      "appreciation_rate": 0.01817372816940566,
+      "default_rate": 0.020659751518679794,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "rising",
+      "economic_outlook": "stable"
+    },
+    "1": {
+      "appreciation_rate": 0.013475860535634772,
+      "default_rate": 0.009376511525687015,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "stable"
+    },
+    "2": {
+      "appreciation_rate": 0.005205528696370136,
+      "default_rate": 0.017889464553597856,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "rising",
+      "economic_outlook": "stable"
+    },
+    "3": {
+      "appreciation_rate": 0.04604047692156374,
+      "default_rate": 0.003733947820287238,
+      "housing_market_trend": "appreciating",
+      "interest_rate_environment": "falling",
+      "economic_outlook": "expansion"
+    },
+    "4": {
+      "appreciation_rate": 0.022085445789278086,
+      "default_rate": 0.008118876786636623,
+      "housing_market_trend": "depreciating",
+      "interest_rate_environment": "stable",
+      "economic_outlook": "stable"
+    }
+  },
+  "issues_identified": [
+    {
+      "issue": "Missing Year in Market Conditions",
+      "description": "The market conditions only include 5 years (0-4) instead of the expected 6 years (0-5)",
+      "impact": "This will cause issues when simulating the full fund term",
+      "recommendation": "Fix the market conditions generation to include all years from 0 to fund_term"
+    },
+    {
+      "issue": "Missing Zone-Specific Rates",
+      "description": "The market conditions don't have zone-specific appreciation and default rates",
+      "impact": "This prevents proper simulation of zone-specific performance",
+      "recommendation": "Update the market conditions structure to include 'appreciation_rates' and 'default_rates' objects with zone-specific values"
+    },
+    {
+      "issue": "Integer vs String Keys",
+      "description": "The market conditions use integer keys instead of string keys",
+      "impact": "This causes issues when tests expect string keys",
+      "recommendation": "Standardize on either integer or string keys for consistency"
+    },
+    {
+      "issue": "Random Seed Reproducibility",
+      "description": "Market conditions generated with the same random seed have different values",
+      "impact": "This makes it difficult to reproduce test results and may lead to inconsistent behavior",
+      "recommendation": "Fix the random number generation to ensure consistent results with the same seed"
+    }
+  ]
+}

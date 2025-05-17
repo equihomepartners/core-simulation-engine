@@ -1,0 +1,18 @@
+{
+  "title": "Fund Simulation Detailed Report",
+  "metrics": [
+    "irr", "equity_multiple", "roi", "sharpe_ratio", "max_drawdown",
+    "volatility", "payback_period", "distribution_yield"
+  ],
+  "sections": [
+    "fund_parameters",
+    "performance_metrics",
+    "waterfall_distribution",
+    "cash_flow_summary",
+    "risk_metrics",
+    "yearly_metrics",
+    "zone_performance",
+    "loan_performance",
+    "market_conditions"
+  ]
+} 

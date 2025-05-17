@@ -1,0 +1,64 @@
+{
+  "id": "edge_case",
+  "name": "Edge Case Test",
+  "description": "A test case with edge conditions to verify the system handles extreme values correctly",
+  "config": {
+    "fund_size": 1000000,
+    "fund_term": 15,
+    "gp_commitment_percentage": 0.1,
+    "hurdle_rate": 0.12,
+    "carried_interest_rate": 0.25,
+    "waterfall_structure": "european",
+    "monte_carlo_enabled": false,
+    "optimization_enabled": false,
+    "stress_testing_enabled": false,
+    "external_data_enabled": false,
+    "generate_reports": true,
+    "base_appreciation_rate": 0.01,
+    "appreciation_volatility": 0.05,
+    "base_default_rate": 0.05,
+    "default_volatility": 0.02,
+    "correlation": 0.8,
+    "avg_loan_size": 100000,
+    "loan_size_std_dev": 10000,
+    "min_loan_size": 50000,
+    "max_loan_size": 150000,
+    "avg_loan_term": 10,
+    "avg_loan_interest_rate": 0.1,
+    "avg_loan_ltv": 0.85,
+    "zone_allocations": {
+      "green": 0.2,
+      "orange": 0.3,
+      "red": 0.5
+    },
+    "management_fee_rate": 0.03,
+    "management_fee_basis": "net_asset_value",
+    "fund_expenses": 0.02,
+    "distribution_frequency": "monthly",
+    "distribution_policy": "income_only",
+    "reinvestment_period": 10,
+    "avg_loan_exit_year": 12,
+    "exit_year_std_dev": 2.0,
+    "early_exit_probability": 0.1
+  },
+  "expected_results": {
+    "performance_metrics": {
+      "irr": 0.08,
+      "moic": 1.3,
+      "tvpi": 1.3,
+      "dpi": 1.0,
+      "rvpi": 0.3,
+      "payback_period": 10.5
+    },
+    "waterfall_results": {
+      "total_gp_distribution": 130000,
+      "total_lp_distribution": 1170000,
+      "gp_carried_interest": 30000
+    },
+    "cash_flows": {
+      "total_inflows": 1300000,
+      "total_outflows": 1000000,
+      "net_cash_flow": 300000
+    }
+  }
+}

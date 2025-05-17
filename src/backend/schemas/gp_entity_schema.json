@@ -1,0 +1,438 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GP Entity Configuration",
+  "description": "Configuration for the GP Entity Model",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the GP entity",
+      "default": "Equihome Partners"
+    },
+    "management_company": {
+      "type": "object",
+      "description": "Management company configuration",
+      "properties": {
+        "base_expenses": {
+          "type": "number",
+          "description": "Base annual expenses for the management company",
+          "minimum": 0,
+          "default": 500000
+        },
+        "expense_growth_rate": {
+          "type": "number",
+          "description": "Annual growth rate for expenses",
+          "minimum": 0,
+          "default": 0.03
+        },
+        "staff": {
+          "type": "array",
+          "description": "Staff configuration",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "type": "string",
+                "description": "Role of the staff member"
+              },
+              "count": {
+                "type": "integer",
+                "description": "Number of staff members with this role",
+                "minimum": 0,
+                "default": 1
+              },
+              "annual_cost": {
+                "type": "number",
+                "description": "Annual cost per staff member",
+                "minimum": 0
+              },
+              "start_year": {
+                "type": "integer",
+                "description": "Year when the staff member starts",
+                "minimum": 0,
+                "default": 0
+              },
+              "growth_rate": {
+                "type": "number",
+                "description": "Annual growth rate for the staff member's cost",
+                "minimum": 0,
+                "default": 0.03
+              }
+            },
+            "required": ["role", "annual_cost"]
+          }
+        },
+        "office_expenses": {
+          "type": "number",
+          "description": "Annual office expenses",
+          "minimum": 0,
+          "default": 100000
+        },
+        "technology_expenses": {
+          "type": "number",
+          "description": "Annual technology expenses",
+          "minimum": 0,
+          "default": 50000
+        },
+        "marketing_expenses": {
+          "type": "number",
+          "description": "Annual marketing expenses",
+          "minimum": 0,
+          "default": 50000
+        },
+        "legal_expenses": {
+          "type": "number",
+          "description": "Annual legal expenses",
+          "minimum": 0,
+          "default": 100000
+        },
+        "other_expenses": {
+          "type": "number",
+          "description": "Annual other expenses",
+          "minimum": 0,
+          "default": 200000
+        },
+        "expense_scaling": {
+          "type": "object",
+          "description": "Expense scaling configuration",
+          "properties": {
+            "aum_scaling_factor": {
+              "type": "number",
+              "description": "Scaling factor for AUM-based expenses",
+              "minimum": 0,
+              "default": 0
+            },
+            "fund_count_scaling_factor": {
+              "type": "number",
+              "description": "Scaling factor for fund count-based expenses",
+              "minimum": 0,
+              "default": 0
+            },
+            "loan_count_scaling_factor": {
+              "type": "number",
+              "description": "Scaling factor for loan count-based expenses",
+              "minimum": 0,
+              "default": 0
+            }
+          }
+        },
+        "revenue_diversification": {
+          "type": "object",
+          "description": "Revenue diversification configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether revenue diversification is enabled",
+              "default": false
+            },
+            "additional_revenue_sources": {
+              "type": "array",
+              "description": "Additional revenue sources",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the revenue source"
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Annual amount of the revenue source",
+                    "minimum": 0
+                  },
+                  "growth_rate": {
+                    "type": "number",
+                    "description": "Annual growth rate for the revenue source",
+                    "minimum": 0,
+                    "default": 0.03
+                  },
+                  "start_year": {
+                    "type": "integer",
+                    "description": "Year when the revenue source starts",
+                    "minimum": 0,
+                    "default": 0
+                  },
+                  "end_year": {
+                    "type": ["integer", "null"],
+                    "description": "Year when the revenue source ends (null for indefinite)",
+                    "minimum": 0,
+                    "default": null
+                  }
+                },
+                "required": ["name", "amount"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "team_allocation": {
+      "type": "object",
+      "description": "Team allocation configuration",
+      "properties": {
+        "partners": {
+          "type": "array",
+          "description": "Partner configuration",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the partner"
+              },
+              "carried_interest_allocation": {
+                "type": "number",
+                "description": "Percentage of carried interest allocated to the partner",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "management_fee_allocation": {
+                "type": "number",
+                "description": "Percentage of management fees allocated to the partner",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "origination_fee_allocation": {
+                "type": "number",
+                "description": "Percentage of origination fees allocated to the partner",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": ["name", "carried_interest_allocation"]
+          }
+        },
+        "employees": {
+          "type": "array",
+          "description": "Employee configuration",
+          "items": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "type": "string",
+                "description": "Role of the employee"
+              },
+              "carried_interest_allocation": {
+                "type": "number",
+                "description": "Percentage of carried interest allocated to the employee",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "management_fee_allocation": {
+                "type": "number",
+                "description": "Percentage of management fees allocated to the employee",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "origination_fee_allocation": {
+                "type": "number",
+                "description": "Percentage of origination fees allocated to the employee",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": ["role"]
+          }
+        }
+      }
+    },
+    "gp_commitment_percentage": {
+      "type": "number",
+      "description": "GP commitment as percentage of fund size",
+      "minimum": 0,
+      "maximum": 1,
+      "default": 0.0
+    },
+    "cross_fund_carry": {
+      "type": "boolean",
+      "description": "Whether to calculate carried interest across funds",
+      "default": false
+    },
+    "cross_fund_carry_rules": {
+      "type": "object",
+      "description": "Rules for cross-fund carried interest calculation",
+      "properties": {
+        "hurdle_rate": {
+          "type": "number",
+          "description": "Hurdle rate for cross-fund carried interest",
+          "minimum": 0,
+          "default": 0.08
+        },
+        "carried_interest_rate": {
+          "type": "number",
+          "description": "Carried interest rate for cross-fund carried interest",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.20
+        },
+        "catch_up_rate": {
+          "type": "number",
+          "description": "Catch-up rate for cross-fund carried interest",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.50
+        },
+        "waterfall_structure": {
+          "type": "string",
+          "description": "Waterfall structure for cross-fund carried interest",
+          "enum": ["european", "american"],
+          "default": "european"
+        }
+      }
+    },
+    "cashflow_frequency": {
+      "type": "string",
+      "description": "Frequency of cashflow generation",
+      "enum": ["yearly", "monthly"],
+      "default": "yearly"
+    },
+    "expenses": {
+      "type": "array",
+      "description": "Custom expense items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the expense"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Amount of the expense",
+            "minimum": 0
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of expense",
+            "enum": ["recurring", "one-time"],
+            "default": "recurring"
+          },
+          "frequency": {
+            "type": "string",
+            "description": "Frequency of expense",
+            "enum": ["annual", "quarterly", "monthly"],
+            "default": "annual"
+          },
+          "start_year": {
+            "type": "integer",
+            "description": "Year when the expense starts",
+            "minimum": 0,
+            "default": 0
+          },
+          "end_year": {
+            "type": ["integer", "null"],
+            "description": "Year when the expense ends (null for indefinite)",
+            "minimum": 0,
+            "default": null
+          },
+          "growth_rate": {
+            "type": "number",
+            "description": "Annual growth rate for the expense",
+            "minimum": 0,
+            "default": 0
+          },
+          "scaling_metric": {
+            "type": ["string", "null"],
+            "description": "Metric for scaling the expense",
+            "enum": ["aum", "fund_count", "loan_count", null],
+            "default": null
+          },
+          "scaling_factor": {
+            "type": "number",
+            "description": "Factor for scaling the expense",
+            "minimum": 0,
+            "default": 0
+          },
+          "fund_specific": {
+            "type": "boolean",
+            "description": "Whether the expense is specific to a fund",
+            "default": false
+          },
+          "fund_id": {
+            "type": ["string", "null"],
+            "description": "ID of the fund for fund-specific expenses",
+            "default": null
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Whether the expense is enabled",
+            "default": true
+          },
+          "category": {
+            "type": "string",
+            "description": "Category of the expense",
+            "enum": ["staff", "office", "technology", "marketing", "legal", "other"],
+            "default": "other"
+          }
+        },
+        "required": ["name", "amount"]
+      }
+    },
+    "dividend_policy": {
+      "type": "object",
+      "description": "Dividend policy configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether dividend distribution is enabled",
+          "default": false
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of dividend policy",
+          "enum": ["percentage", "fixed", "residual"],
+          "default": "percentage"
+        },
+        "percentage": {
+          "type": "number",
+          "description": "Percentage of net income to distribute as dividend",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.5
+        },
+        "fixed_amount": {
+          "type": "number",
+          "description": "Fixed amount to distribute as dividend",
+          "minimum": 0,
+          "default": 0
+        },
+        "frequency": {
+          "type": "string",
+          "description": "Frequency of dividend distribution",
+          "enum": ["annual", "quarterly", "monthly"],
+          "default": "annual"
+        },
+        "min_cash_reserve": {
+          "type": "number",
+          "description": "Minimum cash reserve to maintain",
+          "minimum": 0,
+          "default": 0
+        },
+        "start_year": {
+          "type": "integer",
+          "description": "Year when dividend distribution starts",
+          "minimum": 1,
+          "default": 1
+        },
+        "max_dividend": {
+          "type": ["number", "null"],
+          "description": "Maximum dividend amount (null for unlimited)",
+          "minimum": 0,
+          "default": null
+        },
+        "min_profitability": {
+          "type": "number",
+          "description": "Minimum net income for dividend distribution",
+          "minimum": 0,
+          "default": 0
+        }
+      }
+    },
+    "initial_cash_reserve": {
+      "type": "number",
+      "description": "Initial cash reserve",
+      "minimum": 0,
+      "default": 0
+    }
+  }
+}

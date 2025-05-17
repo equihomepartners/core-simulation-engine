@@ -1,0 +1,139 @@
+{
+  "timestamp": "2025-04-15T08:13:19.092019",
+  "phase": "Phase 1: Portfolio Generation",
+  "test_summary": {
+    "total": 5,
+    "passed": 1,
+    "failed": 4,
+    "errors": 0,
+    "pass_rate": 0.2
+  },
+  "tests": [
+    {
+      "id": "TestPhase1PortfolioGeneration.test_basic_portfolio_generation",
+      "name": "test_basic_portfolio_generation",
+      "description": "Test basic portfolio generation with default parameters.",
+      "complexity": "basic",
+      "status": "failed",
+      "duration": 0.00448298454284668,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 96, in test_basic_portfolio_generation\n    self.assertAlmostEqual(float(loan.ltv), self.basic_config['avg_loan_ltv'], delta=0.1)\nAssertionError: 0.5694569199814239 != 0.75 within 0.1 delta (0.1805430800185761 difference)\n"
+    },
+    {
+      "id": "TestPhase1PortfolioGeneration.test_different_fund_sizes",
+      "name": "test_different_fund_sizes",
+      "description": "Test portfolio generation with different fund sizes.",
+      "complexity": "intermediate",
+      "status": "passed",
+      "duration": 0.004729747772216797,
+      "logs": [],
+      "error": null
+    },
+    {
+      "id": "TestPhase1PortfolioGeneration.test_different_loan_parameters",
+      "name": "test_different_loan_parameters",
+      "description": "Test portfolio generation with different loan parameters.",
+      "complexity": "intermediate",
+      "status": "failed",
+      "duration": 0.0018520355224609375,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 152, in test_different_loan_parameters\n    self.assertLess(len(portfolio.loans), len(generate_portfolio_from_config(self.basic_config).loans))\nAssertionError: 40 not less than 40\n"
+    },
+    {
+      "id": "TestPhase1PortfolioGeneration.test_different_zone_allocations",
+      "name": "test_different_zone_allocations",
+      "description": "Test portfolio generation with different zone allocations.",
+      "complexity": "intermediate",
+      "status": "failed",
+      "duration": 0.0006930828094482422,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 187, in test_different_zone_allocations\n    self.assertAlmostEqual(zone_percentages['green'], config['zone_allocations']['green'], delta=0.1)\nAssertionError: 0.075 != 0.2 within 0.1 delta (0.125 difference)\n"
+    },
+    {
+      "id": "TestPhase1PortfolioGeneration.test_random_seed_reproducibility",
+      "name": "test_random_seed_reproducibility",
+      "description": "Test portfolio generation with random seeds for reproducibility.",
+      "complexity": "advanced",
+      "status": "failed",
+      "duration": 0.001332998275756836,
+      "logs": [],
+      "error": "Traceback (most recent call last):\n  File \"/Users/nambjay/Documents/augment-projects/simulation-module/src/backend/tests/sequential/phase1_portfolio_generation_test.py\", line 213, in test_random_seed_reproducibility\n    self.assertEqual(portfolio1.loans[i].loan_amount, portfolio2.loans[i].loan_amount)\nAssertionError: Decimal('232894.53004299614') != Decimal('282658.6997151515')\n"
+    }
+  ],
+  "test_configuration": {
+    "fund_size": 10000000,
+    "fund_term": 5,
+    "gp_commitment_percentage": 0.05,
+    "hurdle_rate": 0.08,
+    "carried_interest_rate": 0.20,
+    "waterfall_structure": "european",
+    "avg_loan_size": 250000,
+    "loan_size_std_dev": 50000,
+    "min_loan_size": 100000,
+    "max_loan_size": 500000,
+    "avg_loan_term": 3,
+    "avg_loan_interest_rate": 0.06,
+    "avg_loan_ltv": 0.75,
+    "zone_allocations": {
+      "green": 0.6,
+      "orange": 0.3,
+      "red": 0.1
+    },
+    "management_fee_rate": 0.02,
+    "management_fee_basis": "committed_capital",
+    "fund_expenses": 0.01,
+    "distribution_frequency": "annual",
+    "distribution_policy": "available_cash",
+    "reinvestment_period": 3,
+    "avg_loan_exit_year": 3,
+    "exit_year_std_dev": 0.5,
+    "early_exit_probability": 0.2
+  },
+  "portfolio_metrics": {
+    "loan_count": 40,
+    "total_loan_amount": "10257725.13406263361",
+    "total_property_value": "15796237.40358601166752763409",
+    "weighted_average_ltv": "0.6493777519280608820777223881",
+    "weighted_average_interest_rate": "0.05",
+    "weighted_average_appreciation_rate": "0.04475849861014074359519359905",
+    "zone_distribution": {
+      "green": {
+        "count": 17,
+        "amount": "4319489.64736071704",
+        "percentage": "0.4210962558371806593720562256"
+      },
+      "orange": {
+        "count": 19,
+        "amount": "4850771.74002755592",
+        "percentage": "0.4728896199333407812067863221"
+      },
+      "red": {
+        "count": 4,
+        "amount": "1087463.74667436065",
+        "percentage": "0.1060141242294785594211574523"
+      }
+    },
+    "expected_default_rate": "0.04266781853635850818989618584",
+    "expected_return": "0.05957890374416281934062794377"
+  },
+  "issues_identified": [
+    {
+      "issue": "LTV Mismatch",
+      "description": "The average LTV ratio in the generated portfolio (0.65) is significantly lower than the configured value (0.75)",
+      "impact": "This affects the risk profile of the portfolio and may lead to lower returns",
+      "recommendation": "Adjust the portfolio generation algorithm to more closely match the configured LTV ratio"
+    },
+    {
+      "issue": "Zone Allocation Mismatch",
+      "description": "The zone distribution in the generated portfolio (Green: 42%, Orange: 47%, Red: 11%) doesn't match the configured values (Green: 60%, Orange: 30%, Red: 10%)",
+      "impact": "This affects the risk profile and expected returns of the portfolio",
+      "recommendation": "Adjust the portfolio generation algorithm to more closely match the configured zone allocations"
+    },
+    {
+      "issue": "Random Seed Reproducibility",
+      "description": "Portfolios generated with the same random seed have different loan amounts",
+      "impact": "This makes it difficult to reproduce test results and may lead to inconsistent behavior",
+      "recommendation": "Fix the random number generation to ensure consistent results with the same seed"
+    }
+  ]
+}

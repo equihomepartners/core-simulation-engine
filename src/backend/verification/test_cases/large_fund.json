@@ -1,0 +1,64 @@
+{
+  "id": "large_fund",
+  "name": "Large Fund Test Case",
+  "description": "A test case with a large fund and complex parameters to verify calculations with larger numbers",
+  "config": {
+    "fund_size": 100000000,
+    "fund_term": 10,
+    "gp_commitment_percentage": 0.05,
+    "hurdle_rate": 0.08,
+    "carried_interest_rate": 0.20,
+    "waterfall_structure": "american",
+    "monte_carlo_enabled": false,
+    "optimization_enabled": false,
+    "stress_testing_enabled": false,
+    "external_data_enabled": false,
+    "generate_reports": true,
+    "base_appreciation_rate": 0.04,
+    "appreciation_volatility": 0.02,
+    "base_default_rate": 0.015,
+    "default_volatility": 0.01,
+    "correlation": 0.4,
+    "avg_loan_size": 1000000,
+    "loan_size_std_dev": 200000,
+    "min_loan_size": 500000,
+    "max_loan_size": 2000000,
+    "avg_loan_term": 5,
+    "avg_loan_interest_rate": 0.07,
+    "avg_loan_ltv": 0.7,
+    "zone_allocations": {
+      "green": 0.5,
+      "orange": 0.3,
+      "red": 0.2
+    },
+    "management_fee_rate": 0.02,
+    "management_fee_basis": "invested_capital",
+    "fund_expenses": 0.01,
+    "distribution_frequency": "quarterly",
+    "distribution_policy": "available_cash",
+    "reinvestment_period": 5,
+    "avg_loan_exit_year": 5,
+    "exit_year_std_dev": 1.0,
+    "early_exit_probability": 0.3
+  },
+  "expected_results": {
+    "performance_metrics": {
+      "irr": 0.15,
+      "moic": 1.8,
+      "tvpi": 1.8,
+      "dpi": 1.7,
+      "rvpi": 0.1,
+      "payback_period": 5.2
+    },
+    "waterfall_results": {
+      "total_gp_distribution": 9000000,
+      "total_lp_distribution": 171000000,
+      "gp_carried_interest": 4000000
+    },
+    "cash_flows": {
+      "total_inflows": 180000000,
+      "total_outflows": 100000000,
+      "net_cash_flow": 80000000
+    }
+  }
+}

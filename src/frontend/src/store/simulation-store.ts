@@ -1,0 +1,157 @@
+import { create } from 'zustand';
+import { sdkWrapper } from '../utils/sdkWrapper';
+import { LogLevel, LogCategory, log } from '../utils/logging';
+import { get100MPreset } from '@/presets';
+
+// Define the store state type
+interface SimulationState {
+  // Simulations list
+  simulations: any[];
+  isLoadingSimulations: boolean;
+  simulationsError: Error | null;
+
+  // Current simulation
+  currentSimulation: any | null;
+  isLoadingCurrentSimulation: boolean;
+  currentSimulationError: Error | null;
+
+  // Actions
+  fetchSimulations: () => Promise<void>;
+  fetchSimulation: (id: string, forceRefresh?: boolean) => Promise<void>;
+  createSimulation: (config: any) => Promise<any>;
+  runSimulation: (id: string) => Promise<void>;
+  runSimulationWithConfig: (config: any) => Promise<any>;
+  getSimulationResults: (id: string, timeGranularity?: 'yearly' | 'monthly') => Promise<any>;
+  get100MPreset: () => any;
+  clearCurrentSimulation: () => void;
+}
+
+// Create the store
+export const useSimulationStore = create<SimulationState>((set, get) => ({
+  // Initial state
+  simulations: [],
+  isLoadingSimulations: false,
+  simulationsError: null,
+
+  currentSimulation: null,
+  isLoadingCurrentSimulation: false,
+  currentSimulationError: null,
+
+  // Actions
+  fetchSimulations: async () => {
+    try {
+      set({ isLoadingSimulations: true, simulationsError: null });
+      const simulations = await sdkWrapper.getSimulations();
+      set({ simulations, isLoadingSimulations: false });
+      log(LogLevel.INFO, LogCategory.STORE, `Fetched ${simulations.length} simulations`);
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, 'Error fetching simulations:', { error });
+      set({
+        isLoadingSimulations: false,
+        simulationsError: error instanceof Error ? error : new Error(String(error))
+      });
+    }
+  },
+
+  fetchSimulation: async (id: string, forceRefresh = false) => {
+    try {
+      set({ isLoadingCurrentSimulation: true, currentSimulationError: null });
+      const simulation = await sdkWrapper.getSimulation(id, forceRefresh);
+      set({ currentSimulation: simulation, isLoadingCurrentSimulation: false });
+      log(LogLevel.INFO, LogCategory.STORE, `Fetched simulation ${id}`);
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, `Error fetching simulation ${id}:`, { error });
+      set({
+        isLoadingCurrentSimulation: false,
+        currentSimulationError: error instanceof Error ? error : new Error(String(error))
+      });
+    }
+  },
+
+  createSimulation: async (config: any) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, 'Creating new simulation');
+      const result = await sdkWrapper.createSimulation(config);
+      // Refresh the simulations list
+      get().fetchSimulations();
+      return result;
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, 'Error creating simulation:', { error });
+      throw error;
+    }
+  },
+
+  runSimulation: async (id: string) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, `Running simulation ${id}`);
+      await sdkWrapper.runSimulation(id);
+      // Refresh the current simulation
+      get().fetchSimulation(id, true);
+      // Refresh the simulations list
+      get().fetchSimulations();
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, `Error running simulation ${id}:`, { error });
+      throw error;
+    }
+  },
+
+  runSimulationWithConfig: async (config: any) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, 'Running simulation with config');
+      const result = await sdkWrapper.runSimulationWithConfig(config);
+      // Refresh the simulations list
+      get().fetchSimulations();
+      return result;
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, 'Error running simulation with config:', { error });
+      throw error;
+    }
+  },
+
+  getSimulationResults: async (id: string, timeGranularity: 'yearly' | 'monthly' = 'yearly') => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, `Getting simulation results for ${id} with granularity ${timeGranularity}`);
+      const results = await sdkWrapper.getSimulationResults(id, timeGranularity);
+      return results;
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, `Error getting simulation results for ${id}:`, { error });
+      throw error;
+    }
+  },
+
+  getSimulationVisualization: async (
+    id: string,
+    chartType: string = 'all',
+    timeGranularity: string = 'yearly',
+    options: {
+      cumulative?: boolean,
+      startYear?: number,
+      endYear?: number,
+      format?: string,
+      metrics?: string
+    } = {}
+  ) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, `Getting visualization for simulation ${id} with chart type ${chartType}`);
+      const results = await sdkWrapper.getSimulationVisualization(id, chartType, timeGranularity, options);
+      return results;
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, `Error getting visualization for ${id}:`, { error });
+      throw error;
+    }
+  },
+
+  get100MPreset: () => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, 'Getting 100M preset');
+      return get100MPreset();
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, 'Error getting 100M preset:', { error });
+      throw error;
+    }
+  },
+
+  clearCurrentSimulation: () => {
+    set({ currentSimulation: null });
+  }
+}));

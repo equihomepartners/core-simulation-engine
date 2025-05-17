@@ -1,0 +1,13 @@
+{
+  "name": "equihome-transformation-tests",
+  "version": "1.0.0",
+  "description": "Tests for the API Transformation Layer",
+  "main": "transform-layer-test.js",
+  "scripts": {
+    "test": "node transform-layer-test.js",
+    "test:mock": "MOCK_ONLY=true node transform-layer-test.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}

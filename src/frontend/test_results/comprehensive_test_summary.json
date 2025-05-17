@@ -1,0 +1,132 @@
+{
+  "timestamp": "2025-04-15T12:45:00.000000",
+  "summary": {
+    "total_phases": 2,
+    "total_tests": 12,
+    "passed_tests": 1,
+    "failed_tests": 6,
+    "error_tests": 5,
+    "overall_pass_rate": 0.08333333333333333
+  },
+  "phases": [
+    {
+      "phase": "Phase 1: Portfolio Generation",
+      "summary": {
+        "total": 5,
+        "passed": 1,
+        "failed": 4,
+        "errors": 0,
+        "pass_rate": 0.2
+      },
+      "key_metrics": {
+        "loan_count": 40,
+        "total_loan_amount": "10257725.13406263361",
+        "weighted_average_ltv": "0.6493777519280608820777223881",
+        "weighted_average_interest_rate": "0.05",
+        "zone_distribution": {
+          "green": "42.1%",
+          "orange": "47.3%",
+          "red": "10.6%"
+        }
+      },
+      "key_issues": [
+        "LTV Mismatch: Expected 0.75, Actual ~0.65",
+        "Zone Allocation Mismatch: Expected Green 60%, Orange 30%, Red 10%",
+        "Random Seed Reproducibility Issues"
+      ]
+    },
+    {
+      "phase": "Phase 2: Market Conditions",
+      "summary": {
+        "total": 7,
+        "passed": 0,
+        "failed": 2,
+        "errors": 5,
+        "pass_rate": 0.0
+      },
+      "key_metrics": {
+        "years_generated": 5,
+        "expected_years": 6,
+        "average_appreciation_rate": 0.021,
+        "average_default_rate": 0.012
+      },
+      "key_issues": [
+        "Missing Year in Market Conditions: Expected 6 years, Actual 5 years",
+        "Missing Zone-Specific Rates: No 'appreciation_rates' or 'default_rates' objects",
+        "Integer vs String Keys: Tests expect string keys, but implementation uses integer keys",
+        "Random Seed Reproducibility Issues"
+      ]
+    }
+  ],
+  "next_steps": [
+    {
+      "priority": "High",
+      "action": "Fix Portfolio Generation LTV Calculation",
+      "description": "Adjust the portfolio generation algorithm to more closely match the configured LTV ratio",
+      "affected_files": [
+        "src/backend/calculations/portfolio_gen.py"
+      ]
+    },
+    {
+      "priority": "High",
+      "action": "Fix Zone Allocation Distribution",
+      "description": "Adjust the portfolio generation algorithm to more closely match the configured zone allocations",
+      "affected_files": [
+        "src/backend/calculations/portfolio_gen.py"
+      ]
+    },
+    {
+      "priority": "High",
+      "action": "Fix Market Conditions Year Generation",
+      "description": "Ensure market conditions are generated for all years from 0 to fund_term",
+      "affected_files": [
+        "src/backend/calculations/market_conditions.py"
+      ]
+    },
+    {
+      "priority": "Medium",
+      "action": "Update Market Conditions Structure",
+      "description": "Add zone-specific appreciation and default rates to the market conditions structure",
+      "affected_files": [
+        "src/backend/calculations/market_conditions.py",
+        "src/backend/models/market_conditions.py"
+      ]
+    },
+    {
+      "priority": "Medium",
+      "action": "Standardize Key Types",
+      "description": "Standardize on either integer or string keys for market conditions",
+      "affected_files": [
+        "src/backend/calculations/market_conditions.py",
+        "src/backend/tests/sequential/phase2_market_conditions_test.py"
+      ]
+    },
+    {
+      "priority": "Medium",
+      "action": "Fix Random Seed Reproducibility",
+      "description": "Ensure consistent results when using the same random seed",
+      "affected_files": [
+        "src/backend/calculations/portfolio_gen.py",
+        "src/backend/calculations/market_conditions.py"
+      ]
+    },
+    {
+      "priority": "Low",
+      "action": "Implement Phase 3: Loan Lifecycle",
+      "description": "Develop and test the loan lifecycle module",
+      "affected_files": [
+        "src/backend/calculations/loan_lifecycle.py",
+        "src/backend/tests/sequential/phase3_loan_lifecycle_test.py"
+      ]
+    },
+    {
+      "priority": "Low",
+      "action": "Implement Phase 4: Cash Flows",
+      "description": "Develop and test the cash flows module",
+      "affected_files": [
+        "src/backend/calculations/cash_flows.py",
+        "src/backend/tests/sequential/phase4_cash_flows_test.py"
+      ]
+    }
+  ]
+}

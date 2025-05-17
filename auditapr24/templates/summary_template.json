@@ -1,0 +1,13 @@
+{
+  "title": "Fund Simulation Summary Report",
+  "metrics": [
+    "irr", "equity_multiple", "roi", "sharpe_ratio", "max_drawdown"
+  ],
+  "sections": [
+    "fund_parameters",
+    "performance_metrics",
+    "waterfall_distribution",
+    "cash_flow_summary",
+    "risk_metrics"
+  ]
+} 

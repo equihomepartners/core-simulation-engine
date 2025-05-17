@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation Verification Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        .header {
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 30px;
+        }
+        .footer {
+            padding-top: 20px;
+            border-top: 1px solid #e5e5e5;
+            margin-top: 30px;
+            color: #777;
+        }
+        .test-case-card {
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .test-case-header {
+            padding: 15px;
+            border-bottom: 1px solid #e5e5e5;
+            background-color: #f8f9fa;
+            border-radius: 10px 10px 0 0;
+        }
+        .test-case-body {
+            padding: 20px;
+        }
+        .passed {
+            color: #28a745;
+        }
+        .failed {
+            color: #dc3545;
+        }
+        .error {
+            color: #fd7e14;
+        }
+        .progress {
+            height: 25px;
+            margin-bottom: 20px;
+        }
+        .progress-bar {
+            line-height: 25px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .config-section, .results-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .json-viewer {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .comparison-table {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .comparison-table th {
+            background-color: #f8f9fa;
+            padding: 10px;
+        }
+        .comparison-table td {
+            padding: 10px;
+        }
+        .comparison-table .mismatch {
+            background-color: #ffdddd;
+        }
+        .nav-tabs {
+            margin-bottom: 20px;
+        }
+        .tab-content {
+            padding: 20px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1>Simulation Verification Results</h1>
+                    <p class="lead">Results of verification tests for the simulation engine</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button id="refreshBtn" class="btn btn-primary">Refresh Results</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h2>Verification Summary</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="progress">
+                                    <div id="progressBar" class="progress-bar bg-danger" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                </div>
+                                <div id="progressStatus" class="text-center mb-3">No tests passed</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-4 text-center">
+                                        <h3 id="totalTests">3</h3>
+                                        <p>Total Tests</p>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        <h3 id="passedTests" class="passed">0</h3>
+                                        <p>Passed</p>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        <h3 id="failedTests" class="failed">3</h3>
+                                        <p>Failed</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Test Cases</h2>
+                <div id="testCasesContainer">
+                    <!-- Simple Fund Test Case -->
+                    <div class="test-case-card card">
+                        <div class="test-case-header">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h3 class="test-case-name">Simple Fund Test Case</h3>
+                                    <p class="test-case-description">A simple test case with a small fund and basic parameters to verify core calculations</p>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="test-case-status badge bg-danger">FAILED</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="test-case-body">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#config-simple" type="button" role="tab">Configuration</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#expected-simple" type="button" role="tab">Expected Results</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#actual-simple" type="button" role="tab">Actual Results</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#error-simple" type="button" role="tab">Error Details</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="config-simple" role="tabpanel">
+                                    <h4>Configuration Parameters</h4>
+                                    <div class="config-json json-viewer">
+{
+  "fund_size": 10000000,
+  "fund_term": 5,
+  "gp_commitment_percentage": 0.05,
+  "hurdle_rate": 0.08,
+  "carried_interest_rate": 0.20,
+  "waterfall_structure": "european",
+  "monte_carlo_enabled": false,
+  "optimization_enabled": false,
+  "stress_testing_enabled": false,
+  "external_data_enabled": false,
+  "generate_reports": true,
+  "base_appreciation_rate": 0.03,
+  "appreciation_volatility": 0.01,
+  "base_default_rate": 0.01,
+  "default_volatility": 0.005,
+  "correlation": 0.3,
+  "avg_loan_size": 250000,
+  "loan_size_std_dev": 50000,
+  "min_loan_size": 100000,
+  "max_loan_size": 500000,
+  "avg_loan_term": 3,
+  "avg_loan_interest_rate": 0.06,
+  "avg_loan_ltv": 0.75,
+  "zone_allocations": {
+    "green": 0.6,
+    "orange": 0.3,
+    "red": 0.1
+  },
+  "management_fee_rate": 0.02,
+  "management_fee_basis": "committed_capital",
+  "fund_expenses": 0.01,
+  "distribution_frequency": "annual",
+  "distribution_policy": "available_cash",
+  "reinvestment_period": 3,
+  "avg_loan_exit_year": 3,
+  "exit_year_std_dev": 0.5,
+  "early_exit_probability": 0.2
+}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="expected-simple" role="tabpanel">
+                                    <h4>Expected Results</h4>
+                                    <div class="expected-json json-viewer">
+{
+  "performance_metrics": {
+    "irr": 0.12,
+    "moic": 1.5,
+    "tvpi": 1.5,
+    "dpi": 1.5,
+    "rvpi": 0.0,
+    "payback_period": 3.5
+  },
+  "waterfall_results": {
+    "total_gp_distribution": 600000,
+    "total_lp_distribution": 14400000,
+    "gp_carried_interest": 100000
+  },
+  "cash_flows": {
+    "total_inflows": 15000000,
+    "total_outflows": 10000000,
+    "net_cash_flow": 5000000
+  }
+}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="actual-simple" role="tabpanel">
+                                    <h4>Actual Results</h4>
+                                    <div class="actual-json json-viewer">
+{
+  "market_conditions": {
+    "0": {
+      "appreciation_rates": {
+        "green": 0.0273,
+        "orange": 0.0273,
+        "red": 0.0273
+      },
+      "default_rates": {
+        "green": 0.0098,
+        "orange": 0.0098,
+        "red": 0.0098
+      }
+    },
+    "1": {
+      "appreciation_rates": {
+        "green": 0.0273,
+        "orange": 0.0273,
+        "red": 0.0273
+      },
+      "default_rates": {
+        "green": 0.0098,
+        "orange": 0.0098,
+        "red": 0.0098
+      }
+    }
+  },
+  "portfolio": {},
+  "error": "'Loan' object has no attribute 'amount'",
+  "errors": ["Error generating portfolio: 'Loan' object has no attribute 'amount'"]
+}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="error-simple" role="tabpanel">
+                                    <h4>Error Details</h4>
+                                    <div class="alert alert-danger">
+                                        <h5>Error Message:</h5>
+                                        <p>'Loan' object has no attribute 'amount'</p>
+                                        
+                                        <h5>Missing Results:</h5>
+                                        <ul>
+                                            <li>performance_metrics</li>
+                                            <li>cash_flows</li>
+                                            <li>waterfall_results</li>
+                                        </ul>
+                                        
+                                        <h5>Traceback:</h5>
+                                        <pre>
+File "/calculations/simulation_controller.py", line 384, in _generate_portfolio
+  total_value = sum(loan.amount for loan in portfolio.loans) if portfolio and hasattr(portfolio, 'loans') else 0
+File "/calculations/simulation_controller.py", line 384, in <genexpr>
+  total_value = sum(loan.amount for loan in portfolio.loans) if portfolio and hasattr(portfolio, 'loans') else 0
+AttributeError: 'Loan' object has no attribute 'amount'
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Large Fund Test Case -->
+                    <div class="test-case-card card">
+                        <div class="test-case-header">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h3 class="test-case-name">Large Fund Test Case</h3>
+                                    <p class="test-case-description">A test case with a large fund and complex parameters to verify calculations with larger numbers</p>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="test-case-status badge bg-danger">FAILED</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="test-case-body">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#config-large" type="button" role="tab">Configuration</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#expected-large" type="button" role="tab">Expected Results</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#actual-large" type="button" role="tab">Actual Results</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#error-large" type="button" role="tab">Error Details</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="config-large" role="tabpanel">
+                                    <h4>Configuration Parameters</h4>
+                                    <div class="config-json json-viewer">
+{
+  "fund_size": 100000000,
+  "fund_term": 10,
+  "gp_commitment_percentage": 0.05,
+  "hurdle_rate": 0.08,
+  "carried_interest_rate": 0.20,
+  "waterfall_structure": "american",
+  "monte_carlo_enabled": false,
+  "optimization_enabled": false,
+  "stress_testing_enabled": false,
+  "external_data_enabled": false,
+  "generate_reports": true,
+  "base_appreciation_rate": 0.04,
+  "appreciation_volatility": 0.02,
+  "base_default_rate": 0.015,
+  "default_volatility": 0.01,
+  "correlation": 0.4,
+  "avg_loan_size": 1000000,
+  "loan_size_std_dev": 200000,
+  "min_loan_size": 500000,
+  "max_loan_size": 2000000,
+  "avg_loan_term": 5,
+  "avg_loan_interest_rate": 0.07,
+  "avg_loan_ltv": 0.7,
+  "zone_allocations": {
+    "green": 0.5,
+    "orange": 0.3,
+    "red": 0.2
+  },
+  "management_fee_rate": 0.02,
+  "management_fee_basis": "invested_capital",
+  "fund_expenses": 0.01,
+  "distribution_frequency": "quarterly",
+  "distribution_policy": "available_cash",
+  "reinvestment_period": 5,
+  "avg_loan_exit_year": 5,
+  "exit_year_std_dev": 1.0,
+  "early_exit_probability": 0.3
+}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="expected-large" role="tabpanel">
+                                    <h4>Expected Results</h4>
+                                    <div class="expected-json json-viewer">
+{
+  "performance_metrics": {
+    "irr": 0.15,
+    "moic": 1.8,
+    "tvpi": 1.8,
+    "dpi": 1.7,
+    "rvpi": 0.1,
+    "payback_period": 5.2
+  },
+  "waterfall_results": {
+    "total_gp_distribution": 9000000,
+    "total_lp_distribution": 171000000,
+    "gp_carried_interest": 4000000
+  },
+  "cash_flows": {
+    "total_inflows": 180000000,
+    "total_outflows": 100000000,
+    "net_cash_flow": 80000000
+  }
+}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="actual-large" role="tabpanel">
+                                    <h4>Actual Results</h4>
+                                    <div class="actual-json json-viewer">
+{
+  "market_conditions": {
+    "0": {
+      "appreciation_rates": {
+        "green": 0.0448,
+        "orange": 0.0448,
+        "red": 0.0448
+      },
+      "default_rates": {
+        "green": 0.0171,
+        "orange": 0.0171,
+        "red": 0.0171
+      }
+    },
+    "1": {
+      "appreciation_rates": {
+        "green": 0.0448,
+        "orange": 0.0448,
+        "red": 0.0448
+      },
+      "default_rates": {
+        "green": 0.0171,
+        "orange": 0.0171,
+        "red": 0.0171
+      }
+    }
+  },
+  "portfolio": {},
+  "error": "'Loan' object has no attribute 'amount'",
+  "errors": ["Error generating portfolio: 'Loan' object has no attribute 'amount'"]
+}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="error-large" role="tabpanel">
+                                    <h4>Error Details</h4>
+                                    <div class="alert alert-danger">
+                                        <h5>Error Message:</h5>
+                                        <p>'Loan' object has no attribute 'amount'</p>
+                                        
+                                        <h5>Missing Results:</h5>
+                                        <ul>
+                                            <li>performance_metrics</li>
+                                            <li>cash_flows</li>
+                                            <li>waterfall_results</li>
+                                        </ul>
+                                        
+                                        <h5>Traceback:</h5>
+                                        <pre>
+File "/calculations/simulation_controller.py", line 384, in _generate_portfolio
+  total_value = sum(loan.amount for loan in portfolio.loans) if portfolio and hasattr(portfolio, 'loans') else 0
+File "/calculations/simulation_controller.py", line 384, in <genexpr>
+  total_value = sum(loan.amount for loan in portfolio.loans) if portfolio and hasattr(portfolio, 'loans') else 0
+AttributeError: 'Loan' object has no attribute 'amount'
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Edge Case Test -->
+                    <div class="test-case-card card">
+                        <div class="test-case-header">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h3 class="test-case-name">Edge Case Test</h3>
+                                    <p class="test-case-description">A test case with edge conditions to verify the system handles extreme values correctly</p>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <span class="test-case-status badge bg-danger">FAILED</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="test-case-body">
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#config-edge" type="button" role="tab">Configuration</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#expected-edge" type="button" role="tab">Expected Results</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#actual-edge" type="button" role="tab">Actual Results</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#error-edge" type="button" role="tab">Error Details</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="config-edge" role="tabpanel">
+                                    <h4>Configuration Parameters</h4>
+                                    <div class="config-json json-viewer">
+{
+  "fund_size": 1000000,
+  "fund_term": 15,
+  "gp_commitment_percentage": 0.1,
+  "hurdle_rate": 0.12,
+  "carried_interest_rate": 0.25,
+  "waterfall_structure": "european",
+  "monte_carlo_enabled": false,
+  "optimization_enabled": false,
+  "stress_testing_enabled": false,
+  "external_data_enabled": false,
+  "generate_reports": true,
+  "base_appreciation_rate": 0.01,
+  "appreciation_volatility": 0.05,
+  "base_default_rate": 0.05,
+  "default_volatility": 0.02,
+  "correlation": 0.8,
+  "avg_loan_size": 100000,
+  "loan_size_std_dev": 10000,
+  "min_loan_size": 50000,
+  "max_loan_size": 150000,
+  "avg_loan_term": 10,
+  "avg_loan_interest_rate": 0.1,
+  "avg_loan_ltv": 0.85,
+  "zone_allocations": {
+    "green": 0.2,
+    "orange": 0.3,
+    "red": 0.5
+  },
+  "management_fee_rate": 0.03,
+  "management_fee_basis": "net_asset_value",
+  "fund_expenses": 0.02,
+  "distribution_frequency": "monthly",
+  "distribution_policy": "income_only",
+  "reinvestment_period": 10,
+  "avg_loan_exit_year": 12,
+  "exit_year_std_dev": 2.0,
+  "early_exit_probability": 0.1
+}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="expected-edge" role="tabpanel">
+                                    <h4>Expected Results</h4>
+                                    <div class="expected-json json-viewer">
+{
+  "performance_metrics": {
+    "irr": 0.08,
+    "moic": 1.3,
+    "tvpi": 1.3,
+    "dpi": 1.0,
+    "rvpi": 0.3,
+    "payback_period": 10.5
+  },
+  "waterfall_results": {
+    "total_gp_distribution": 130000,
+    "total_lp_distribution": 1170000,
+    "gp_carried_interest": 30000
+  },
+  "cash_flows": {
+    "total_inflows": 1300000,
+    "total_outflows": 1000000,
+    "net_cash_flow": 300000
+  }
+}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="actual-edge" role="tabpanel">
+                                    <h4>Actual Results</h4>
+                                    <div class="actual-json json-viewer">
+{
+  "market_conditions": {
+    "0": {
+      "appreciation_rates": {
+        "green": 0.0396,
+        "orange": 0.0396,
+        "red": 0.0396
+      },
+      "default_rates": {
+        "green": 0.0402,
+        "orange": 0.0402,
+        "red": 0.0402
+      }
+    },
+    "1": {
+      "appreciation_rates": {
+        "green": 0.0396,
+        "orange": 0.0396,
+        "red": 0.0396
+      },
+      "default_rates": {
+        "green": 0.0402,
+        "orange": 0.0402,
+        "red": 0.0402
+      }
+    }
+  },
+  "portfolio": {},
+  "error": "'Loan' object has no attribute 'amount'",
+  "errors": ["Error generating portfolio: 'Loan' object has no attribute 'amount'"]
+}
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="error-edge" role="tabpanel">
+                                    <h4>Error Details</h4>
+                                    <div class="alert alert-danger">
+                                        <h5>Error Message:</h5>
+                                        <p>'Loan' object has no attribute 'amount'</p>
+                                        
+                                        <h5>Missing Results:</h5>
+                                        <ul>
+                                            <li>performance_metrics</li>
+                                            <li>cash_flows</li>
+                                            <li>waterfall_results</li>
+                                        </ul>
+                                        
+                                        <h5>Traceback:</h5>
+                                        <pre>
+File "/calculations/simulation_controller.py", line 384, in _generate_portfolio
+  total_value = sum(loan.amount for loan in portfolio.loans) if portfolio and hasattr(portfolio, 'loans') else 0
+File "/calculations/simulation_controller.py", line 384, in <genexpr>
+  total_value = sum(loan.amount for loan in portfolio.loans) if portfolio and hasattr(portfolio, 'loans') else 0
+AttributeError: 'Loan' object has no attribute 'amount'
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 Equihome Partners - Simulation Verification System</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update progress bar
+            const passedTests = 0;
+            const totalTests = 3;
+            const passRate = (passedTests / totalTests) * 100;
+            
+            document.getElementById('progressBar').style.width = `${passRate}%`;
+            document.getElementById('progressBar').textContent = `${passRate.toFixed(1)}%`;
+            
+            // Update refresh button
+            document.getElementById('refreshBtn').addEventListener('click', function() {
+                window.location.reload();
+            });
+        });
+    </script>
+</body>
+</html>

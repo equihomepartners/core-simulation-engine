@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "@types/cypress": "^1.1.6",
+    "@types/node": "^22.15.0",
+    "cypress": "^14.3.2",
+    "openapi-typescript-codegen": "^0.29.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@ant-design/charts": "^2.2.7",
+    "@mantine/charts": "^7.17.5",
+    "@mantine/form": "^7.17.5",
+    "ws": "^8.18.1"
+  }
+}
