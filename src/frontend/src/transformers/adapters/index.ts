@@ -10,4 +10,5 @@ export * from './gpEntityAdapter';
 export * from './bootstrapAdapter';
 export * from './gridStressAdapter';
 export * from './vintageVarAdapter';
-export * from './zoneMetricsAdapter'; 
+export * from './zoneMetricsAdapter';
+export * from './varianceAdapter';
