@@ -363,6 +363,14 @@
             "description": "Category of the expense",
             "enum": ["staff", "office", "technology", "marketing", "legal", "other"],
             "default": "other"
+          },
+          "monthly_pattern": {
+            "description": "Monthly pattern for the expense ('even', 'quarterly', 'annual' or 12 numbers)",
+            "oneOf": [
+              {"type": "string", "enum": ["even", "quarterly", "annual"]},
+              {"type": "array", "items": {"type": "number"}, "minItems": 12, "maxItems": 12}
+            ],
+            "default": "even"
           }
         },
         "required": ["name", "amount"]
@@ -433,6 +441,47 @@
       "description": "Initial cash reserve",
       "minimum": 0,
       "default": 0
+    },
+    "monthly_patterns": {
+      "type": "object",
+      "description": "Monthly distribution patterns for revenue and base expenses",
+      "properties": {
+        "management_fees": {
+          "description": "Pattern for management fees",
+          "oneOf": [
+            {"type": "string", "enum": ["even", "quarterly", "annual"]},
+            {"type": "array", "items": {"type": "number"}, "minItems": 12, "maxItems": 12}
+          ]
+        },
+        "carried_interest": {
+          "description": "Pattern for carried interest",
+          "oneOf": [
+            {"type": "string", "enum": ["even", "quarterly", "annual"]},
+            {"type": "array", "items": {"type": "number"}, "minItems": 12, "maxItems": 12}
+          ]
+        },
+        "origination_fees": {
+          "description": "Pattern for origination fees",
+          "oneOf": [
+            {"type": "string", "enum": ["even", "quarterly", "annual"]},
+            {"type": "array", "items": {"type": "number"}, "minItems": 12, "maxItems": 12}
+          ]
+        },
+        "additional_revenue": {
+          "description": "Pattern for additional revenue",
+          "oneOf": [
+            {"type": "string", "enum": ["even", "quarterly", "annual"]},
+            {"type": "array", "items": {"type": "number"}, "minItems": 12, "maxItems": 12}
+          ]
+        },
+        "base_expenses": {
+          "description": "Pattern for base management company expenses",
+          "oneOf": [
+            {"type": "string", "enum": ["even", "quarterly", "annual"]},
+            {"type": "array", "items": {"type": "number"}, "minItems": 12, "maxItems": 12}
+          ]
+        }
+      }
     }
   }
 }
