@@ -51,6 +51,8 @@ import { GPIRRBreakdownChart } from '@/components/results/gp-irr-breakdown-chart
 import { EnhancedZoneAllocationChart } from '@/components/results/enhanced-zone-allocation-chart';
 import { LPEconomicsTab } from '@/components/results/lp-economics-tab';
 import { InvestmentJourneyVisualization } from '@/components/results/investment-journey-visualization';
+import { MonteCarloResults } from '@/components/results/MonteCarloResults';
+import { EfficientFrontierChart } from '@/components/results/EfficientFrontierChart';
 import { MetricCard } from '@/components/ui/metric-card';
 import { LogLevel, LogCategory, log, logBackendDataStructure } from '@/utils/logging';
 import { formatCurrency, formatPercentage, formatMultiple, formatDecimal, formatNumber } from '@/lib/formatters';
@@ -432,8 +434,13 @@ export function Results() {
         </TabsContent>
 
         {/* Advanced Tab */}
-        <TabsContent value="advanced" className="p-6">
-          <div className="text-muted-foreground">Advanced analytics coming soon.</div>
+        <TabsContent value="advanced" className="space-y-8 p-6">
+          {simulationId && (
+            <>
+              <MonteCarloResults simulationId={simulationId} />
+              <EfficientFrontierChart optimizationId={simulationId} />
+            </>
+          )}
         </TabsContent>
       </Tabs>
 
