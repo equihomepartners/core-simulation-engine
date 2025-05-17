@@ -1609,10 +1609,14 @@ def get_monte_carlo_confidence_visualization(monte_carlo_results, format, metric
 @router.get("/{simulation_id}/loans/", response_model=List[dict])
 async def get_simulation_loans(simulation_id: str):
     """Get all loans with analytics for a simulation."""
-    if simulation_id not in simulation_results or simulation_results[simulation_id]['status'] != 'completed':
+    if (
+        simulation_id not in simulation_results
+        or simulation_results[simulation_id]["status"] != "completed"
+    ):
         raise HTTPException(status_code=404, detail="Simulation not found or not completed")
-    # TODO: Replace with real backend call
-    return simulation_results[simulation_id]['results'].get('loans', [])
+
+    results = simulation_results[simulation_id].get("results", {})
+    return results.get("loans", [])
 
 @router.get("/{simulation_id}/loans/{loan_id}/", response_model=dict)
 async def get_simulation_loan(simulation_id: str, loan_id: str):
@@ -1649,12 +1653,27 @@ async def get_cohort_analytics(simulation_id: str):
 @router.get("/{simulation_id}/export/")
 async def export_simulation(simulation_id: str, format: str = 'json'):
     """Export simulation analytics as CSV or JSON."""
-    if simulation_id not in simulation_results or simulation_results[simulation_id]['status'] != 'completed':
+    if (
+        simulation_id not in simulation_results
+        or simulation_results[simulation_id]["status"] != "completed"
+    ):
         raise HTTPException(status_code=404, detail="Simulation not found or not completed")
-    results = simulation_results[simulation_id]['results']
-    if format == 'csv':
-        # TODO: Implement CSV export
-        return StreamingResponse(iter(["CSV export not implemented yet\n"]), media_type="text/csv")
+
+    results = simulation_results[simulation_id].get("results", {})
+
+    if format.lower() == "csv":
+        import io
+        import pandas as pd
+
+        df = pd.json_normalize(results)
+        buf = io.StringIO()
+        df.to_csv(buf, index=False)
+        buf.seek(0)
+        headers = {
+            "Content-Disposition": f"attachment; filename=simulation_{simulation_id}.csv"
+        }
+        return StreamingResponse(buf, media_type="text/csv", headers=headers)
+
     return JSONResponse(content=results)
 
 @router.post("/{simulation_id}/run")
