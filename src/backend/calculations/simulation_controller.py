@@ -266,7 +266,11 @@ class SimulationController:
             'aggregate_gp_economics': True,
             'monte_carlo_parameters': {},
             'deployment_monthly_granularity': False,
-            'time_granularity': 'yearly'
+            'time_granularity': 'yearly',
+            'rebalancing_strength': 1.0,
+            'zone_drift_threshold': 0.1,
+            'zone_rebalancing_enabled': True,
+            'zone_allocation_precision': 0.8
         }
 
         for key, value in defaults.items():
@@ -572,7 +576,9 @@ class SimulationController:
                 portfolio.loans if hasattr(portfolio, 'loans') else [],
                 fund,
                 market_conditions,
-                self.config
+                self.config,
+                float(self.config.get('rebalancing_strength', 1.0)),
+                bool(self.config.get('zone_rebalancing_enabled', True))
             )
             granularity = self.config.get('time_granularity', 'yearly')
             if granularity == 'monthly':
