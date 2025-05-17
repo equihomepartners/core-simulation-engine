@@ -838,6 +838,8 @@ components:
             report_template: summary
             export_format: json
             include_charts: true
+        leverage:
+          $ref: '#/components/schemas/LeverageConfig'
         time_granularity:
           type: string
           description: Time granularity for simulation (yearly or monthly)
@@ -1245,6 +1247,8 @@ components:
           $ref: '#/components/schemas/GridStressResults'
         vintage_var:
           $ref: '#/components/schemas/VintageVarResults'
+        leverage_metrics:
+          $ref: '#/components/schemas/LeverageMetrics'
         fund_size:
           type: number
           description: Fund size

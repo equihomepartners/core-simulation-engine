@@ -8,6 +8,7 @@ import type { PerformanceMetrics } from './PerformanceMetrics';
 import type { PortfolioEvolution } from './PortfolioEvolution';
 import type { SimulationConfig } from './SimulationConfig';
 import type { VintageVarResults } from './VintageVarResults';
+import type { LeverageMetrics } from './LeverageMetrics';
 /**
  * Results of a simulation.
  */
@@ -85,6 +86,7 @@ export type SimulationResults = {
     bootstrap_results?: BootstrapResults;
     grid_stress_results?: GridStressResults;
     vintage_var?: VintageVarResults;
+    leverage_metrics?: LeverageMetrics;
     /**
      * Fund size
      */

@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { LeverageConfig } from './LeverageConfig';
 /**
  * Configuration for a simulation.
  */
@@ -185,6 +186,7 @@ export type SimulationConfig = {
      * Report configuration
      */
     report_config?: Record<string, any>;
+    leverage?: LeverageConfig;
     /**
      * Time granularity for simulation (yearly or monthly)
      */
