@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { LeverageConfig } from './LeverageConfig';
 /**
  * Configuration for a simulation.
  */
@@ -189,6 +190,7 @@ export type SimulationConfig = {
      * Time granularity for simulation (yearly or monthly)
      */
     time_granularity?: SimulationConfig.time_granularity;
+    leverage?: LeverageConfig;
 };
 export namespace SimulationConfig {
     /**

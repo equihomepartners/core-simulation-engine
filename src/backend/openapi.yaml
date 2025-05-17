@@ -843,6 +843,8 @@ components:
           description: Time granularity for simulation (yearly or monthly)
           enum: [yearly, monthly]
           default: yearly
+        leverage:
+          $ref: '#/components/schemas/LeverageConfig'
     SimulationResponse:
       title: SimulationResponse
       description: Response for a simulation creation request.
@@ -1245,6 +1247,8 @@ components:
           $ref: '#/components/schemas/GridStressResults'
         vintage_var:
           $ref: '#/components/schemas/VintageVarResults'
+        leverage:
+          $ref: '#/components/schemas/LeverageMetrics'
         fund_size:
           type: number
           description: Fund size
