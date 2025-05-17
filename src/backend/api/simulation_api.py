@@ -34,6 +34,12 @@ from api.utils import (
     camel_to_snake,
     validate_simulation_results
 )
+from api.models.optimization_models import (
+    PortfolioOptimizationConfig,
+    PortfolioOptimizationResponse,
+    EfficientFrontierResponse,
+)
+from api import optimization_api
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -1848,3 +1854,32 @@ def calculate_reinvestments_from_cash_flows(cash_flows, years, avg_loan_size=250
             reinvestment_counts.append(len(year_reinvestments))
 
     return reinvestment_counts, reinvestment_amounts
+
+
+# ---------------------------------------------------------------------------
+# Portfolio optimization helper routes
+# ---------------------------------------------------------------------------
+
+@router.post("/optimization", response_model=PortfolioOptimizationResponse)
+async def trigger_portfolio_optimization(
+    config: PortfolioOptimizationConfig,
+    background_tasks: BackgroundTasks,
+):
+    """Create and run a new portfolio optimization."""
+    return await optimization_api.create_optimization(
+        config=config,
+        background_tasks=background_tasks,
+        token="",
+    )
+
+
+@router.get(
+    "/optimization/{optimization_id}/efficient-frontier",
+    response_model=EfficientFrontierResponse,
+)
+async def get_efficient_frontier(optimization_id: str):
+    """Retrieve efficient frontier data for a portfolio optimization."""
+    return await optimization_api.get_efficient_frontier(
+        optimization_id=optimization_id,
+        token="",
+    )
