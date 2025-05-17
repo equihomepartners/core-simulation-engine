@@ -37,52 +37,58 @@ from .waterfall import calculate_waterfall_distribution
 from .performance import calculate_performance_metrics
 # Import monte_carlo functions
 try:
-    from .monte_carlo import generate_market_conditions, run_monte_carlo_simulation, run_config_mc
+    # Try to import from monte_carlo_pkg first
+    from .monte_carlo_pkg import generate_market_conditions
+    from .monte_carlo import run_monte_carlo_simulation, run_config_mc
 except ImportError as e:
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.warning(f"Production dependency missing: {e}")
-    # Fallback implementation for generate_market_conditions
-    def generate_market_conditions(
-        years=10,
-        base_appreciation_rate=0.03,
-        appreciation_volatility=0.02,
-        base_default_rate=0.01,
-        default_volatility=0.005,
-        correlation=0.3,
-        seed=None
-    ):
-        """Fallback implementation for generate_market_conditions"""
-        market_conditions = {}
-        zones = ['green', 'orange', 'red']
-        zone_appreciation_modifiers = {'green': 0.8, 'orange': 1.0, 'red': 1.2}
-        zone_default_modifiers = {'green': 0.7, 'orange': 1.0, 'red': 1.5}
+    try:
+        # Fallback to monte_carlo
+        from .monte_carlo import generate_market_conditions, run_monte_carlo_simulation, run_config_mc
+    except ImportError as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Production dependency missing: {e}")
+        # Fallback implementation for generate_market_conditions
+        def generate_market_conditions(
+            years=10,
+            base_appreciation_rate=0.03,
+            appreciation_volatility=0.02,
+            base_default_rate=0.01,
+            default_volatility=0.005,
+            correlation=0.3,
+            seed=None
+        ):
+            """Fallback implementation for generate_market_conditions"""
+            market_conditions = {}
+            zones = ['green', 'orange', 'red']
+            zone_appreciation_modifiers = {'green': 0.8, 'orange': 1.0, 'red': 1.2}
+            zone_default_modifiers = {'green': 0.7, 'orange': 1.0, 'red': 1.5}
 
-        for year in range(years + 1):
-            year_str = str(year)
-            appreciation_rates_by_zone = {}
-            default_rates_by_zone = {}
+            for year in range(years + 1):
+                year_str = str(year)
+                appreciation_rates_by_zone = {}
+                default_rates_by_zone = {}
 
-            for zone in zones:
-                appreciation_rates_by_zone[zone] = float(base_appreciation_rate * zone_appreciation_modifiers[zone])
-                default_rates_by_zone[zone] = float(base_default_rate * zone_default_modifiers[zone])
+                for zone in zones:
+                    appreciation_rates_by_zone[zone] = float(base_appreciation_rate * zone_appreciation_modifiers[zone])
+                    default_rates_by_zone[zone] = float(base_default_rate * zone_default_modifiers[zone])
 
-            market_conditions[year_str] = {
-                'appreciation_rates': appreciation_rates_by_zone,
-                'default_rates': default_rates_by_zone,
-                'base_appreciation_rate': float(base_appreciation_rate),
-                'base_default_rate': float(base_default_rate),
-                'housing_market_trend': 'stable',
-                'interest_rate_environment': 'stable',
-                'economic_outlook': 'stable'
-            }
+                market_conditions[year_str] = {
+                    'appreciation_rates': appreciation_rates_by_zone,
+                    'default_rates': default_rates_by_zone,
+                    'base_appreciation_rate': float(base_appreciation_rate),
+                    'base_default_rate': float(base_default_rate),
+                    'housing_market_trend': 'stable',
+                    'interest_rate_environment': 'stable',
+                    'economic_outlook': 'stable'
+                }
 
-        return market_conditions
+            return market_conditions
 
-    def run_monte_carlo_simulation(*args, **kwargs):
-        return {'monte_carlo_results': 'mocked'}
-    def run_config_mc(*args, **kwargs):
-        return {'summary_stats': {}}
+        def run_monte_carlo_simulation(*args, **kwargs):
+            return {'monte_carlo_results': 'mocked'}
+        def run_config_mc(*args, **kwargs):
+            return {'summary_stats': {}}
 from .gp_entity import GPEntity
 from .multi_fund import MultiFundManager
 
