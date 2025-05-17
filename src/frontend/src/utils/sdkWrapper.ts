@@ -278,6 +278,32 @@ export const runSimulationWithConfig = async (config: any) => {
 };
 
 /**
+ * Create a multi-fund simulation
+ */
+export const createMultiFundSimulation = async (payload: any) => {
+  try {
+    const result = await simulationSDK.createMultiFundSimulation(payload);
+    return result;
+  } catch (error) {
+    log(LogLevel.ERROR, LogCategory.API, 'Error creating multi-fund simulation:', { error });
+    throw error;
+  }
+};
+
+/**
+ * Create a tranched fund simulation
+ */
+export const createTranchedFundSimulation = async (payload: any) => {
+  try {
+    const result = await simulationSDK.createTranchedFundSimulation(payload);
+    return result;
+  } catch (error) {
+    log(LogLevel.ERROR, LogCategory.API, 'Error creating tranched fund simulation:', { error });
+    throw error;
+  }
+};
+
+/**
  * Get the 100M preset configuration
  */
 export const get100MPreset = () => {
@@ -299,6 +325,8 @@ export const sdkWrapper = {
   getSimulationResults,
   getSimulationVisualization,
   runSimulationWithConfig,
+  createMultiFundSimulation,
+  createTranchedFundSimulation,
   get100MPreset,
   setCacheEnabled,
   isCacheEnabled,
