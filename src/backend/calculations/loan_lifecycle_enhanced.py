@@ -17,6 +17,7 @@ import scipy.stats as stats
 from models_pkg import Fund, Loan, Portfolio
 from utils import decimal_truncated_normal, generate_zone_allocation
 from utils.distributions import truncated_normal
+from .loan_lifecycle import generate_reinvestment_loans_enhanced
 
 
 def generate_correlated_defaults(
@@ -354,7 +355,8 @@ def process_year_enhanced(
     current_year: int,
     fund: Fund,
     market_conditions: Dict[str, Any] = None,
-    rebalancing_strength: float = 1.0
+    rebalancing_strength: float = 1.0,
+    zone_rebalancing_enabled: bool = True,
 ) -> Tuple[List[Loan], List[Loan], List[Loan], Dict[str, Any]]:
     """
     Process a single year for a set of active loans with enhanced features.
@@ -365,6 +367,7 @@ def process_year_enhanced(
         fund: Fund instance with configuration parameters
         market_conditions: Optional market condition parameters
         rebalancing_strength: How strongly to rebalance zone allocations
+        zone_rebalancing_enabled: Whether zone rebalancing is enabled
     
     Returns:
         Tuple of (active_loans, exited_loans, new_reinvestments, year_metrics)
@@ -431,15 +434,21 @@ def process_year_enhanced(
             per_year_amount = reinvestment_amount / Decimal(deployment_period)
             for offset in range(deployment_period):
                 reinvestment_year = current_year + offset
-                # Generate new loans for this year (using maintain_zone_balance)
-                reinvestment_loans = maintain_zone_balance(
-                    still_active_loans,
-                    per_year_amount,
-                    fund.zone_allocations,
-                    reinvestment_year,
-                    fund,
-                    rebalancing_strength
-                )
+                if zone_rebalancing_enabled:
+                    reinvestment_loans = maintain_zone_balance(
+                        still_active_loans,
+                        per_year_amount,
+                        fund.zone_allocations,
+                        reinvestment_year,
+                        fund,
+                        rebalancing_strength,
+                    )
+                else:
+                    reinvestment_loans = generate_reinvestment_loans_enhanced(
+                        per_year_amount,
+                        reinvestment_year,
+                        fund,
+                    )
                 # Set origination_year for these loans
                 for loan in reinvestment_loans:
                     loan.origination_year = reinvestment_year
@@ -555,7 +564,8 @@ def model_portfolio_evolution_enhanced(
     initial_loans: List[Loan],
     fund: Fund,
     market_conditions_by_year: Dict[int, Dict[str, Any]] = None,
-    rebalancing_strength: float = 1.0
+    rebalancing_strength: float = 1.0,
+    zone_rebalancing_enabled: bool = True,
 ) -> Dict[int, Dict[str, Any]]:
     """
     Model the evolution of a portfolio over time with enhanced features.
@@ -565,6 +575,7 @@ def model_portfolio_evolution_enhanced(
         fund: Fund instance with configuration parameters
         market_conditions_by_year: Optional market conditions for each year
         rebalancing_strength: How strongly to rebalance zone allocations
+        zone_rebalancing_enabled: Whether zone rebalancing is enabled
     
     Returns:
         Dictionary mapping years to portfolio state
@@ -604,7 +615,8 @@ def model_portfolio_evolution_enhanced(
             year,
             fund,
             market_conditions,
-            rebalancing_strength
+            rebalancing_strength,
+            zone_rebalancing_enabled,
         )
         
         # Store portfolio state for this year
