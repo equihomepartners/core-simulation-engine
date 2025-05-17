@@ -22,6 +22,12 @@ interface SimulationState {
   runSimulation: (id: string) => Promise<void>;
   runSimulationWithConfig: (config: any) => Promise<any>;
   getSimulationResults: (id: string, timeGranularity?: 'yearly' | 'monthly') => Promise<any>;
+  getMonteCarloResults: (
+    id: string,
+    resultType?: 'distribution' | 'sensitivity' | 'confidence',
+    metricType?: 'irr' | 'multiple' | 'default_rate'
+  ) => Promise<any>;
+  getEfficientFrontier: (optimizationId: string) => Promise<any>;
   get100MPreset: () => any;
   clearCurrentSimulation: () => void;
 }
@@ -137,6 +143,41 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
       return results;
     } catch (error) {
       log(LogLevel.ERROR, LogCategory.STORE, `Error getting visualization for ${id}:`, { error });
+      throw error;
+    }
+  },
+
+  getMonteCarloResults: async (
+    id: string,
+    resultType: 'distribution' | 'sensitivity' | 'confidence' = 'distribution',
+    metricType: 'irr' | 'multiple' | 'default_rate' = 'irr'
+  ) => {
+    try {
+      log(
+        LogLevel.INFO,
+        LogCategory.STORE,
+        `Getting Monte Carlo results for ${id} type ${resultType}`
+      );
+      const data = await sdkWrapper.getMonteCarloResults(id, resultType, metricType);
+      return data;
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, `Error getting Monte Carlo results for ${id}:`, { error });
+      throw error;
+    }
+  },
+
+  getEfficientFrontier: async (optimizationId: string) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, `Getting efficient frontier for ${optimizationId}`);
+      const data = await sdkWrapper.getEfficientFrontier(optimizationId);
+      return data;
+    } catch (error) {
+      log(
+        LogLevel.ERROR,
+        LogCategory.STORE,
+        `Error getting efficient frontier for ${optimizationId}:`,
+        { error }
+      );
       throw error;
     }
   },

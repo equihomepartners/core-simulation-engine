@@ -278,6 +278,41 @@ export const runSimulationWithConfig = async (config: any) => {
 };
 
 /**
+ * Get Monte Carlo visualization data
+ */
+export const getMonteCarloResults = async (
+  id: string,
+  resultType: string = 'distribution',
+  metricType: string = 'irr'
+) => {
+  try {
+    log(LogLevel.INFO, LogCategory.API, `Getting Monte Carlo results for ${id}`);
+    const response = await simulationSDK.getMonteCarloVisualization(id, resultType, metricType);
+    return response;
+  } catch (error) {
+    log(LogLevel.ERROR, LogCategory.API, `Error getting Monte Carlo results for ${id}:`, { error });
+    throw error;
+  }
+};
+
+/**
+ * Get efficient frontier data
+ */
+export const getEfficientFrontier = async (optimizationId: string) => {
+  try {
+    log(LogLevel.INFO, LogCategory.API, `Getting efficient frontier for ${optimizationId}`);
+    const resp = await fetch(`/api/optimization/${optimizationId}/efficient-frontier`);
+    if (!resp.ok) {
+      throw new Error('Failed to fetch frontier');
+    }
+    return await resp.json();
+  } catch (error) {
+    log(LogLevel.ERROR, LogCategory.API, `Error getting efficient frontier ${optimizationId}:`, { error });
+    throw error;
+  }
+};
+
+/**
  * Get the 100M preset configuration
  */
 export const get100MPreset = () => {
@@ -298,6 +333,8 @@ export const sdkWrapper = {
   runSimulation,
   getSimulationResults,
   getSimulationVisualization,
+  getMonteCarloResults,
+  getEfficientFrontier,
   runSimulationWithConfig,
   get100MPreset,
   setCacheEnabled,

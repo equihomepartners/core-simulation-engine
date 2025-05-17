@@ -15,3 +15,5 @@ export * from './useChartData';
 export * from './useMetricsData';
 export * from './useSimulationStatus';
 export * from './useWindowSize';
+export * from './use-montecarlo-results';
+export * from './use-efficient-frontier';
