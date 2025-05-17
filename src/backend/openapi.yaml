@@ -633,6 +633,253 @@ paths:
                 $ref: '#/components/schemas/LeverageMetrics'
         '404':
           description: Not found
+
+  # ---------------------------------------------------------------------
+  # GP Entity Economics
+  # ---------------------------------------------------------------------
+  /gp-entity/{simulation_id}:
+    get:
+      summary: Get GP Entity Economics
+      description: |
+        Get the GP entity economics for a completed simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GPEntityEconomicsResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+  /gp-entity/{simulation_id}/basic:
+    get:
+      summary: Get GP Basic Economics
+      description: Get the basic GP entity economics for a completed simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicEconomicsResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+  /gp-entity/{simulation_id}/management-company:
+    get:
+      summary: Get Management Company Metrics
+      description: Get the management company metrics for a completed simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ManagementCompanyResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+  /gp-entity/{simulation_id}/team-economics:
+    get:
+      summary: Get Team Economics
+      description: Get the team economics for a completed simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamEconomicsResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+  /gp-entity/{simulation_id}/gp-commitment:
+    get:
+      summary: Get GP Commitment
+      description: Get the GP commitment for a completed simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GPCommitmentResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+  /gp-entity/{simulation_id}/cashflows:
+    get:
+      summary: Get GP Cashflows
+      description: Get the GP entity cashflows for a completed simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: frequency
+          in: query
+          description: Frequency of cashflows (yearly or monthly)
+          schema:
+            type: string
+            default: yearly
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GPEntityCashflowsResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+  /gp-entity/{simulation_id}/metrics:
+    get:
+      summary: Get GP Metrics
+      description: Get the GP entity metrics for a completed simulation.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GPEntityMetricsResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+  /gp-entity/{simulation_id}/visualization:
+    get:
+      summary: Get GP Visualization Data
+      description: |
+        Get visualization data for GP entity economics.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: chart_type
+          in: query
+          description: Type of chart to retrieve
+          schema:
+            type: string
+            default: all
+        - name: time_granularity
+          in: query
+          description: Time granularity for time-series data
+          schema:
+            type: string
+            default: yearly
+        - name: cumulative
+          in: query
+          description: Whether to return cumulative data
+          schema:
+            type: boolean
+            default: false
+        - name: start_year
+          in: query
+          description: Start year for filtering
+          schema:
+            type: integer
+        - name: end_year
+          in: query
+          description: End year for filtering
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisualizationDataResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     HTTPValidationError:
@@ -1719,3 +1966,277 @@ components:
         - $ref: '#/components/schemas/MonteCarloDistributionModel'
         - $ref: '#/components/schemas/MonteCarloSensitivityModel'
         - $ref: '#/components/schemas/MonteCarloConfidenceModel'
+
+    # -----------------------------------------------------------------
+    # GP Entity schemas
+    # -----------------------------------------------------------------
+    CashflowResponse:
+      title: CashflowResponse
+      type: object
+      properties:
+        management_fees:
+          type: number
+        carried_interest:
+          type: number
+        origination_fees:
+          type: number
+        additional_revenue:
+          type: number
+        total_revenue:
+          type: number
+        base_expenses:
+          type: number
+        custom_expenses:
+          type: number
+        expense_breakdown:
+          type: object
+          additionalProperties:
+            type: number
+        total_expenses:
+          type: number
+        net_income:
+          type: number
+        dividend:
+          type: number
+        cash_reserve:
+          type: number
+
+    GPEntityCashflowsResponse:
+      title: GPEntityCashflowsResponse
+      type: object
+      properties:
+        yearly:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/CashflowResponse'
+        monthly:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/CashflowResponse'
+
+    FundCommitmentResponse:
+      title: FundCommitmentResponse
+      type: object
+      properties:
+        commitment:
+          type: number
+        return:
+          type: number
+        multiple:
+          type: number
+        roi:
+          type: number
+
+    GPCommitmentResponse:
+      title: GPCommitmentResponse
+      type: object
+      properties:
+        total_commitment:
+          type: number
+        total_return:
+          type: number
+        multiple:
+          type: number
+        roi:
+          type: number
+        by_fund:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FundCommitmentResponse'
+
+    BasicEconomicsResponse:
+      title: BasicEconomicsResponse
+      type: object
+      properties:
+        total_management_fees:
+          type: number
+        total_origination_fees:
+          type: number
+        total_carried_interest:
+          type: number
+        total_catch_up:
+          type: number
+        total_return_of_capital:
+          type: number
+        total_distributions:
+          type: number
+        total_revenue:
+          type: number
+        yearly_management_fees:
+          type: object
+          additionalProperties:
+            type: number
+        yearly_carried_interest:
+          type: object
+          additionalProperties:
+            type: number
+        yearly_distributions:
+          type: object
+          additionalProperties:
+            type: number
+        yearly_origination_fees:
+          type: object
+          additionalProperties:
+            type: number
+        yearly_total_revenue:
+          type: object
+          additionalProperties:
+            type: number
+
+    ExpenseBreakdownResponse:
+      title: ExpenseBreakdownResponse
+      type: object
+      properties:
+        base:
+          type: number
+        staff:
+          type: number
+        office:
+          type: number
+        technology:
+          type: number
+        marketing:
+          type: number
+        legal:
+          type: number
+        other:
+          type: number
+        scaled:
+          type: number
+
+    StaffGrowthResponse:
+      title: StaffGrowthResponse
+      type: object
+      additionalProperties:
+        type: object
+        additionalProperties:
+          type: integer
+
+    ManagementCompanyResponse:
+      title: ManagementCompanyResponse
+      type: object
+      properties:
+        yearly_expenses:
+          type: object
+          additionalProperties:
+            type: number
+        total_expenses:
+          type: number
+        yearly_additional_revenue:
+          type: object
+          additionalProperties:
+            type: number
+        total_additional_revenue:
+          type: number
+        expense_breakdown:
+          $ref: '#/components/schemas/ExpenseBreakdownResponse'
+        staff_growth:
+          $ref: '#/components/schemas/StaffGrowthResponse'
+        yearly_aum:
+          type: object
+          additionalProperties:
+            type: number
+        yearly_fund_count:
+          type: object
+          additionalProperties:
+            type: integer
+        yearly_loan_count:
+          type: object
+          additionalProperties:
+            type: integer
+
+    TeamEconomicsResponse:
+      title: TeamEconomicsResponse
+      type: object
+      properties:
+        partner_carried_interest:
+          type: object
+          additionalProperties:
+            type: number
+        employee_carried_interest:
+          type: object
+          additionalProperties:
+            type: number
+        partner_management_fees:
+          type: object
+          additionalProperties:
+            type: number
+        employee_management_fees:
+          type: object
+          additionalProperties:
+            type: number
+        partner_origination_fees:
+          type: object
+          additionalProperties:
+            type: number
+        employee_origination_fees:
+          type: object
+          additionalProperties:
+            type: number
+        partner_total_compensation:
+          type: object
+          additionalProperties:
+            type: number
+        employee_total_compensation:
+          type: object
+          additionalProperties:
+            type: number
+        total_partner_allocation:
+          type: number
+        total_employee_allocation:
+          type: number
+        yearly_allocations:
+          type: object
+          additionalProperties:
+            type: object
+
+    GPEntityMetricsResponse:
+      title: GPEntityMetricsResponse
+      type: object
+      properties:
+        total_revenue:
+          type: number
+        total_expenses:
+          type: number
+        total_net_income:
+          type: number
+        profit_margin:
+          type: number
+        revenue_cagr:
+          type: number
+        expense_cagr:
+          type: number
+        net_income_cagr:
+          type: number
+        revenue_per_employee:
+          type: number
+        profit_per_employee:
+          type: number
+        irr:
+          type: number
+        payback_period:
+          type: integer
+
+    VisualizationDataResponse:
+      title: VisualizationDataResponse
+      type: object
+      additionalProperties: true
+
+    GPEntityEconomicsResponse:
+      title: GPEntityEconomicsResponse
+      type: object
+      properties:
+        basic_economics:
+          $ref: '#/components/schemas/BasicEconomicsResponse'
+        management_company:
+          $ref: '#/components/schemas/ManagementCompanyResponse'
+        team_economics:
+          $ref: '#/components/schemas/TeamEconomicsResponse'
+        gp_commitment:
+          $ref: '#/components/schemas/GPCommitmentResponse'
+        cashflows:
+          $ref: '#/components/schemas/GPEntityCashflowsResponse'
+        metrics:
+          $ref: '#/components/schemas/GPEntityMetricsResponse'
+        visualization_data:
+          $ref: '#/components/schemas/VisualizationDataResponse'
