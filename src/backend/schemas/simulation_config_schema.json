@@ -725,6 +725,11 @@
       "default": true,
       "description": "If true, all loans are forced to exit on or before the official fund term; if false, loans may mature beyond the term"
     },
+    "deployment_monthly_granularity": {
+      "type": "boolean",
+      "description": "Use monthly granularity for deployment/exit",
+      "default": false
+    },
     "geo_strategy": {
       "type": "string",
       "description": "Geographical allocation strategy for traffic-light zones / suburb IDs",

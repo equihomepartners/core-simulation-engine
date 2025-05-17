@@ -1178,6 +1178,10 @@ components:
             include_charts: true
         leverage:
           $ref: '#/components/schemas/LeverageConfig'
+        deployment_monthly_granularity:
+          type: boolean
+          description: Use monthly granularity for deployment/exit
+          default: false
         time_granularity:
           type: string
           description: Time granularity for simulation (yearly or monthly)
