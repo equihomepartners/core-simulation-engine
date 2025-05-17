@@ -37,4 +37,4 @@ def leverage_metrics(simulation_id: str):
     sim = _get_results(simulation_id)  # to be implemented
     if not sim:
         raise HTTPException(status_code=404, detail="Simulation not found")
-    return sim.get('leverage', {}) 
+    return sim.get('leverage_metrics', {})

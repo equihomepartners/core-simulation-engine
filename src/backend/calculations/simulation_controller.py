@@ -147,6 +147,7 @@ class SimulationResults(TypedDict, total=False):
     performance_metrics: dict
     gp_entity_economics: dict
     monte_carlo_results: dict
+    leverage_metrics: dict
     optimization_results: dict
     stress_test_results: dict
     reports: dict
@@ -783,7 +784,7 @@ class SimulationController:
                         cash_flows['net_cash_flow'][idx] -= interest
                         cash_flows['distributions'][idx] -= interest
 
-                self.results['leverage'] = lev_outputs['metrics']
+                self.results['leverage_metrics'] = lev_outputs['metrics']
             except Exception as lev_err:
                 logger.warning(f"Leverage module skipped: {lev_err}")
             logger.info("Cash flow calculation completed")
