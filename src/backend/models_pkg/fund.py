@@ -95,6 +95,9 @@ class Fund:
         self.interest_rate = self._parse_decimal(config.get('interest_rate', '0.05'), 'interest_rate')
         self.origination_fee_rate = self._parse_decimal(config.get('origination_fee_rate', '0.02'), 'origination_fee_rate')
         self.zone_allocation_precision = self._parse_decimal(config.get('zone_allocation_precision', '0.8'), 'zone_allocation_precision')
+        self.rebalancing_strength = self._parse_decimal(config.get('rebalancing_strength', '0.5'), 'rebalancing_strength')
+        self.zone_drift_threshold = self._parse_decimal(config.get('zone_drift_threshold', '0.1'), 'zone_drift_threshold')
+        self.zone_rebalancing_enabled = bool(config.get('zone_rebalancing_enabled', True))
 
         # Exit parameters
         self.average_exit_year = self._parse_decimal(
@@ -283,6 +286,9 @@ class Fund:
             'interest_rate': str(self.interest_rate),
             'origination_fee_rate': str(self.origination_fee_rate),
             'zone_allocation_precision': str(self.zone_allocation_precision),
+            'rebalancing_strength': str(self.rebalancing_strength),
+            'zone_drift_threshold': str(self.zone_drift_threshold),
+            'zone_rebalancing_enabled': self.zone_rebalancing_enabled,
             'average_exit_year': str(self.average_exit_year),
             'exit_year_std_dev': str(self.exit_year_std_dev),
             'early_exit_probability': str(self.early_exit_probability),

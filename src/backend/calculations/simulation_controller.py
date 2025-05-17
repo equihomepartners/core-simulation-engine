@@ -287,9 +287,9 @@ class SimulationController:
             'deployment_monthly_granularity': False,
             'time_granularity': 'yearly',
             'zone_rebalancing_enabled': True,
-            'rebalancing_strength': 0.5,
+            'rebalancing_strength': 1.0,
             'zone_drift_threshold': 0.1,
-            'zone_allocation_precision': 0.8,
+            'zone_allocation_precision': 0.8
         }
 
         for key, value in defaults.items():
@@ -609,8 +609,8 @@ class SimulationController:
                 fund,
                 market_conditions,
                 self.config,
-                self.config.get('rebalancing_strength', 1.0),
-                self.config.get('zone_rebalancing_enabled', True),
+                float(self.config.get('rebalancing_strength', 1.0)),
+                bool(self.config.get('zone_rebalancing_enabled', True))
             )
             granularity = self.config.get('time_granularity', 'yearly')
             if granularity == 'monthly':
