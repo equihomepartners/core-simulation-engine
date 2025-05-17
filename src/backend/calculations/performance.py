@@ -904,7 +904,8 @@ def calculate_gross_performance_metrics(cash_flows: Dict[int, Dict[str, Decimal]
         capital_contributions: GP and LP capital contributions
 
     Returns:
-        Dictionary with gross performance metrics
+        Dictionary with gross performance metrics. Fee drag is calculated in
+        ``calculate_performance_metrics`` after net results are available.
     """
     logger = logging.getLogger(__name__)
     logger.info("Calculating gross performance metrics (before fees and carried interest)")
@@ -1065,14 +1066,7 @@ def calculate_gross_performance_metrics(cash_flows: Dict[int, Dict[str, Decimal]
         'gross_annualized_roi': gross_annualized_roi,
         'gross_dpi': gross_dpi,
         'gross_rvpi': gross_rvpi,
-        'gross_tvpi': gross_tvpi,
-
-        # Add fee drag metrics
-        'fee_drag': {
-            'irr_drag': gross_irr_value - gross_irr_results.get('net_irr', 0.0),
-            'multiple_drag': gross_equity_multiple - gross_equity_multiple_results.get('net_multiple', 0.0),
-            'roi_drag': gross_roi - gross_roi_results.get('net_roi', 0.0)
-        }
+        'gross_tvpi': gross_tvpi
     }
 
 
