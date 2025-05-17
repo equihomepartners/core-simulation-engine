@@ -80,6 +80,99 @@ export function AdvancedStep() {
         </div>
       </FormSection>
 
+      <FormSection
+        title="Default Correlation"
+        description="Set correlation assumptions for loan defaults"
+        defaultExpanded={false}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ParameterField
+            name="default_correlation.enabled"
+            label="Enable Default Correlation"
+            type="switch"
+            defaultValue={true}
+          />
+          <ParameterField
+            name="default_correlation.same_zone"
+            label="Same Zone Correlation"
+            type="percentage"
+            min={0}
+            max={1}
+            step={0.01}
+            defaultValue={0.3}
+          />
+          <ParameterField
+            name="default_correlation.cross_zone"
+            label="Cross Zone Correlation"
+            type="percentage"
+            min={0}
+            max={1}
+            step={0.01}
+            defaultValue={0.1}
+          />
+        </div>
+      </FormSection>
+
+      <FormSection
+        title="Zone Rebalancing"
+        description="Control automatic rebalancing of zone allocations"
+        defaultExpanded={false}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ParameterField
+            name="zone_rebalancing_enabled"
+            label="Enable Zone Rebalancing"
+            type="switch"
+            defaultValue={true}
+          />
+          <ParameterField
+            name="rebalancing_strength"
+            label="Rebalancing Strength"
+            type="percentage"
+            min={0}
+            max={1}
+            step={0.01}
+            defaultValue={0.5}
+          />
+          <ParameterField
+            name="zone_drift_threshold"
+            label="Zone Drift Threshold"
+            type="percentage"
+            min={0}
+            max={0.5}
+            step={0.01}
+            defaultValue={0.1}
+          />
+          <ParameterField
+            name="zone_allocation_precision"
+            label="Zone Allocation Precision"
+            type="percentage"
+            min={0}
+            max={1}
+            step={0.01}
+            defaultValue={0.8}
+          />
+        </div>
+      </FormSection>
+
+      <FormSection
+        title="Lifecycle Timing"
+        description="Advanced exit timing parameters"
+        defaultExpanded={false}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ParameterField
+            name="exit_year_max_std_dev"
+            label="Exit Year Max Std Dev Multiplier"
+            type="number"
+            min={1}
+            max={5}
+            step={0.1}
+            defaultValue={3}
+          />
+        </div>
+      </FormSection>
+
       {/* Leverage Capital Structure ------------------------------------------------*/}
       <FormSection
         title="Leverage – Capital Structure"
