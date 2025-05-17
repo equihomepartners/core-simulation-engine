@@ -72,6 +72,8 @@ import {
 
 import { LoanDistributionCard } from '@/components/results/investment-journey/loan-distribution-card';
 import { TimelineEventCard } from '@/components/results/investment-journey/timeline-event-card';
+import { FundAggregationSummary } from '@/components/results/fund-aggregation-summary';
+import { TrancheDetailsTable } from '@/components/results/tranche-details-table';
 
 export function Results() {
   const { simulationId } = useParams<{ simulationId: string }>();
@@ -342,6 +344,15 @@ export function Results() {
           </Button>
         </div>
       </div>
+
+      {results?.aggregated && (
+        <FundAggregationSummary aggregated={results.aggregated} isLoading={isLoading} />
+      )}
+
+      {results?.aggregated?.tranches &&
+        Object.keys(results.aggregated.tranches).length > 0 && (
+          <TrancheDetailsTable tranches={results.aggregated.tranches} isLoading={isLoading} />
+        )}
 
       {/* Main tabs */}
       <div className="flex justify-between items-center mb-4">

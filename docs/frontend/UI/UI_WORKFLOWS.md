@@ -103,6 +103,22 @@ This document outlines the key user workflows for the Simulation Module UI and h
 - Percentile tables
 - Sensitivity analysis charts
 
+### 5. Multi-Fund Result Review
+
+**User Journey:**
+1. User runs or selects a simulation containing multiple funds or tranches
+2. System fetches aggregated results with fund-level and tranche-level metrics
+3. User reviews the aggregated metrics and tranche details
+4. User can drill down into individual fund results if needed
+
+**API Mapping:**
+1. GET `/api/simulations/{simulation_id}/results` to retrieve aggregated results
+
+**UI Components Needed:**
+- Fund aggregation summary card
+- Tranche details table
+- Links to individual fund results
+
 ## Secondary Workflows
 
 ### 1. Saving and Loading Configurations
