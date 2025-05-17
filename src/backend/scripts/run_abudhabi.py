@@ -1,12 +1,17 @@
 import json
 import sys
 from decimal import Decimal
+import logging
 
 # Add project root to sys.path for module resolution when executed standalone
 from pathlib import Path
 # Ensure backend root is on PYTHONPATH
 BACKEND_ROOT = Path(__file__).resolve().parents[1]  # .../src/backend
 sys.path.append(str(BACKEND_ROOT))
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 from calculations.simulation_controller import SimulationController
 
@@ -96,16 +101,16 @@ def main():
     with open("abudhabi_full_analytics.json", "w") as f:
         json.dump(results, f, indent=2, default=decimal_default)
 
-    # Print a summary of all top-level keys and their types/counts
-    print("\n=== Abu Dhabi Simulation: Top-level Analytics Keys ===")
+    # Log a summary of all top-level keys and their types/counts
+    logger.info("\n=== Abu Dhabi Simulation: Top-level Analytics Keys ===")
     for k, v in results.items():
         if isinstance(v, dict):
-            print(f"{k}: dict ({len(v)} keys)")
+            logger.info(f"{k}: dict ({len(v)} keys)")
         elif isinstance(v, list):
-            print(f"{k}: list ({len(v)} items)")
+            logger.info(f"{k}: list ({len(v)} items)")
         else:
-            print(f"{k}: {type(v).__name__}")
-    print("\nFull analytics saved to abudhabi_full_analytics.json\n")
+            logger.info(f"{k}: {type(v).__name__}")
+    logger.info("\nFull analytics saved to abudhabi_full_analytics.json\n")
 
 
 if __name__ == "__main__":
