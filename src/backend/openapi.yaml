@@ -880,6 +880,61 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+
+  # ---------------------------------------------------------------------
+  # Portfolio Optimization
+  # ---------------------------------------------------------------------
+  /api/optimization/:
+    post:
+      summary: Create Portfolio Optimization
+      description: |
+        Create and run a new portfolio optimization.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortfolioOptimizationConfig'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortfolioOptimizationResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+
+  /api/optimization/{optimization_id}/efficient-frontier:
+    get:
+      summary: Get Efficient Frontier
+      description: |
+        Return efficient frontier data for a completed portfolio optimization.
+      parameters:
+        - name: optimization_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EfficientFrontierResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     HTTPValidationError:
@@ -1758,6 +1813,7 @@ components:
         total_interest:
           type: number
 
+<<<<<<< HEAD
     MonteCarloHistogramBin:
       title: MonteCarloHistogramBin
       type: object
@@ -2226,6 +2282,94 @@ components:
       type: object
       additionalProperties: true
 
+    # -----------------------------------------------------------------
+    # Portfolio Optimization schemas
+    # -----------------------------------------------------------------
+    PortfolioOptimizationConfig:
+      title: PortfolioOptimizationConfig
+      type: object
+      properties:
+        base_config:
+          $ref: '#/components/schemas/SimulationConfig'
+        optimization_target:
+          type: string
+          enum: [irr, multiple, default_rate, sharpe]
+          default: irr
+        constraint_params:
+          type: object
+          properties:
+            min_irr:
+              type: number
+            max_default_rate:
+              type: number
+            min_multiple:
+              type: number
+        variable_params:
+          type: array
+          items:
+            type: object
+            properties:
+              param_name:
+                type: string
+              min_value:
+                type: number
+              max_value:
+                type: number
+              step_size:
+                type: number
+        num_points:
+          type: integer
+          default: 10
+
+    PortfolioOptimizationResponse:
+      title: PortfolioOptimizationResponse
+      type: object
+      properties:
+        optimization_id:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed]
+        message:
+          type: string
+        progress:
+          type: number
+
+    EfficientFrontierPoint:
+      title: EfficientFrontierPoint
+      type: object
+      properties:
+        config:
+          type: object
+        metrics:
+          type: object
+          properties:
+            irr:
+              type: number
+            multiple:
+              type: number
+            default_rate:
+              type: number
+            sharpe:
+              type: number
+
+    EfficientFrontierResponse:
+      title: EfficientFrontierResponse
+      type: object
+      properties:
+        optimization_id:
+          type: string
+        target:
+          type: string
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/EfficientFrontierPoint'
+        pareto_frontier:
+          type: array
+          items:
+            $ref: '#/components/schemas/EfficientFrontierPoint'
+
     GPEntityEconomicsResponse:
       title: GPEntityEconomicsResponse
       type: object
@@ -2244,3 +2388,114 @@ components:
           $ref: '#/components/schemas/GPEntityMetricsResponse'
         visualization_data:
           $ref: '#/components/schemas/VisualizationDataResponse'
+=======
+    SectorConstraint:
+      title: SectorConstraint
+      type: object
+      required: [name, asset_indices]
+      properties:
+        name:
+          type: string
+        asset_indices:
+          type: array
+          items:
+            type: integer
+        min_weight:
+          type: number
+        max_weight:
+          type: number
+
+    PortfolioOptimizationConfig:
+      title: PortfolioOptimizationConfig
+      type: object
+      required: [historical_returns]
+      properties:
+        historical_returns:
+          type: array
+          description: Historical returns (assets in columns, time in rows)
+          items:
+            type: array
+            items:
+              type: number
+        asset_names:
+          type: array
+          items:
+            type: string
+          description: Names of assets
+        risk_model:
+          type: string
+          description: Risk model to use
+          enum: [sample, exp, ledoit_wolf, oas, semi]
+        returns_model:
+          type: string
+          description: Returns model to use
+          enum: [mean, ema, capm]
+        objective:
+          type: string
+          description: Optimization objective
+          enum: [sharpe, min_risk, target_return, target_risk, utility]
+        risk_free_rate:
+          type: number
+          description: Risk-free rate (0-1)
+        target_return:
+          type: number
+          nullable: true
+          description: Target return for target_return objective (0-1)
+        target_risk:
+          type: number
+          nullable: true
+          description: Target risk for target_risk objective (0-1)
+        risk_aversion:
+          type: number
+          description: Risk aversion parameter for utility objective
+        min_weight:
+          type: number
+          description: Minimum weight for each asset (0-1)
+        max_weight:
+          type: number
+          description: Maximum weight for each asset (0-1)
+        sector_constraints:
+          type: array
+          items:
+            $ref: '#/components/schemas/SectorConstraint'
+          description: Sector constraints
+        generate_efficient_frontier:
+          type: boolean
+          description: Generate efficient frontier
+        efficient_frontier_points:
+          type: integer
+          description: Number of points on the efficient frontier
+        frequency:
+          type: integer
+          description: Number of periods in a year
+
+    PortfolioOptimizationResponse:
+      title: PortfolioOptimizationResponse
+      type: object
+      properties:
+        optimization_id:
+          type: string
+        status:
+          type: string
+
+    EfficientFrontierResponse:
+      title: EfficientFrontierResponse
+      type: object
+      properties:
+        optimization_id:
+          type: string
+        returns:
+          type: array
+          items:
+            type: number
+        risks:
+          type: array
+          items:
+            type: number
+        weights:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+>>>>>>> pr-41
