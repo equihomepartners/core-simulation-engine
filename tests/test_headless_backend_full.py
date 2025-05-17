@@ -130,6 +130,7 @@ def test_full_backend_flow():
     assert res_resp.status_code == 200, res_resp.text
     results = res_resp.json()
     assert "performance_metrics" in results
+    assert results.get("cash_flows"), "Monthly cash flows missing"
     # print("\n--- Simulation Results (Monthly) ---")
     # print(json.dumps(results["performance_metrics"], indent=4))
     # print("------------------------\n")
@@ -165,6 +166,7 @@ def test_full_backend_flow():
     assert res_resp_y.status_code == 200, res_resp_y.text
     results_y = res_resp_y.json()
     assert "performance_metrics" in results_y
+    assert results_y.get("cash_flows"), "Yearly cash flows missing"
     # print("\n--- Simulation Results (Yearly) ---")
     # print(json.dumps(results_y["performance_metrics"], indent=4))
     # print("------------------------\n")
@@ -220,7 +222,9 @@ def test_full_backend_flow():
         params={"chart_type": "distribution", "format": "irr"},
     )
     assert mc_resp.status_code == 200, mc_resp.text
-    assert mc_resp.json(), "Monte Carlo viz empty" 
+    mc_data = mc_resp.json()
+    assert mc_data, "Monte Carlo viz empty"
+    assert set(mc_data.keys()) >= {"labels", "datasets", "statistics"}
 
     # Print all monthly cash flows for the whole fund
     # print("\n--- All Monthly Cash Flows ---")
