@@ -15,4 +15,6 @@ export * from './models/SimulationResults';
 export * from './models/BootstrapResults';
 export * from './models/GridStressResults';
 export * from './models/VintageVarResults';
+export * from './models/MonteCarloResults';
+export * from './models/MonteCarloVisualization';
 export * from './services/DefaultService';

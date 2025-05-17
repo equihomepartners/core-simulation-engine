@@ -69,7 +69,7 @@ export namespace MonteCarloAdapter {
       max: normalize(statistics.max, null),
       mean: normalize(statistics.mean, null),
       median: normalize(statistics.median, null),
-      std_dev: normalize(statistics.std_dev, null),
+      std_dev: normalize(statistics.std_dev ?? statistics.stdDev, null),
       percentiles: {
         p10: normalize(statistics.percentiles?.p10, null),
         p25: normalize(statistics.percentiles?.p25, null),

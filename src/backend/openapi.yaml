@@ -126,7 +126,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/MonteCarloVisualization'
                 properties:
                   message:
                     type: string
@@ -1237,8 +1237,7 @@ components:
           type: object
           description: Waterfall distribution results
         monte_carlo_results:
-          type: object
-          description: Monte Carlo simulation results
+          $ref: '#/components/schemas/MonteCarloResults'
         bootstrap_results:
           $ref: '#/components/schemas/BootstrapResults'
         grid_stress_results:
@@ -1435,3 +1434,216 @@ components:
           type: number
         total_interest:
           type: number
+
+    MonteCarloHistogramBin:
+      title: MonteCarloHistogramBin
+      type: object
+      properties:
+        bin:
+          type: number
+        frequency:
+          type: number
+
+    MonteCarloDistributionSummary:
+      title: MonteCarloDistributionSummary
+      type: object
+      properties:
+        min:
+          type: number
+        max:
+          type: number
+        mean:
+          type: number
+        median:
+          type: number
+        stdDev:
+          type: number
+        percentiles:
+          type: object
+          properties:
+            p10:
+              type: number
+            p25:
+              type: number
+            p50:
+              type: number
+            p75:
+              type: number
+            p90:
+              type: number
+        histogram:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonteCarloHistogramBin'
+
+    MonteCarloResults:
+      title: MonteCarloResults
+      description: Results from Monte Carlo simulations.
+      type: object
+      properties:
+        distributions:
+          type: object
+          properties:
+            irr:
+              $ref: '#/components/schemas/MonteCarloDistributionSummary'
+            multiple:
+              $ref: '#/components/schemas/MonteCarloDistributionSummary'
+            default_rate:
+              $ref: '#/components/schemas/MonteCarloDistributionSummary'
+        sensitivity:
+          type: array
+          items:
+            type: object
+            properties:
+              parameter:
+                type: string
+              impact:
+                type: number
+              correlation:
+                type: number
+        efficient_frontier:
+          type: array
+          items:
+            type: object
+        convergence:
+          type: object
+          properties:
+            running_mean:
+              type: array
+              items:
+                type: number
+            running_ci:
+              type: array
+              items:
+                type: number
+        factor_decomposition:
+          type: object
+        num_simulations:
+          type: integer
+        variation_factor:
+          type: number
+        time_granularity:
+          type: string
+        simulation_results:
+          type: array
+          items:
+            type: object
+        errors:
+          type: array
+          items:
+            type: object
+
+    MonteCarloChartDataset:
+      title: MonteCarloChartDataset
+      type: object
+      properties:
+        label:
+          type: string
+        data:
+          type: array
+          items:
+            type: number
+        color:
+          type: string
+          nullable: true
+
+    MonteCarloStatistics:
+      title: MonteCarloStatistics
+      type: object
+      properties:
+        min:
+          type: number
+          nullable: true
+        max:
+          type: number
+          nullable: true
+        mean:
+          type: number
+          nullable: true
+        median:
+          type: number
+          nullable: true
+        std_dev:
+          type: number
+          nullable: true
+        percentiles:
+          type: object
+          properties:
+            p10:
+              type: number
+              nullable: true
+            p25:
+              type: number
+              nullable: true
+            p50:
+              type: number
+              nullable: true
+            p75:
+              type: number
+              nullable: true
+            p90:
+              type: number
+              nullable: true
+
+    MonteCarloDistributionModel:
+      title: MonteCarloDistributionModel
+      type: object
+      properties:
+        labels:
+          type: array
+          items:
+            type: number
+        datasets:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonteCarloChartDataset'
+        statistics:
+          $ref: '#/components/schemas/MonteCarloStatistics'
+
+    MonteCarloSensitivityModel:
+      title: MonteCarloSensitivityModel
+      type: object
+      properties:
+        labels:
+          type: array
+          items:
+            type: string
+        datasets:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonteCarloChartDataset'
+
+    MonteCarloConfidenceModel:
+      title: MonteCarloConfidenceModel
+      type: object
+      properties:
+        mean:
+          type: number
+          nullable: true
+        median:
+          type: number
+          nullable: true
+        confidence_intervals:
+          type: object
+          properties:
+            p10_p90:
+              type: array
+              minItems: 2
+              maxItems: 2
+              items:
+                type: number
+                nullable: true
+            p25_p75:
+              type: array
+              minItems: 2
+              maxItems: 2
+              items:
+                type: number
+                nullable: true
+
+    MonteCarloVisualization:
+      title: MonteCarloVisualization
+      oneOf:
+        - $ref: '#/components/schemas/MonteCarloDistributionModel'
+        - $ref: '#/components/schemas/MonteCarloSensitivityModel'
+        - $ref: '#/components/schemas/MonteCarloConfidenceModel'
