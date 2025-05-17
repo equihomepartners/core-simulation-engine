@@ -97,14 +97,12 @@ class Fund:
         self.zone_allocation_precision = self._parse_decimal(config.get('zone_allocation_precision', '0.8'), 'zone_allocation_precision')
 
         # Exit parameters
-        self.average_exit_year = self._parse_decimal(config.get('average_exit_year', str(self.term - 2)), 'average_exit_year')
-        self.exit_year_std_dev = self._parse_decimal(config.get('exit_year_std_dev', '1.5'), 'exit_year_std_dev')
-        # Optional: cap holding period to a multiple of std‑dev for realism
-        self.exit_year_max_std_dev = None
-        if config.get('exit_year_max_std_dev') is not None:
-            self.exit_year_max_std_dev = self._parse_decimal(
-                config['exit_year_max_std_dev'], 'exit_year_max_std_dev'
-            )
+        self.average_exit_year = self._parse_decimal(
+            config.get('average_exit_year', str(self.term - 2)), 'average_exit_year'
+        )
+        self.exit_year_std_dev = self._parse_decimal(
+            config.get('exit_year_std_dev', '1.5'), 'exit_year_std_dev'
+        )
         self.early_exit_probability = self._parse_decimal(config.get('early_exit_probability', '0.2'), 'early_exit_probability')
         self.appreciation_share_rate = self._parse_decimal(config.get('appreciation_share_rate', '0.5'), 'appreciation_share_rate')
 
@@ -287,7 +285,6 @@ class Fund:
             'zone_allocation_precision': str(self.zone_allocation_precision),
             'average_exit_year': str(self.average_exit_year),
             'exit_year_std_dev': str(self.exit_year_std_dev),
-            'exit_year_max_std_dev': str(self.exit_year_max_std_dev) if self.exit_year_max_std_dev is not None else None,
             'early_exit_probability': str(self.early_exit_probability),
             'appreciation_share_rate': str(self.appreciation_share_rate),
             'appreciation_share_method': self.appreciation_share_method,
