@@ -60,6 +60,23 @@ export function AdvancedStep() {
             step={1}
             placeholder="Random seed (optional)"
           />
+          <ParameterField
+            name="inner_monte_carlo_enabled"
+            label="Enable Inner Monte Carlo"
+            tooltip="Enable nested Monte Carlo simulations for variance analysis"
+            type="switch"
+            defaultValue={false}
+          />
+          <ParameterField
+            name="num_inner_simulations"
+            label="Inner Simulation Runs"
+            tooltip="Number of inner Monte Carlo simulations per outer iteration"
+            type="number"
+            min={1}
+            max={1000}
+            step={1}
+            defaultValue={100}
+          />
         </div>
       </FormSection>
 

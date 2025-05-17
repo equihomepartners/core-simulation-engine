@@ -16,3 +16,4 @@ export * from './models/BootstrapResults';
 export * from './models/GridStressResults';
 export * from './models/VintageVarResults';
 export * from './services/DefaultService';
+export * from './simulations';

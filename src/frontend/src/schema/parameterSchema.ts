@@ -240,6 +240,26 @@ export const parameterSchema: ParameterSchemaEntry[] = [
     section: 'Monte Carlo Parameters',
     validation: {},
   },
+  {
+    key: 'inner_monte_carlo_enabled',
+    label: 'Enable Inner Monte Carlo',
+    type: 'boolean',
+    uiComponent: 'Checkbox',
+    defaultValue: false,
+    step: 'AnalysisSettings',
+    section: 'Monte Carlo Parameters',
+    validation: {},
+  },
+  {
+    key: 'num_inner_simulations',
+    label: 'Inner Simulation Runs',
+    type: 'number',
+    uiComponent: 'NumberInput',
+    defaultValue: 100,
+    step: 'AnalysisSettings',
+    section: 'Monte Carlo Parameters',
+    validation: { min: 1, max: 1000 },
+  },
   // Default Correlation parameters
   {
     key: 'default_correlation.enabled',
