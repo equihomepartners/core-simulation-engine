@@ -34,6 +34,8 @@ from calculations.optimization import optimize_portfolio, calculate_expected_ret
 from calculations.monte_carlo_pkg.parameter_selection import ParameterSelection
 from calculations.risk_decomposition import decompose_factors  # type: ignore
 
+from .portfolio_gen import generate_portfolio_from_config
+
 # We define run_single_simulation directly in this file
 # No need to import it from elsewhere
 
@@ -767,3 +769,22 @@ def prepare_monte_carlo_visualization_data(monte_carlo_results: Dict[str, Any]) 
         'efficient_frontier': efficient_frontier_chart,
         'summary_stats': summary_stats
     }
+
+
+def run_config_mc(
+    config: Dict[str, Any],
+    num_simulations: int = 1000,
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+) -> Dict[str, Any]:
+    """Run Monte Carlo directly from a configuration dictionary."""
+    portfolio = generate_portfolio_from_config(config)
+    mc_results = run_monte_carlo_simulation(
+        fund_params=portfolio,
+        num_simulations=num_simulations,
+        variation_factor=config.get('variation_factor', 0.1),
+        seed=config.get('monte_carlo_seed'),
+        monte_carlo_parameters=config.get('monte_carlo_parameters'),
+        time_granularity=config.get('time_granularity', 'yearly'),
+        progress_callback=progress_callback,
+    )
+    return prepare_monte_carlo_visualization_data(mc_results)

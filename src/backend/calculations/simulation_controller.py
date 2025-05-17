@@ -37,7 +37,7 @@ from .waterfall import calculate_waterfall_distribution
 from .performance import calculate_performance_metrics
 # Import monte_carlo functions
 try:
-    from .monte_carlo import generate_market_conditions, run_monte_carlo_simulation
+    from .monte_carlo import generate_market_conditions, run_monte_carlo_simulation, run_config_mc
 except ImportError as e:
     import logging
     logger = logging.getLogger(__name__)
@@ -81,6 +81,8 @@ except ImportError as e:
 
     def run_monte_carlo_simulation(*args, **kwargs):
         return {'monte_carlo_results': 'mocked'}
+    def run_config_mc(*args, **kwargs):
+        return {'summary_stats': {}}
 from .gp_entity import GPEntity
 from .multi_fund import MultiFundManager
 
@@ -126,6 +128,8 @@ class SimulationConfig(TypedDict, total=False):
     carried_interest_rate: float
     waterfall_structure: str
     monte_carlo_enabled: bool
+    inner_monte_carlo_enabled: bool
+    num_inner_simulations: int
     optimization_enabled: bool
     stress_testing_enabled: bool
     external_data_enabled: bool
@@ -152,6 +156,7 @@ class SimulationResults(TypedDict, total=False):
     gp_entity_economics: dict
     monte_carlo_results: dict
     leverage_metrics: dict
+    inner_monte_carlo: dict
     optimization_results: dict
     stress_test_results: dict
     reports: dict
@@ -263,6 +268,8 @@ class SimulationController:
             'carried_interest_rate': 0.20,
             'waterfall_structure': 'european',
             'monte_carlo_enabled': False,
+            'inner_monte_carlo_enabled': False,
+            'num_inner_simulations': 1000,
             'optimization_enabled': False,
             'stress_testing_enabled': False,
             'external_data_enabled': False,
@@ -333,6 +340,19 @@ class SimulationController:
             # Step 2: Generate portfolio
             self._update_progress('portfolio', 0.2, "Generating portfolio")
             self._generate_portfolio()
+
+            if self.config.get('inner_monte_carlo_enabled', False):
+                self._update_progress('inner_monte_carlo', 0.25, 'Running inner Monte Carlo')
+                try:
+                    inner_results = run_config_mc(
+                        self.config,
+                        num_simulations=self.config.get('num_inner_simulations', 1000),
+                    )
+                    self.results['inner_monte_carlo'] = inner_results
+                except Exception as e:
+                    logger.error(f"Error running inner Monte Carlo: {str(e)}", exc_info=True)
+                    self.results['inner_monte_carlo'] = {}
+                    self.results['errors'] = self.results.get('errors', []) + [f"Inner Monte Carlo error: {str(e)}"]
 
             # Ensure time granularity is consistently applied across all calculations
             granularity = self._handle_granularity()
