@@ -188,6 +188,10 @@ export type SimulationConfig = {
     report_config?: Record<string, any>;
     leverage?: LeverageConfig;
     /**
+     * Use monthly granularity for deployment/exit
+     */
+    deployment_monthly_granularity?: boolean;
+    /**
      * Time granularity for simulation (yearly or monthly)
      */
     time_granularity?: SimulationConfig.time_granularity;
