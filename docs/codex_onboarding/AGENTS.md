@@ -184,22 +184,78 @@
     - Used extensively by frontend components (especially within the wizard and results pages) to send simulation configurations and retrieve results.
     - Example service usage: `SimulationsService.createSimulationApiSimulationsPost(...)`.
 
-## 7. API Documentation
-- **Source of Truth:** The OpenAPI schema, accessible at `/openapi.json` from the running backend (e.g., `http://localhost:8000/openapi.json`). This schema is used to generate the SDK.
-- **Interactive API Docs:** FastAPI typically provides interactive documentation via Swagger UI at `/docs` and ReDoc at `/redoc` on the backend URL (e.g., `http://localhost:8000/docs`).
-- **Key Endpoints (Illustrative - refer to OpenAPI schema for actuals):**
-    - `/api/simulations`: POST to create new simulations, GET to list simulations.
-    - `/api/simulations/{simulation_id}`: GET simulation details and configuration.
-    - `/api/simulations/{simulation_id}/results`: GET comprehensive simulation results (cash flows, performance metrics, etc.). This endpoint may accept query parameters like `time_granularity`.
-    - `/api/simulations/{simulation_id}/config`: GET/PUT simulation configuration.
-    - `/api/simulations/{simulation_id}/portfolio-evolution`: GET data related to portfolio changes over time.
-    - `/api/simulations/{simulation_id}/visualization`: GET data structured for specific visualizations.
-    - `/api/sims/{id}/metrics?bucket=<BUCKET_NAME>`: GET aggregated time-bucketed metrics.
-    - `/api/configs`: CRUD operations for simulation configuration presets.
-- **API Versioning:** Potentially uses `X-Api-Version` header for v2 endpoints (confirm current practice).
-- **Authentication:** Currently, no explicit authentication mechanism is apparent in the provided logs or documentation. Assume public access for local development unless specified otherwise.
+## 7. Development Workflow & Best Practices
+- **Agile Principles:** While not explicitly stated, iterative development is implied.
+- **Communication:** Regular updates, clear documentation of changes (commit messages, PRs).
+- **Version Control (Git):**
+    - All code is managed in a Git repository on GitHub: `https://github.com/equihomepartners/core-simulation-engine`.
+    - The primary branch is `main`.
+    - Feature development should happen on separate branches.
+- **Code Reviews:** Implied necessity before merging to `main`, especially for AI-generated code.
+- **Testing:**
+    - Unit tests (pytest for backend, Jest/Vitest likely for frontend - though not explicitly detailed).
+    - End-to-end tests (Cypress for frontend, as seen in `cypress/e2e/`).
+    - Headless tests for backend simulation logic (`scripts/headless_random_test.py`).
+- **Dependency Management:**
+    - Backend: `requirements.txt` for Python packages.
+    - Frontend: `package.json` for Node.js packages.
+- **Code Style & Linting:**
+    - Backend: Black, Flake8, Ruff (implied common Python standards).
+    - Frontend: ESLint, Prettier (as seen in `.eslintrc.cjs` and `package.json`).
+- **Continuous Integration/Continuous Deployment (CI/CD):** No specific CI/CD pipeline details are provided in the current context, but good practice to assume it might be added or desired.
+- **Current Development Focus (as of last major UI work):**
+    - Finalizing the "LP Economics" tab, including fixing UI layout issues for event markers and the data table in `NavDpiQuadChartC.tsx`.
+    - Ensuring all data correctly flows from the backend to the frontend for this tab.
+    - Expanding other results tabs (Portfolio Analysis, GP Economics, etc.) with appropriate visualizations and data.
+    - Potentially adding more advanced analytics features or refining existing ones.
 
-## 8. Development Environment & Workflow
+    **7.1. Typical Backend Development Cycle:**
+    1.  Create/checkout a feature branch from `main`.
+    2.  Implement changes in `calculations/`, `api/`, `models/`, or `services/`.
+    3.  Write/update Pytests.
+    4.  Ensure all tests pass.
+    5.  Update OpenAPI schema if API contracts change (`main.py` or by editing `openapi.json` directly, then ensuring backend reflects this).
+    6.  Commit changes with clear messages.
+    7.  Push branch and open a Pull Request against `main`.
+    8.  After review and approval, merge to `main`.
+
+    **7.2. Typical Frontend Development Cycle:**
+    1.  Create/checkout a feature branch from `main`.
+    2.  If backend API has changed and SDK is not yet updated, run `npm run generate-sdk` (or coordinate with backend dev).
+    3.  Implement UI changes in `src/components/`, `src/pages/`, `src/hooks/`, etc.
+    4.  Write/update relevant tests (e.g., Vitest, Cypress).
+    5.  Ensure all tests pass and linters are clean.
+    6.  Commit changes with clear messages.
+    7.  Push branch and open a Pull Request against `main`.
+    8.  After review and approval, merge to `main`.
+
+    **7.3. Common Gotchas/Best Practices**
+    - Ensure Python environment (`venv`) is activated for backend work.
+    - Always run `npm install` in `src/frontend` after pulling changes if `package.json` or `package-lock.json` was modified.
+    - Backend API runs on `http://localhost:8000` by default (from `README.md`), ensure this doesn't conflict. Frontend runs on `http://localhost:5173`.
+    - Keep the SDK up-to-date by running `npm run generate-sdk` from the frontend directory after backend API changes.
+    - Refer to `PARAMETER_TRACKING.md` for detailed explanations of simulation parameters.
+    - Clear browser cache or use incognito mode if frontend changes don't appear immediately.
+    - Regularly pull changes from the main branch to stay updated.
+    - Write clear and concise commit messages.
+    - For UI work, follow existing patterns in Shadcn UI and Recharts.
+
+    **7.4. Git Branching Strategy for AI Collaboration**
+    - When an AI agent (e.g., Codex, or any other LLM-based assistant) is tasked with making code changes or implementing features, it **MUST** create a new feature branch.
+    - **Branch Naming Convention:** Branches created by AI agents should follow a clear pattern, such as:
+        - `agent-dev/brief-feature-description`
+        - `codex-dev/ticket-number-or-task-summary`
+        - Example: `codex-dev/add-leverage-slider` or `agent-dev/fix-nav-calculation`
+    - **Workflow:**
+        1. Ensure your local `main` branch is up-to-date with `origin/main`.
+        2. Create a new feature branch from `main` using the naming convention above.
+        3. Implement changes on this feature branch.
+        4. Commit changes regularly with clear messages.
+        5. Push the feature branch to the remote repository (`origin`).
+        6. Once work is complete and tested (if applicable), notify the human developer to review and merge the changes into `main` (typically via a Pull Request on GitHub).
+    - **Avoid Direct Commits to `main`:** AI agents should **NEVER** commit directly to the `main` branch. All contributions must go through a feature branch and be reviewed.
+
+## 8. Tooling & Scripts
 - **Orchestration Script (`./run_simulation_module.sh`):** The preferred way to start the full development environment.
     - Sources environment variables from `.env`.
     - Ensures database migrations are applied.
@@ -306,6 +362,36 @@ You are an expert AI pair programmer and software engineer. Your primary goal is
     - `src/frontend/src/api/` (Generated SDK)
 - **SDK Generation:** `generate-sdk.sh` (root script), uses `openapi.json` from backend.
 - **Orchestration:** `./run_simulation_module.sh` (root script).
+
+## 13. Common Gotchas/Best Practices
+- Ensure Python environment (`venv`) is activated for backend work.
+- Always run `npm install` in `src/frontend` after pulling changes if `package.json` or `package-lock.json` was modified.
+- Backend API runs on `http://localhost:8000` by default (from `README.md`), ensure this doesn't conflict. Frontend runs on `http://localhost:5173`.
+- Keep the SDK up-to-date by running `npm run generate-sdk` from the frontend directory after backend API changes.
+- Refer to `PARAMETER_TRACKING.md` for detailed explanations of simulation parameters.
+- Clear browser cache or use incognito mode if frontend changes don't appear immediately.
+- Regularly pull changes from the main branch to stay updated.
+- Write clear and concise commit messages.
+- For UI work, follow existing patterns in Shadcn UI and Recharts.
+
+**7.4. Git Branching Strategy for AI Collaboration**
+- When an AI agent (e.g., Codex, or any other LLM-based assistant) is tasked with making code changes or implementing features, it **MUST** create a new feature branch.
+- **Branch Naming Convention:** Branches created by AI agents should follow a clear pattern, such as:
+    - `agent-dev/brief-feature-description`
+    - `codex-dev/ticket-number-or-task-summary`
+    - Example: `codex-dev/add-leverage-slider` or `agent-dev/fix-nav-calculation`
+- **Workflow:**
+    1. Ensure your local `main` branch is up-to-date with `origin/main`.
+    2. Create a new feature branch from `main` using the naming convention above.
+    3. Implement changes on this feature branch.
+    4. Commit changes regularly with clear messages.
+    5. Push the feature branch to the remote repository (`origin`).
+    6. Once work is complete and tested (if applicable), notify the human developer to review and merge the changes into `main` (typically via a Pull Request on GitHub).
+- **Avoid Direct Commits to `main`:** AI agents should **NEVER** commit directly to the `main` branch. All contributions must go through a feature branch and be reviewed.
+
+## 8. Key Contacts & Resources
+- **Human Developer:** [Human Developer Name]
+- **AI Agent:** [AI Agent Name]
 
 ---
 **(This document is a living document and should be updated by AI and human developers as the project evolves)** 
