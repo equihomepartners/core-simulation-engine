@@ -579,8 +579,6 @@ def project_cash_flows(
     market_conditions_by_year: Optional[Dict[int, Dict[str, Any]]] = None
 ) -> Dict[int, Dict[str, Any]]:
     _validate_params(params)
-    import logging
-    logger = logging.getLogger(__name__)
     logger.info("Starting yearly cash flow projection.")
     fund_term = int(params.get('fund_term', 10))
 
@@ -801,13 +799,12 @@ def project_cash_flows(
 
     # DEBUG: Log LP cash flows for verification
     try:
-        logger = logging.getLogger(__name__)
         lp_net = [float(cash_flows[year]['lp_net_cash_flow']) for year in sorted(cash_flows.keys())]
         lp_cum = [float(cash_flows[year]['lp_cumulative_cash_flow']) for year in sorted(cash_flows.keys())]
         logger.info(f"LP net cash flow array: {lp_net}")
         logger.info(f"LP cumulative cash flow array: {lp_cum}")
     except Exception as e:
-        print(f"[DEBUG] Could not log LP cash flows: {e}")
+        logger.debug(f"[DEBUG] Could not log LP cash flows: {e}")
 
     return cash_flows
 
@@ -1110,8 +1107,6 @@ def project_cash_flows_monthly(
     market_conditions_by_month: Optional[Dict[int, Dict[str, Any]]] = None
 ) -> Dict[int, Dict[str, Any]]:
     _validate_params(params)
-    import logging
-    logger = logging.getLogger(__name__)
     logger.info("Starting monthly cash flow projection.")
     fund_term = int(params.get('fund_term', 10))
     total_months = fund_term * 12
@@ -1235,7 +1230,7 @@ def project_cash_flows_monthly(
             )
             cash_flows[month]['reinvestment'] = -reinvestment_amount
             # DEBUG PRINTS
-            print(f"[DEBUG] Month {month}: Exited Loans: {len(exited_loans)}, Reinvestment Amount: {reinvestment_amount}, Reinvestment Period (months): {int(params.get('reinvestment_period', 5)) * 12}")
+            logger.debug(f"[DEBUG] Month {month}: Exited Loans: {len(exited_loans)}, Reinvestment Amount: {reinvestment_amount}, Reinvestment Period (months): {int(params.get('reinvestment_period', 5)) * 12}")
     cumulative = Decimal('0')
     lp_cumulative = Decimal('0')
     idle_cash_rate = Decimal(str(params.get('idle_cash_rate', '0')))
@@ -1281,13 +1276,12 @@ def project_cash_flows_monthly(
         cash_flows[month]['cash_balance'] = cash_balance
         prev_cash_balance = cash_balance
     try:
-        logger = logging.getLogger(__name__)
         lp_net = [float(cash_flows[month]['lp_net_cash_flow']) for month in sorted(cash_flows.keys())]
         lp_cum = [float(cash_flows[month]['lp_cumulative_cash_flow']) for month in sorted(cash_flows.keys())]
         logger.info(f"[Monthly] LP net cash flow array: {lp_net}")
         logger.info(f"[Monthly] LP cumulative cash flow array: {lp_cum}")
     except Exception as e:
-        print(f"[DEBUG] Could not log monthly LP cash flows: {e}")
+        logger.debug(f"[DEBUG] Could not log monthly LP cash flows: {e}")
     return cash_flows
 
 def aggregate_monthly_to_yearly(monthly_data: Dict[int, Dict[str, Any]]) -> Dict[int, Dict[str, Any]]:

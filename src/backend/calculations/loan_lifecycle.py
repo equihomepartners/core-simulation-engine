@@ -14,7 +14,6 @@ from copy import deepcopy
 
 # Set up logger
 logger = logging.getLogger(__name__)
-import logging
 import uuid
 
 from models_pkg import Fund, Loan, Portfolio
@@ -26,8 +25,6 @@ MIN_LTV = Decimal('0.1')
 MAX_LTV = Decimal('0.9')
 DEFAULT_EXIT_PROBABILITY = 0.1
 DEFAULT_RANDOM_SEED = None
-
-logger = logging.getLogger(__name__)
 
 # --- Input Validation Utilities ---
 def _validate_loans(loans):
@@ -870,9 +867,9 @@ def model_portfolio_evolution_monthly(
     fund: Fund,
     market_conditions: Optional[Dict[int, Any]] = None
 ) -> Dict[int, Dict[str, Any]]:
-    print("[DEBUG] ENTERED model_portfolio_evolution_monthly")
-    print(f"[DEBUG] Fund config: {getattr(fund, 'config', None)}")
-    print(f"[DEBUG] Initial loans: {[getattr(l, 'loan_id', None) for l in initial_loans]}")
+    logger.debug("[DEBUG] ENTERED model_portfolio_evolution_monthly")
+    logger.debug(f"[DEBUG] Fund config: {getattr(fund, 'config', None)}")
+    logger.debug(f"[DEBUG] Initial loans: {[getattr(l, 'loan_id', None) for l in initial_loans]}")
     total_months = fund.term * 12
     monthly_portfolio = {}
 
@@ -892,10 +889,10 @@ def model_portfolio_evolution_monthly(
         loan.is_default = getattr(loan, 'is_default', False)
         loan.reinvested = getattr(loan, 'reinvested', False)
         loan_id_val = getattr(loan, 'loan_id', getattr(loan, 'id', None))
-        print(f"[DEBUG] INITIAL LOAN CREATED: loan_id={loan_id_val}, origination_month=0, exit_month={exit_month}")
+        logger.debug(f"[DEBUG] INITIAL LOAN CREATED: loan_id={loan_id_val}, origination_month=0, exit_month={exit_month}")
     # Print distribution of exit months for all loans at start
     exit_months = [getattr(l, 'exit_month', None) for l in initial_loans]
-    print(f"[DEBUG] Distribution of exit months for all initial loans: {exit_months}")
+    logger.debug(f"[DEBUG] Distribution of exit months for all initial loans: {exit_months}")
 
     # Initialize month 0
     monthly_portfolio[0] = {
@@ -915,7 +912,7 @@ def model_portfolio_evolution_monthly(
             if getattr(loan, 'status', 'active') not in ['exited', 'defaulted']:
                 active_loans.append(loan)
         # Print number of active loans, exited loans, and reinvestments each month
-        print(f"[DEBUG] Month {month}: Active Loans: {len(active_loans)}, Exited Loans: {len(prev['exited_loans'])}, New Reinvestments: {len(prev['new_reinvestments'])}")
+        logger.debug(f"[DEBUG] Month {month}: Active Loans: {len(active_loans)}, Exited Loans: {len(prev['exited_loans'])}, New Reinvestments: {len(prev['new_reinvestments'])}")
         # Process each active loan
         for loan in active_loans:
             if getattr(loan, 'status', 'active') in ['exited', 'defaulted']:
@@ -939,12 +936,12 @@ def model_portfolio_evolution_monthly(
                     # Check if loan defaults based on monthly default rate
                     if np.random.rand() < float(default_rate):
                         is_default = True
-                        print(f"[DEBUG] Loan DEFAULTED: loan_id={getattr(loan, 'loan_id', getattr(loan, 'id', None))}, zone={zone}, default_rate={float(default_rate)*12:.4f} (yearly)")
+                        logger.debug(f"[DEBUG] Loan DEFAULTED: loan_id={getattr(loan, 'loan_id', getattr(loan, 'id', None))}, zone={zone}, default_rate={float(default_rate)*12:.4f} (yearly)")
                 loan.status = 'defaulted' if is_default else 'exited'
                 loan.is_default = is_default
                 loan.exit_month = month
                 exited_loans.append(loan)
-                print(f"[DEBUG] Loan EXITED: loan_id={getattr(loan, 'loan_id', getattr(loan, 'id', None))}, origination_month={getattr(loan, 'origination_month', None)}, exit_month={loan.exit_month}, status={loan.status}")
+                logger.debug(f"[DEBUG] Loan EXITED: loan_id={getattr(loan, 'loan_id', getattr(loan, 'id', None))}, origination_month={getattr(loan, 'origination_month', None)}, exit_month={loan.exit_month}, status={loan.status}")
                 if month <= getattr(fund, 'reinvestment_period', 5) * 12:
                     reinvestment_amount = getattr(loan, 'loan_amount', 0)
                     new_loan = deepcopy(loan)
@@ -961,7 +958,7 @@ def model_portfolio_evolution_monthly(
                     new_loan.is_default = False
                     new_loan.reinvested = True
                     new_reinvestments.append(new_loan)
-                    print(f"[DEBUG] REINVESTMENT CREATED: new_loan_id={new_loan.loan_id}, origination_month={new_loan.origination_month}, exit_month={new_loan.exit_month}, parent_loan_id={loan_id_val}")
+                    logger.debug(f"[DEBUG] REINVESTMENT CREATED: new_loan_id={new_loan.loan_id}, origination_month={new_loan.origination_month}, exit_month={new_loan.exit_month}, parent_loan_id={loan_id_val}")
             else:
                 active_loans.append(loan)
         # Add new reinvestments to active loans (for next month)
@@ -1006,9 +1003,9 @@ def model_portfolio_evolution_monthly(
         gp_cash_flow = 0
         # Debug print for months 25-36
         if 25 <= month <= 36:
-            print(f"[DEBUG] Month {month}: Active Loans: {n_active}, Exited: {n_exited}, Reinvestments: {n_reinv}")
+            logger.debug(f"[DEBUG] Month {month}: Active Loans: {n_active}, Exited: {n_exited}, Reinvestments: {n_reinv}")
             for l in active_loans:
-                print(f"[DEBUG]   ACTIVE: loan_id={getattr(l, 'loan_id', getattr(l, 'id', None))}, origination_month={getattr(l, 'origination_month', None)}, exit_month={getattr(l, 'exit_month', None)}, status={getattr(l, 'status', None)}")
+                logger.debug(f"[DEBUG]   ACTIVE: loan_id={getattr(l, 'loan_id', getattr(l, 'id', None))}, origination_month={getattr(l, 'origination_month', None)}, exit_month={getattr(l, 'exit_month', None)}, status={getattr(l, 'status', None)}")
         monthly_portfolio[month] = {
             'active_loans': deepcopy(active_loans),
             'exited_loans': deepcopy(exited_loans),
@@ -1037,9 +1034,9 @@ def model_portfolio_evolution_monthly(
     for month in monthly_portfolio:
         for l in monthly_portfolio[month]['active_loans'] + monthly_portfolio[month]['exited_loans']:
             all_loans_summary.append((getattr(l, 'loan_id', getattr(l, 'id', None)), getattr(l, 'origination_month', None), getattr(l, 'exit_month', None), getattr(l, 'status', None)))
-    print("[DEBUG] ALL LOANS SUMMARY (loan_id, origination_month, exit_month, status):")
+    logger.debug("[DEBUG] ALL LOANS SUMMARY (loan_id, origination_month, exit_month, status):")
     for entry in set(all_loans_summary):
-        print(entry)
+        logger.debug(entry)
     return monthly_portfolio
 
 
@@ -1060,19 +1057,19 @@ def model_portfolio_evolution_granular(
     Returns:
         Dictionary mapping periods (years or months) to portfolio state
     """
-    print("[DEBUG] ENTERED model_portfolio_evolution_granular")
-    print(f"[DEBUG] fund: {fund}")
-    print(f"[DEBUG] dir(fund): {dir(fund)}")
-    print(f"[DEBUG] hasattr(fund, 'config'): {hasattr(fund, 'config')}")
+    logger.debug("[DEBUG] ENTERED model_portfolio_evolution_granular")
+    logger.debug(f"[DEBUG] fund: {fund}")
+    logger.debug(f"[DEBUG] dir(fund): {dir(fund)}")
+    logger.debug(f"[DEBUG] hasattr(fund, 'config'): {hasattr(fund, 'config')}")
     if hasattr(fund, 'config'):
-        print(f"[DEBUG] fund.config: {fund.config}")
-    print(f"[DEBUG] getattr(fund, 'time_granularity', None): {getattr(fund, 'time_granularity', None)}")
-    print(f"[DEBUG] config type: {type(config)}")
-    print(f"[DEBUG] config: {config}")
+        logger.debug(f"[DEBUG] fund.config: {fund.config}")
+    logger.debug(f"[DEBUG] getattr(fund, 'time_granularity', None): {getattr(fund, 'time_granularity', None)}")
+    logger.debug(f"[DEBUG] config type: {type(config)}")
+    logger.debug(f"[DEBUG] config: {config}")
     if config:
-        print(f"[DEBUG] 'time_granularity' in config: {'time_granularity' in config}")
+        logger.debug(f"[DEBUG] 'time_granularity' in config: {'time_granularity' in config}")
         if 'time_granularity' in config:
-            print(f"[DEBUG] config['time_granularity']: {config['time_granularity']}")
+            logger.debug(f"[DEBUG] config['time_granularity']: {config['time_granularity']}")
     granularity = None
     if hasattr(fund, 'config') and 'time_granularity' in fund.config:
         granularity = fund.config['time_granularity']
@@ -1080,7 +1077,7 @@ def model_portfolio_evolution_granular(
         granularity = config['time_granularity']
     else:
         granularity = 'yearly'
-    print(f"[DEBUG] granularity selected: {granularity}")
+    logger.debug(f"[DEBUG] granularity selected: {granularity}")
     if granularity == 'monthly':
         logger.info("Using monthly granularity for portfolio evolution")
         return model_portfolio_evolution_monthly(initial_loans, fund, market_conditions)

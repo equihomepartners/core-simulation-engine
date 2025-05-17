@@ -20,6 +20,8 @@ from typing import Dict, List, Tuple, Any, Optional
 from datetime import datetime, timedelta
 import logging
 
+logger = logging.getLogger(__name__)
+
 # Constants for performance calculations
 DECIMAL_ZERO = Decimal('0')
 DECIMAL_ONE = Decimal('1')
@@ -69,7 +71,7 @@ def calculate_irr_fallback(cash_flows_array):
         try:
             return sum(cf / ((1 + rate) ** t) for t, cf in enumerate(cash_flows_array))
         except ZeroDivisionError:
-            print(f"[IRR Fallback] ZeroDivisionError for rate={rate}, cash_flows_array={cash_flows_array}")
+            logger.debug(f"[IRR Fallback] ZeroDivisionError for rate={rate}, cash_flows_array={cash_flows_array}")
             return float('inf') if rate > -1 else float('-inf')
 
     # Use bisection method with a wide range
@@ -81,7 +83,7 @@ def calculate_irr_fallback(cash_flows_array):
         low_npv = npv(low_rate)
         high_npv = npv(high_rate)
     except ZeroDivisionError:
-        print(f"[IRR Fallback] ZeroDivisionError in initial NPV calculation. cash_flows_array={cash_flows_array}")
+        logger.debug(f"[IRR Fallback] ZeroDivisionError in initial NPV calculation. cash_flows_array={cash_flows_array}")
         return 0.0
 
     if low_npv * high_npv > 0:
@@ -93,7 +95,7 @@ def calculate_irr_fallback(cash_flows_array):
             try:
                 npvs.append(npv(r))
             except ZeroDivisionError:
-                print(f"[IRR Fallback] ZeroDivisionError for rate={r}, cash_flows_array={cash_flows_array}")
+                logger.debug(f"[IRR Fallback] ZeroDivisionError for rate={r}, cash_flows_array={cash_flows_array}")
                 npvs.append(float('inf'))
         # Find where NPV changes sign
         for i in range(len(rates) - 1):
@@ -113,7 +115,7 @@ def calculate_irr_fallback(cash_flows_array):
         try:
             mid_npv = npv(mid_rate)
         except ZeroDivisionError:
-            print(f"[IRR Fallback] ZeroDivisionError for mid_rate={mid_rate}, cash_flows_array={cash_flows_array}")
+            logger.debug(f"[IRR Fallback] ZeroDivisionError for mid_rate={mid_rate}, cash_flows_array={cash_flows_array}")
             return 0.0
 
         if abs(mid_npv) < 1e-10:  # Very close to zero
@@ -122,7 +124,7 @@ def calculate_irr_fallback(cash_flows_array):
         try:
             low_npv_val = npv(low_rate)
         except ZeroDivisionError:
-            print(f"[IRR Fallback] ZeroDivisionError for low_rate={low_rate}, cash_flows_array={cash_flows_array}")
+            logger.debug(f"[IRR Fallback] ZeroDivisionError for low_rate={low_rate}, cash_flows_array={cash_flows_array}")
             return 0.0
 
         if mid_npv * low_npv_val < 0:
@@ -161,13 +163,13 @@ def pretty_print_cash_flows(cf_dict, periods_per_year=12, max_periods=36):
     """
     Pretty print the cash flows for the first N periods (default: 3 years if monthly).
     """
-    print("\n--- Pretty Cash Flow Table (first 3 years) ---")
-    print(f"{'Month':>5} | {'Net Cash Flow':>15} | {'Cumulative':>15} | {'Capital Calls':>12} | {'Exits':>8} | {'Reinvest':>9}")
-    print("-" * 70)
+    logger.debug("\n--- Pretty Cash Flow Table (first 3 years) ---")
+    logger.debug(f"{'Month':>5} | {'Net Cash Flow':>15} | {'Cumulative':>15} | {'Capital Calls':>12} | {'Exits':>8} | {'Reinvest':>9}")
+    logger.debug("-" * 70)
     for period in range(1, max_periods + 1):
         cf = cf_dict.get(period, {})
-        print(f"{period:5} | {cf.get('net_cash_flow', 0):15,.2f} | {cf.get('cumulative_cash_flow', 0):15,.2f} | {cf.get('capital_calls', 0):12,.2f} | {cf.get('exit_proceeds', 0):8,.2f} | {cf.get('reinvestment', 0):9,.2f}")
-    print("-" * 70)
+        logger.debug(f"{period:5} | {cf.get('net_cash_flow', 0):15,.2f} | {cf.get('cumulative_cash_flow', 0):15,.2f} | {cf.get('capital_calls', 0):12,.2f} | {cf.get('exit_proceeds', 0):8,.2f} | {cf.get('reinvestment', 0):9,.2f}")
+    logger.debug("-" * 70)
 
 
 def calculate_irr(
@@ -187,7 +189,6 @@ def calculate_irr(
     Returns:
         Dictionary with IRR results including both calculation methods
     """
-    logger = logging.getLogger(__name__)
     _validate_cash_flows(cash_flows)
     _validate_capital_contributions(capital_contributions)
     # Extract cash flow values and periods (support both years and months)
@@ -841,7 +842,6 @@ def calculate_gross_cash_flows(cash_flows: Dict[int, Dict[str, Decimal]]) -> Dic
     Returns:
         Dictionary with gross cash flows
     """
-    logger = logging.getLogger(__name__)
     logger.info("Calculating gross cash flows (before fees and carried interest)")
 
     # Create a deep copy of the cash flows to avoid modifying the original
@@ -906,7 +906,6 @@ def calculate_gross_performance_metrics(cash_flows: Dict[int, Dict[str, Decimal]
     Returns:
         Dictionary with gross performance metrics
     """
-    logger = logging.getLogger(__name__)
     logger.info("Calculating gross performance metrics (before fees and carried interest)")
 
     # Calculate gross cash flows
@@ -1099,7 +1098,6 @@ def calculate_irr_by_year(cash_flows: Dict[int, Dict[str, Decimal]],
     Returns:
         Dictionary with IRR values for each year
     """
-    logger = logging.getLogger(__name__)
     logger.info("Calculating time-based IRR (IRR by year)")
 
     # Extract cash flow values and years
@@ -1313,7 +1311,6 @@ def calculate_performance_metrics(cash_flows: Dict[int, Dict[str, Decimal]],
     Returns:
         Dictionary with all performance metrics
     """
-    logger = logging.getLogger(__name__)
     logger.info("Calculating comprehensive performance metrics")
 
     # Calculate Fund IRR (Net IRR)
