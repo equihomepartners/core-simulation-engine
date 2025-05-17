@@ -66,7 +66,71 @@ export const simulationSchema = z.object({
   avg_loan_term: z.number().min(1).max(30, "Average loan term must be between 1 and 30 years").default(5),
   avg_loan_interest_rate: z.number().min(0).max(0.5, "Average loan interest rate must be between 0% and 50%").default(0.06),
   avg_loan_ltv: z.number().min(0).max(1, "Average loan LTV must be between 0% and 100%").default(0.75),
+  ltv_std_dev: z
+    .number()
+    .min(0)
+    .max(0.5, "LTV standard deviation must be between 0 and 0.5")
+    .default(0.05),
+  min_ltv: z.number().min(0).max(1).nullable().default(null),
+  max_ltv: z.number().min(0).max(1).nullable().default(null),
   zone_allocations: z.record(z.string(), z.number()).optional(),
+
+  use_tls_zone_growth: z.boolean().default(false),
+
+  leverage: z
+    .object({
+      green_sleeve: z
+        .object({
+          enabled: z.boolean().default(true),
+          max_mult: z.number().min(0).max(2).default(1.5),
+          spread_bps: z.number().int().default(275),
+          commitment_fee_bps: z.number().int().default(50),
+        })
+        .default({ enabled: true, max_mult: 1.5, spread_bps: 275, commitment_fee_bps: 50 }),
+      a_plus_overadvance: z
+        .object({
+          enabled: z.boolean().default(false),
+          tls_grade: z.string().default('A+'),
+          advance_rate: z.number().min(0).max(1).default(0.75),
+        })
+        .default({ enabled: false, tls_grade: 'A+', advance_rate: 0.75 }),
+      deal_note: z
+        .object({
+          enabled: z.boolean().default(false),
+          note_pct: z.number().min(0).max(1).default(0.3),
+          note_rate: z.number().min(0).max(1).default(0.07),
+        })
+        .default({ enabled: false, note_pct: 0.3, note_rate: 0.07 }),
+      ramp_line: z
+        .object({
+          enabled: z.boolean().default(false),
+          limit_pct_commit: z.number().min(0).max(1).default(0.15),
+          draw_period_months: z.number().int().min(1).default(24),
+          spread_bps: z.number().int().default(300),
+        })
+        .default({ enabled: false, limit_pct_commit: 0.15, draw_period_months: 24, spread_bps: 300 }),
+      dynamic_rules: z.array(z.any()).default([]),
+    })
+    .default({
+      green_sleeve: { enabled: true, max_mult: 1.5, spread_bps: 275, commitment_fee_bps: 50 },
+      a_plus_overadvance: { enabled: false, tls_grade: 'A+', advance_rate: 0.75 },
+      deal_note: { enabled: false, note_pct: 0.3, note_rate: 0.07 },
+      ramp_line: { enabled: false, limit_pct_commit: 0.15, draw_period_months: 24, spread_bps: 300 },
+      dynamic_rules: [],
+    }),
+
+  default_correlation: z
+    .object({
+      same_zone: z.number().min(0).max(1).default(0.3),
+      cross_zone: z.number().min(0).max(1).default(0.1),
+      enabled: z.boolean().default(true),
+    })
+    .default({ same_zone: 0.3, cross_zone: 0.1, enabled: true }),
+
+  rebalancing_strength: z.number().min(0).max(1).default(0.5),
+  zone_drift_threshold: z.number().min(0).max(1).default(0.1),
+  zone_rebalancing_enabled: z.boolean().default(true),
+  zone_allocation_precision: z.number().min(0).max(1).default(0.8),
 
   // 7. Advanced/Analytics
   monte_carlo_enabled: z.boolean().default(false),
@@ -142,7 +206,41 @@ export const defaultSimulationConfig: SimulationConfig = {
   avg_loan_term: 5,
   avg_loan_interest_rate: 0.06,
   avg_loan_ltv: 0.75,
-  
+  ltv_std_dev: 0.05,
+  min_ltv: null,
+  max_ltv: null,
+  use_tls_zone_growth: false,
+  leverage: {
+    green_sleeve: {
+      enabled: true,
+      max_mult: 1.5,
+      spread_bps: 275,
+      commitment_fee_bps: 50,
+    },
+    a_plus_overadvance: {
+      enabled: false,
+      tls_grade: 'A+',
+      advance_rate: 0.75,
+    },
+    deal_note: {
+      enabled: false,
+      note_pct: 0.3,
+      note_rate: 0.07,
+    },
+    ramp_line: {
+      enabled: false,
+      limit_pct_commit: 0.15,
+      draw_period_months: 24,
+      spread_bps: 300,
+    },
+    dynamic_rules: [],
+  },
+  default_correlation: { same_zone: 0.3, cross_zone: 0.1, enabled: true },
+  rebalancing_strength: 0.5,
+  zone_drift_threshold: 0.1,
+  zone_rebalancing_enabled: true,
+  zone_allocation_precision: 0.8,
+
   // 7. Advanced/Analytics
   monte_carlo_enabled: false,
   num_simulations: 1000,
@@ -222,10 +320,29 @@ export const wizardSteps = [
     title: 'Advanced',
     description: 'Configure advanced analytics and reporting',
     fields: [
-      'monte_carlo_enabled', 'num_simulations', 'variation_factor',
-      'monte_carlo_seed', 'optimization_enabled', 'stress_testing_enabled',
-      'external_data_enabled', 'generate_reports', 'gp_entity_enabled',
-      'aggregate_gp_economics', 'report_config', 'stress_config', 'gp_entity',
+      'use_tls_zone_growth',
+      'default_correlation',
+      'rebalancing_strength',
+      'zone_drift_threshold',
+      'zone_rebalancing_enabled',
+      'zone_allocation_precision',
+      'ltv_std_dev',
+      'min_ltv',
+      'max_ltv',
+      'leverage',
+      'monte_carlo_enabled',
+      'num_simulations',
+      'variation_factor',
+      'monte_carlo_seed',
+      'optimization_enabled',
+      'stress_testing_enabled',
+      'external_data_enabled',
+      'generate_reports',
+      'gp_entity_enabled',
+      'aggregate_gp_economics',
+      'report_config',
+      'stress_config',
+      'gp_entity',
     ],
   },
   {
