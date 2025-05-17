@@ -1584,7 +1584,12 @@ components:
           type: object
           description: Waterfall distribution results
         monte_carlo_results:
+<<<<<<< HEAD
           $ref: '#/components/schemas/MonteCarloResults'
+=======
+          type: object
+          description: Monte Carlo simulation results
+>>>>>>> pr-12
         leverage_metrics:
           $ref: '#/components/schemas/LeverageMetrics'
         bootstrap_results:
@@ -2388,7 +2393,7 @@ components:
           $ref: '#/components/schemas/GPEntityMetricsResponse'
         visualization_data:
           $ref: '#/components/schemas/VisualizationDataResponse'
-=======
+
     SectorConstraint:
       title: SectorConstraint
       type: object
@@ -2498,4 +2503,3 @@ components:
             type: array
             items:
               type: number
->>>>>>> pr-41
