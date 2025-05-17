@@ -637,6 +637,18 @@ components:
           type: integer
           description: Fund term in years
           default: 10
+        fund_id:
+          type: string
+          description: Unique identifier for a fund
+          nullable: true
+        fund_group:
+          type: string
+          description: Group identifier for multi-fund setups
+          nullable: true
+        tranche_id:
+          type: string
+          description: Tranche identifier if using tranches
+          nullable: true
         gp_commitment_percentage:
           type: number
           description: GP commitment percentage (0-1)
