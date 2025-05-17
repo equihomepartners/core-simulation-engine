@@ -2,6 +2,13 @@
 
 All notable changes to the Equihome Fund Simulation Engine will be documented in this file. This serves as a progress tracker and memory aid for development.
 
+## [2025-05-17] Grid Stress & Vintage VaR
+
+### Added
+- Integrated grid stress analysis and vintage Value-at-Risk into `SimulationController`.
+- New config flags `grid_stress_enabled` and `vintage_var_enabled` with defaults.
+- Results stored under `grid_stress_results` and `vintage_var`.
+
 ## [2025-05-17] Documentation Updates
 
 ### Added

@@ -37,58 +37,50 @@ from .waterfall import calculate_waterfall_distribution
 from .performance import calculate_performance_metrics
 # Import monte_carlo functions
 try:
-    # Try to import from monte_carlo_pkg first
-    from .monte_carlo_pkg import generate_market_conditions
-    from .monte_carlo import run_monte_carlo_simulation, run_config_mc
+    from .monte_carlo import generate_market_conditions, run_monte_carlo_simulation
 except ImportError as e:
-    try:
-        # Fallback to monte_carlo
-        from .monte_carlo import generate_market_conditions, run_monte_carlo_simulation, run_config_mc
-    except ImportError as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.warning(f"Production dependency missing: {e}")
-        # Fallback implementation for generate_market_conditions
-        def generate_market_conditions(
-            years=10,
-            base_appreciation_rate=0.03,
-            appreciation_volatility=0.02,
-            base_default_rate=0.01,
-            default_volatility=0.005,
-            correlation=0.3,
-            seed=None
-        ):
-            """Fallback implementation for generate_market_conditions"""
-            market_conditions = {}
-            zones = ['green', 'orange', 'red']
-            zone_appreciation_modifiers = {'green': 0.8, 'orange': 1.0, 'red': 1.2}
-            zone_default_modifiers = {'green': 0.7, 'orange': 1.0, 'red': 1.5}
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"Production dependency missing: {e}")
+    # Fallback implementation for generate_market_conditions
+    def generate_market_conditions(
+        years=10,
+        base_appreciation_rate=0.03,
+        appreciation_volatility=0.02,
+        base_default_rate=0.01,
+        default_volatility=0.005,
+        correlation=0.3,
+        seed=None
+    ):
+        """Fallback implementation for generate_market_conditions"""
+        market_conditions = {}
+        zones = ['green', 'orange', 'red']
+        zone_appreciation_modifiers = {'green': 0.8, 'orange': 1.0, 'red': 1.2}
+        zone_default_modifiers = {'green': 0.7, 'orange': 1.0, 'red': 1.5}
 
-            for year in range(years + 1):
-                year_str = str(year)
-                appreciation_rates_by_zone = {}
-                default_rates_by_zone = {}
+        for year in range(years + 1):
+            year_str = str(year)
+            appreciation_rates_by_zone = {}
+            default_rates_by_zone = {}
 
-                for zone in zones:
-                    appreciation_rates_by_zone[zone] = float(base_appreciation_rate * zone_appreciation_modifiers[zone])
-                    default_rates_by_zone[zone] = float(base_default_rate * zone_default_modifiers[zone])
+            for zone in zones:
+                appreciation_rates_by_zone[zone] = float(base_appreciation_rate * zone_appreciation_modifiers[zone])
+                default_rates_by_zone[zone] = float(base_default_rate * zone_default_modifiers[zone])
 
-                market_conditions[year_str] = {
-                    'appreciation_rates': appreciation_rates_by_zone,
-                    'default_rates': default_rates_by_zone,
-                    'base_appreciation_rate': float(base_appreciation_rate),
-                    'base_default_rate': float(base_default_rate),
-                    'housing_market_trend': 'stable',
-                    'interest_rate_environment': 'stable',
-                    'economic_outlook': 'stable'
-                }
+            market_conditions[year_str] = {
+                'appreciation_rates': appreciation_rates_by_zone,
+                'default_rates': default_rates_by_zone,
+                'base_appreciation_rate': float(base_appreciation_rate),
+                'base_default_rate': float(base_default_rate),
+                'housing_market_trend': 'stable',
+                'interest_rate_environment': 'stable',
+                'economic_outlook': 'stable'
+            }
 
-            return market_conditions
+        return market_conditions
 
-        def run_monte_carlo_simulation(*args, **kwargs):
-            return {'monte_carlo_results': 'mocked'}
-        def run_config_mc(*args, **kwargs):
-            return {'summary_stats': {}}
+    def run_monte_carlo_simulation(*args, **kwargs):
+        return {'monte_carlo_results': 'mocked'}
 from .gp_entity import GPEntity
 from .multi_fund import MultiFundManager
 
@@ -106,6 +98,18 @@ except ImportError:
         return {'stress_scenarios': 'mocked'}
     def run_stress_test(*args, **kwargs):
         return {'stress_test_results': 'mocked'}
+
+try:
+    from .grid_stress_analysis import run_grid
+except ImportError:
+    def run_grid(*args, **kwargs):
+        return {'grid_stress_results': 'mocked'}
+
+try:
+    from .vintage_var_analysis import run_vintage_var
+except ImportError:
+    def run_vintage_var(*args, **kwargs):
+        return {'vintage_var': 'mocked'}
 
 try:
     from .reporting import generate_detailed_report
@@ -134,20 +138,18 @@ class SimulationConfig(TypedDict, total=False):
     carried_interest_rate: float
     waterfall_structure: str
     monte_carlo_enabled: bool
-    inner_monte_carlo_enabled: bool
-    num_inner_simulations: int
     optimization_enabled: bool
     stress_testing_enabled: bool
     external_data_enabled: bool
     generate_reports: bool
     gp_entity_enabled: bool
     aggregate_gp_economics: bool
+    grid_stress_enabled: bool
+    grid_stress_axes: list
+    grid_stress_steps: int
+    vintage_var_enabled: bool
     deployment_monthly_granularity: bool
     time_granularity: str
-    zone_rebalancing_enabled: bool
-    rebalancing_strength: float
-    zone_drift_threshold: float
-    zone_allocation_precision: float
     # ... add other config keys as needed ...
 
 class SimulationResults(TypedDict, total=False):
@@ -161,10 +163,10 @@ class SimulationResults(TypedDict, total=False):
     performance_metrics: dict
     gp_entity_economics: dict
     monte_carlo_results: dict
-    leverage_metrics: dict
-    inner_monte_carlo: dict
     optimization_results: dict
     stress_test_results: dict
+    grid_stress_results: dict
+    vintage_var: dict
     reports: dict
     errors: list
     # ... add other result keys as needed ...
@@ -274,8 +276,6 @@ class SimulationController:
             'carried_interest_rate': 0.20,
             'waterfall_structure': 'european',
             'monte_carlo_enabled': False,
-            'inner_monte_carlo_enabled': False,
-            'num_inner_simulations': 1000,
             'optimization_enabled': False,
             'stress_testing_enabled': False,
             'external_data_enabled': False,
@@ -283,13 +283,13 @@ class SimulationController:
             'gp_entity_enabled': False,
             'aggregate_gp_economics': True,
             'monte_carlo_parameters': {},
+            'grid_stress_enabled': False,
+            'grid_stress_axes': ['base_appreciation_rate', 'base_default_rate'],
+            'grid_stress_steps': 5,
+            'vintage_var_enabled': False,
             'leverage': {},
             'deployment_monthly_granularity': False,
-            'time_granularity': 'yearly',
-            'zone_rebalancing_enabled': True,
-            'rebalancing_strength': 1.0,
-            'zone_drift_threshold': 0.1,
-            'zone_allocation_precision': 0.8
+            'time_granularity': 'yearly'
         }
 
         for key, value in defaults.items():
@@ -347,19 +347,6 @@ class SimulationController:
             self._update_progress('portfolio', 0.2, "Generating portfolio")
             self._generate_portfolio()
 
-            if self.config.get('inner_monte_carlo_enabled', False):
-                self._update_progress('inner_monte_carlo', 0.25, 'Running inner Monte Carlo')
-                try:
-                    inner_results = run_config_mc(
-                        self.config,
-                        num_simulations=self.config.get('num_inner_simulations', 1000),
-                    )
-                    self.results['inner_monte_carlo'] = inner_results
-                except Exception as e:
-                    logger.error(f"Error running inner Monte Carlo: {str(e)}", exc_info=True)
-                    self.results['inner_monte_carlo'] = {}
-                    self.results['errors'] = self.results.get('errors', []) + [f"Inner Monte Carlo error: {str(e)}"]
-
             # Ensure time granularity is consistently applied across all calculations
             granularity = self._handle_granularity()
             logger.info(f"Simulation will use {granularity} granularity for all calculations")
@@ -380,6 +367,11 @@ class SimulationController:
             self._update_progress('performance_metrics', 0.6, "Calculating performance metrics")
             self._calculate_performance_metrics()
 
+            # Optional: Grid stress analysis
+            if self.config.get('grid_stress_enabled', False):
+                self._update_progress('grid_stress', 0.62, "Running grid stress analysis")
+                self._run_grid_stress_analysis()
+
             # Step 7: Calculate GP entity economics (if enabled)
             if self.config.get('gp_entity_enabled', False):
                 self._update_progress('gp_entity_economics', 0.65, "Calculating GP entity economics")
@@ -389,6 +381,10 @@ class SimulationController:
             if self.config.get('monte_carlo_enabled', False):
                 self._update_progress('monte_carlo', 0.7, "Running Monte Carlo simulation")
                 self._run_monte_carlo_simulation()
+
+                if self.config.get('vintage_var_enabled', False):
+                    self._update_progress('vintage_var', 0.71, "Calculating Vintage VaR")
+                    self._calculate_vintage_var()
 
             # Step 8: Optimize portfolio (if enabled)
             if self.config.get('optimization_enabled', False):
@@ -608,9 +604,7 @@ class SimulationController:
                 portfolio.loans if hasattr(portfolio, 'loans') else [],
                 fund,
                 market_conditions,
-                self.config,
-                float(self.config.get('rebalancing_strength', 1.0)),
-                bool(self.config.get('zone_rebalancing_enabled', True))
+                self.config
             )
             granularity = self.config.get('time_granularity', 'yearly')
             if granularity == 'monthly':
@@ -821,7 +815,7 @@ class SimulationController:
                         cash_flows['net_cash_flow'][idx] -= interest
                         cash_flows['distributions'][idx] -= interest
 
-                self.results['leverage_metrics'] = lev_outputs['metrics']
+                self.results['leverage'] = lev_outputs['metrics']
             except Exception as lev_err:
                 logger.warning(f"Leverage module skipped: {lev_err}")
             logger.info("Cash flow calculation completed")
@@ -1394,6 +1388,57 @@ class SimulationController:
             logger.error(f"Error performing stress testing: {str(e)}", exc_info=True)
             self.results['stress_test_results'] = {}
             self.results['errors'] = self.results.get('errors', []) + [f"Stress testing error: {str(e)}"]
+            raise
+
+    def _run_grid_stress_analysis(self) -> None:
+        """Run 2-D parameter grid stress analysis."""
+        logger.info("Running grid stress analysis")
+
+        baseline_config = copy.deepcopy(self.config)
+        baseline_results = copy.deepcopy(self.results)
+        axes = self.config.get('grid_stress_axes', ['base_appreciation_rate', 'base_default_rate'])
+        axis_x = axes[0] if axes else 'base_appreciation_rate'
+        axis_y = axes[1] if len(axes) > 1 else 'base_default_rate'
+        steps = self.config.get('grid_stress_steps', 5)
+
+        try:
+            grid_results = run_grid(
+                baseline_config,
+                baseline_results,
+                axis_x=axis_x,
+                axis_y=axis_y,
+                steps=steps,
+            )
+
+            self.results['grid_stress_results'] = grid_results
+
+            matrix = grid_results.get('irr_matrix', [])
+            rows = len(matrix)
+            cols = len(matrix[0]) if matrix else 0
+            logger.info(
+                f"Grid stress analysis completed with matrix {rows}x{cols} (axes: {axis_x}, {axis_y})"
+            )
+        except Exception as e:
+            logger.error(f"Error running grid stress analysis: {str(e)}", exc_info=True)
+            self.results['grid_stress_results'] = {}
+            self.results['errors'] = self.results.get('errors', []) + [f"Grid stress analysis error: {str(e)}"]
+            raise
+
+    def _calculate_vintage_var(self) -> None:
+        """Calculate vintage-year Value-at-Risk from Monte Carlo results."""
+        logger.info("Calculating vintage VaR")
+
+        monte_carlo_results = self.results.get('monte_carlo_results', {})
+
+        try:
+            vintage_var = run_vintage_var(monte_carlo_results)
+            self.results['vintage_var'] = vintage_var
+            vintages = len(vintage_var.get('vintage_var', {}))
+            logger.info(f"Vintage VaR analysis completed for {vintages} vintages")
+        except Exception as e:
+            logger.error(f"Error calculating vintage VaR: {str(e)}", exc_info=True)
+            self.results['vintage_var'] = {}
+            self.results['errors'] = self.results.get('errors', []) + [f"Vintage VaR error: {str(e)}"]
             raise
 
     def _generate_reports(self) -> None:
