@@ -12,6 +12,7 @@ import type { SimulationList } from '../models/SimulationList';
 import type { SimulationResponse } from '../models/SimulationResponse';
 import type { SimulationResults } from '../models/SimulationResults';
 import type { SimulationStatus } from '../models/SimulationStatus';
+import type { MonteCarloVisualization } from '../models/MonteCarloVisualization';
 import type { ZoneMetrics } from '../models/ZoneMetrics';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
@@ -231,7 +232,7 @@ export class DefaultService {
         endYear?: number,
         format: string = 'bar',
         metrics?: string,
-    ): CancelablePromise<Record<string, any>> {
+    ): CancelablePromise<MonteCarloVisualization> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/api/simulations/{simulation_id}/visualization',

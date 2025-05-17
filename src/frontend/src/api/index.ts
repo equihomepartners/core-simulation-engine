@@ -19,4 +19,6 @@ export * from './models/LeverageConfig';
 export * from './models/LeverageMetrics';
 export * from './models/LeveragePreviewRequest';
 export * from './models/LeveragePreviewResponse';
+export * from './models/MonteCarloResults';
+export * from './models/MonteCarloVisualization';
 export * from './services/DefaultService';
