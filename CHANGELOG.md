@@ -8,7 +8,7 @@ All notable changes to the Equihome Fund Simulation Engine will be documented in
 - Documented new parameters in `simulation_config_schema.md` (leverage, default correlation, zone balancing, LTV distribution)
 - Verified `PARAMETER_TRACKING.md` matches the updated schema
 
-## [2025-04-17] API Connectivity Fixes 
+## [2025-04-17] API Connectivity Fixes
 
 ### Fixed
 - Fixed API endpoint normalization in apiClient.ts to always add the correct '/api/' prefix to endpoints
@@ -144,7 +144,7 @@ All notable changes to the Equihome Fund Simulation Engine will be documented in
 
 ### Added
 - Added error details panel in the SimulationResults component to better display and debug failed simulations
-- Implemented improved error display UI with collapsible detailed error information for debugging 
+- Implemented improved error display UI with collapsible detailed error information for debugging
 - Added specific error messages for each type of simulation status (failed, created, running)
 - Enhanced console logging for easier debugging of simulation failures
 
@@ -1357,3 +1357,4 @@ All notable changes to the Equihome Fund Simulation Engine will be documented in
 ### Added
 - **disable_carry_when_no_commitment** flag (default `true`) respected in both European and American waterfalls. When GP commitment is zero and the flag is true, carried‑interest rate is forced to 0 to reflect a manager‑only GP structure unless explicitly overridden.
 - Added `inner_monte_carlo_enabled` and `num_inner_simulations` parameters to simulation configuration schema for nested Monte Carlo support.
+- Documented inner Monte Carlo parameters and new `/variance-analysis` usage examples.

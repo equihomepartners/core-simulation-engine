@@ -417,6 +417,22 @@ const stressTestResults = results?.stress_test_results;
 // const stressTestResults = await client.getStressTestResults(simulationId, {...});
 ```
 
+### Run Variance Analysis
+
+```javascript
+// Compare the variance of key metrics across multiple simulations
+// POST /variance-analysis
+const stats = await client.post('/variance-analysis', {
+  simulation_ids: ['sim1', 'sim2'],
+  metrics: ['irr', 'equity_multiple']
+});
+
+console.log('IRR variance:', stats.irr.variance);
+console.log('Equity multiple CV:', stats.equity_multiple.coefficient_of_variation);
+```
+
+The endpoint returns statistical measures (mean, variance, standard deviation and coefficient of variation) for each requested metric. These can be displayed in tables or charts to illustrate dispersion between simulation runs.
+
 ## UI Integration Examples
 
 The API is designed to support a wide range of UI components, including:
