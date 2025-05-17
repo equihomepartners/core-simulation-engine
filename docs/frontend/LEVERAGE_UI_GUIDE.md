@@ -56,6 +56,7 @@ const resp = await LeverageService.postApiLeveragePreview({
 ```
 
 3. Persist the whole `leverage` object into the simulation config payload.
+4. To compare levered vs unlevered results, enable the `run_dual_leverage_comparison` toggle ([see parameter](./PARAMETER_TRACKING.md)).
 
 ---
 

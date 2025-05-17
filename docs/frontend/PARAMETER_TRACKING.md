@@ -35,6 +35,7 @@ The following parameters have been added to support enhanced features in the sim
 | `leverage.ramp_line.draw_period_months` | Integer | Draw window length in months | `24` | Number input |
 | `leverage.ramp_line.spread_bps` | Integer | Spread on ramp line (bps) | `300` | Number input |
 | `leverage.dynamic_rules` | Array | IF/THEN leverage rules (JSON) | `[]` | Advanced editor |
+| `run_dual_leverage_comparison` | Boolean | Run an unlevered control simulation alongside the levered scenario | `false` | Checkbox |
 
 ### Default Correlation Parameters
 
