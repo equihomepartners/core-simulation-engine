@@ -692,7 +692,7 @@ def project_cash_flows(
 
         # Appreciation income (from active loans)
         cash_flows[year]['appreciation_income'] = current_portfolio_metrics.get('appreciation_income', Decimal('0'))
-        
+
         # Portfolio Value (NAV) for this period
         cash_flows[year]['portfolio_value'] = current_portfolio_metrics.get('active_property_value', Decimal('0'))
 
@@ -1038,6 +1038,7 @@ def generate_capital_call_schedule_monthly(params):
         for m in range(1, total_months + 1):
             # Use negative value for capital calls (outflows)
             schedule[m] = -monthly_amount
+
     elif deployment_pace == 'front_loaded':
         remaining = fund_size
         for m in range(1, total_months + 1):
@@ -1047,6 +1048,7 @@ def generate_capital_call_schedule_monthly(params):
             remaining -= call_amount
         if remaining > 0:
             schedule[total_months] = schedule.get(total_months, 0) - remaining
+
     elif deployment_pace == 'back_loaded':
         remaining = fund_size
         for m in range(1, total_months + 1):
@@ -1057,20 +1059,17 @@ def generate_capital_call_schedule_monthly(params):
         if remaining > 0:
             schedule[total_months] = schedule.get(total_months, 0) - remaining
     elif deployment_pace == 'bell_curve':
-        mid_point = total_months // 2
-        weights = []
-        for m in range(1, total_months + 1):
-            if mid_point == 0:
-                weight = 1
-            elif m <= mid_point:
-                weight = m / mid_point
-            else:
-                denom = total_months - mid_point
-                weight = (total_months - m + 1) / denom if denom > 0 else 1
-            weights.append(weight)
+        mid_point = (total_months + 1) / 2
+        weights = [1 - abs((i + 1) - mid_point) / mid_point for i in range(total_months)]
         total_weight = sum(weights)
-        for m, weight in enumerate(weights, start=1):
-            schedule[m] = -(fund_size * weight / total_weight)
+        for i, w in enumerate(weights, start=1):
+            schedule[i] = -(fund_size * w / total_weight)
+
+    else:
+        # Default to even if invalid pace
+        monthly_amount = fund_size / total_months
+        for m in range(1, total_months + 1):
+            schedule[m] = -monthly_amount
     return schedule
 
 def generate_deployment_schedule_monthly(params, loans):
@@ -1224,14 +1223,14 @@ def project_cash_flows_monthly(
     for month in range(extended_months + 1):
         if market_conditions_by_month is not None:
             cash_flows[month]['market_conditions'] = market_conditions_by_month.get(month)
-        
+
         current_portfolio_metrics = {}
         if month in monthly_portfolio:
             current_portfolio_metrics = monthly_portfolio[month].get('metrics', {})
 
         cash_flows[month]['interest_income'] = current_portfolio_metrics.get('interest_income', Decimal('0'))
         cash_flows[month]['appreciation_income'] = current_portfolio_metrics.get('appreciation_income', Decimal('0'))
-        
+
         # Portfolio Value (NAV) for this period
         cash_flows[month]['portfolio_value'] = current_portfolio_metrics.get('active_property_value', Decimal('0')) # Assuming active_property_value is NAV proxy for monthly too
 
