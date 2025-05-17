@@ -633,7 +633,6 @@ paths:
                 $ref: '#/components/schemas/LeverageMetrics'
         '404':
           description: Not found
-
   # ---------------------------------------------------------------------
   # GP Entity Economics
   # ---------------------------------------------------------------------
@@ -1818,7 +1817,7 @@ components:
         total_interest:
           type: number
 
-<<<<<<< HEAD
+
     MonteCarloHistogramBin:
       title: MonteCarloHistogramBin
       type: object
@@ -2393,6 +2392,7 @@ components:
           $ref: '#/components/schemas/GPEntityMetricsResponse'
         visualization_data:
           $ref: '#/components/schemas/VisualizationDataResponse'
+
 
     SectorConstraint:
       title: SectorConstraint
