@@ -1,4 +1,4 @@
-# Canonical Simulation Configuration Schema (April 2024)
+# Canonical Simulation Configuration Schema (May 2025)
 
 This document defines the authoritative schema for all simulation configuration parameters. All API requests and frontend/backend integrations must conform to this schema. Validation is strictly enforced in the backend.
 
@@ -77,8 +77,38 @@ This document defines the authoritative schema for all simulation configuration 
 - `avg_loan_interest_rate` (*optional*, `float`): Average loan interest rate. Default: `0.06`
 - `avg_loan_ltv` (*optional*, `float`): Average loan-to-value. Default: `0.75`
 - `zone_allocations` (*optional*, `dict`): Zone allocation percentages (e.g., `{green: 0.6, orange: 0.3, red: 0.1}`)
+- `use_tls_zone_growth` (*optional*, `bool`): Use TLS dataset suburb growth values instead of colour-level appreciation rates. Default: `false`
+- `default_correlation` (*optional*, `dict`): Default correlation settings
+    - `default_correlation.same_zone` (*optional*, `float`): Correlation of defaults within the same zone. Default: `0.3`
+    - `default_correlation.cross_zone` (*optional*, `float`): Correlation of defaults across zones. Default: `0.1`
+    - `default_correlation.enabled` (*optional*, `bool`): Toggle default correlation. Default: `true`
+- `rebalancing_strength` (*optional*, `float`): Strength of rebalancing toward target zone allocations (0-1). Default: `0.5`
+- `zone_drift_threshold` (*optional*, `float`): Allowed drift from target allocation before rebalancing. Default: `0.1`
+- `zone_rebalancing_enabled` (*optional*, `bool`): Whether to rebalance zone allocations. Default: `true`
+- `zone_allocation_precision` (*optional*, `float`): Precision for matching target zone allocations (0-1). Default: `0.8`
+- `average_ltv` (*optional*, `float`): Average LTV ratio for generated loans. Default: `0.65`
+- `ltv_std_dev` (*optional*, `float`): Standard deviation of LTV ratios. Default: `0.05`
+- `min_ltv` (*optional*, `float` or `null`): Minimum LTV value. Default: `null`
+- `max_ltv` (*optional*, `float` or `null`): Maximum LTV value. Default: `null`
+## **7. Leverage and Capital Structure**
+- `leverage.green_sleeve.enabled` (*optional*, `bool`): Toggle the Green NAV facility. Default: `true`
+- `leverage.green_sleeve.max_mult` (*optional*, `float`): Limit as a multiple of sleeve NAV. Default: `1.5`
+- `leverage.green_sleeve.spread_bps` (*optional*, `int`): Credit spread over base rate (bps). Default: `275`
+- `leverage.green_sleeve.commitment_fee_bps` (*optional*, `int`): Commitment fee on undrawn balance (bps). Default: `50`
+- `leverage.a_plus_overadvance.enabled` (*optional*, `bool`): Enable TLS-grade A+ over-advance. Default: `false`
+- `leverage.a_plus_overadvance.tls_grade` (*optional*, `str`): TLS grade eligible for over-advance. Default: `A+`
+- `leverage.a_plus_overadvance.advance_rate` (*optional*, `float`): Advance rate on eligible NAV (0-1). Default: `0.75`
+- `leverage.deal_note.enabled` (*optional*, `bool`): Enable structured notes per deal. Default: `false`
+- `leverage.deal_note.note_pct` (*optional*, `float`): Note principal as percent of value (0-1). Default: `0.30`
+- `leverage.deal_note.note_rate` (*optional*, `float`): Fixed interest rate for notes. Default: `0.07`
+- `leverage.ramp_line.enabled` (*optional*, `bool`): Enable ramp warehouse line. Default: `false`
+- `leverage.ramp_line.limit_pct_commit` (*optional*, `float`): Limit as percent of commitments (0-1). Default: `0.15`
+- `leverage.ramp_line.draw_period_months` (*optional*, `int`): Draw window length in months. Default: `24`
+- `leverage.ramp_line.spread_bps` (*optional*, `int`): Spread on ramp line (bps). Default: `300`
+- `leverage.dynamic_rules` (*optional*, `list`): IF/THEN leverage rules in JSON. Default: `[]`
 
-## **7. Advanced/Analytics**
+## **8. Advanced/Analytics**
+
 - `monte_carlo_enabled` (*optional*, `bool`): Enable Monte Carlo simulation. Default: `false`
 - `num_simulations` (*optional*, `int`): Number of Monte Carlo runs. Default: `1000`
 - `variation_factor` (*optional*, `float`): Parameter variation for MC. Default: `0.1`
@@ -111,7 +141,7 @@ This document defines the authoritative schema for all simulation configuration 
 
 ---
 
-**Last updated:** April 2024
+**Last updated:** May 2025
 
 
 
