@@ -10,7 +10,7 @@ info:
     - Retrieving simulation results
     - Analyzing GP Entity economics
     - Real-time updates via WebSockets
-  version: 2.0.0
+  version: 2.1.0
   contact:
     name: Equihome Partners
 servers:
@@ -1181,6 +1181,10 @@ components:
         progress:
           type: number
           description: Progress of the simulation (0-1)
+        generated_at:
+          type: string
+          format: date-time
+          description: Timestamp when results were generated
         metrics:
           $ref: '#/components/schemas/PerformanceMetrics'
         performance_metrics:
