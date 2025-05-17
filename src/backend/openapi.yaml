@@ -348,6 +348,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/variance-analysis:
+    post:
+      summary: Run Variance Analysis
+      description: Run Monte Carlo variance analysis for an existing simulation configuration.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: num_inner_simulations
+          in: query
+          description: Number of Monte Carlo repetitions to run
+          schema:
+            type: integer
+            default: 10
+        - name: include_seed_results
+          in: query
+          description: Include individual seed results in the response
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VarianceAnalysisResults'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /api/simulations/{simulation_id}/loans/:
     get:
       summary: Get Simulation Loans
@@ -1326,6 +1363,32 @@ components:
               value_at_risk:
                 type: number
                 description: IRR at the specified downside percentile
+    VarianceAnalysisResults:
+      title: VarianceAnalysisResults
+      description: Aggregated IRR and VaR statistics from multi-seed variance analysis.
+      type: object
+      properties:
+        iterations:
+          type: integer
+          description: Number of inner simulations executed
+        irr_percentiles:
+          type: object
+          properties:
+            p5: { type: number }
+            p50: { type: number }
+            p95: { type: number }
+        var_percentiles:
+          type: object
+          properties:
+            p95: { type: number }
+            p99: { type: number }
+        seed_results:
+          type: array
+          items:
+            type: object
+            properties:
+              seed: { type: integer }
+              irr: { type: number }
     ZoneMetrics:
       title: ZoneMetrics
       description: Traffic-Light metrics for a single suburb / zone.
