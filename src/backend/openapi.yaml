@@ -3,7 +3,7 @@ info:
   title: Equihome Fund Simulation Engine API
   description: |
     API for running fund simulations and analyzing results.
-    
+
     The API provides endpoints for:
     - Creating and running simulations
     - Checking simulation status
@@ -85,7 +85,7 @@ paths:
       summary: Get Simulation
       description: |
         Get a simulation by ID.
-        
+
         This endpoint returns the simulation metadata including configuration
         parameters, status, and creation time. It doesn't include the full
         results, which are available through the /results endpoint.
@@ -208,7 +208,7 @@ paths:
       summary: Cancel Simulation
       description: |
         Cancel a running simulation without deleting its data.
-        
+
         This endpoint stops the background processing of a simulation
         but keeps any partial results and marks the simulation as 'cancelled'.
       parameters:
@@ -838,6 +838,8 @@ components:
             report_template: summary
             export_format: json
             include_charts: true
+        leverage:
+          $ref: '#/components/schemas/LeverageConfig'
         time_granularity:
           type: string
           description: Time granularity for simulation (yearly or monthly)
@@ -1250,6 +1252,7 @@ components:
         vintage_var:
           $ref: '#/components/schemas/VintageVarResults'
         leverage:
+        leverage_metrics:
           $ref: '#/components/schemas/LeverageMetrics'
         fund_size:
           type: number

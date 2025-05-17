@@ -186,6 +186,7 @@ export type SimulationConfig = {
      * Report configuration
      */
     report_config?: Record<string, any>;
+    leverage?: LeverageConfig;
     /**
      * Time granularity for simulation (yearly or monthly)
      */
