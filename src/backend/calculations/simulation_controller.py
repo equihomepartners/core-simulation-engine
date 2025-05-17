@@ -100,6 +100,18 @@ except ImportError:
         return {'stress_test_results': 'mocked'}
 
 try:
+    from .grid_stress_analysis import run_grid
+except ImportError:
+    def run_grid(*args, **kwargs):
+        return {'grid_stress_results': 'mocked'}
+
+try:
+    from .vintage_var_analysis import run_vintage_var
+except ImportError:
+    def run_vintage_var(*args, **kwargs):
+        return {'vintage_var': 'mocked'}
+
+try:
     from .reporting import generate_detailed_report
 except ImportError:
     def generate_detailed_report(*args, **kwargs):
@@ -132,6 +144,10 @@ class SimulationConfig(TypedDict, total=False):
     generate_reports: bool
     gp_entity_enabled: bool
     aggregate_gp_economics: bool
+    grid_stress_enabled: bool
+    grid_stress_axes: list
+    grid_stress_steps: int
+    vintage_var_enabled: bool
     deployment_monthly_granularity: bool
     time_granularity: str
     # ... add other config keys as needed ...
@@ -149,6 +165,8 @@ class SimulationResults(TypedDict, total=False):
     monte_carlo_results: dict
     optimization_results: dict
     stress_test_results: dict
+    grid_stress_results: dict
+    vintage_var: dict
     reports: dict
     errors: list
     # ... add other result keys as needed ...
@@ -265,6 +283,10 @@ class SimulationController:
             'gp_entity_enabled': False,
             'aggregate_gp_economics': True,
             'monte_carlo_parameters': {},
+            'grid_stress_enabled': False,
+            'grid_stress_axes': ['base_appreciation_rate', 'base_default_rate'],
+            'grid_stress_steps': 5,
+            'vintage_var_enabled': False,
             'deployment_monthly_granularity': False,
             'time_granularity': 'yearly'
         }
@@ -344,6 +366,11 @@ class SimulationController:
             self._update_progress('performance_metrics', 0.6, "Calculating performance metrics")
             self._calculate_performance_metrics()
 
+            # Optional: Grid stress analysis
+            if self.config.get('grid_stress_enabled', False):
+                self._update_progress('grid_stress', 0.62, "Running grid stress analysis")
+                self._run_grid_stress_analysis()
+
             # Step 7: Calculate GP entity economics (if enabled)
             if self.config.get('gp_entity_enabled', False):
                 self._update_progress('gp_entity_economics', 0.65, "Calculating GP entity economics")
@@ -353,6 +380,10 @@ class SimulationController:
             if self.config.get('monte_carlo_enabled', False):
                 self._update_progress('monte_carlo', 0.7, "Running Monte Carlo simulation")
                 self._run_monte_carlo_simulation()
+
+                if self.config.get('vintage_var_enabled', False):
+                    self._update_progress('vintage_var', 0.71, "Calculating Vintage VaR")
+                    self._calculate_vintage_var()
 
             # Step 8: Optimize portfolio (if enabled)
             if self.config.get('optimization_enabled', False):
@@ -1356,6 +1387,57 @@ class SimulationController:
             logger.error(f"Error performing stress testing: {str(e)}", exc_info=True)
             self.results['stress_test_results'] = {}
             self.results['errors'] = self.results.get('errors', []) + [f"Stress testing error: {str(e)}"]
+            raise
+
+    def _run_grid_stress_analysis(self) -> None:
+        """Run 2-D parameter grid stress analysis."""
+        logger.info("Running grid stress analysis")
+
+        baseline_config = copy.deepcopy(self.config)
+        baseline_results = copy.deepcopy(self.results)
+        axes = self.config.get('grid_stress_axes', ['base_appreciation_rate', 'base_default_rate'])
+        axis_x = axes[0] if axes else 'base_appreciation_rate'
+        axis_y = axes[1] if len(axes) > 1 else 'base_default_rate'
+        steps = self.config.get('grid_stress_steps', 5)
+
+        try:
+            grid_results = run_grid(
+                baseline_config,
+                baseline_results,
+                axis_x=axis_x,
+                axis_y=axis_y,
+                steps=steps,
+            )
+
+            self.results['grid_stress_results'] = grid_results
+
+            matrix = grid_results.get('irr_matrix', [])
+            rows = len(matrix)
+            cols = len(matrix[0]) if matrix else 0
+            logger.info(
+                f"Grid stress analysis completed with matrix {rows}x{cols} (axes: {axis_x}, {axis_y})"
+            )
+        except Exception as e:
+            logger.error(f"Error running grid stress analysis: {str(e)}", exc_info=True)
+            self.results['grid_stress_results'] = {}
+            self.results['errors'] = self.results.get('errors', []) + [f"Grid stress analysis error: {str(e)}"]
+            raise
+
+    def _calculate_vintage_var(self) -> None:
+        """Calculate vintage-year Value-at-Risk from Monte Carlo results."""
+        logger.info("Calculating vintage VaR")
+
+        monte_carlo_results = self.results.get('monte_carlo_results', {})
+
+        try:
+            vintage_var = run_vintage_var(monte_carlo_results)
+            self.results['vintage_var'] = vintage_var
+            vintages = len(vintage_var.get('vintage_var', {}))
+            logger.info(f"Vintage VaR analysis completed for {vintages} vintages")
+        except Exception as e:
+            logger.error(f"Error calculating vintage VaR: {str(e)}", exc_info=True)
+            self.results['vintage_var'] = {}
+            self.results['errors'] = self.results.get('errors', []) + [f"Vintage VaR error: {str(e)}"]
             raise
 
     def _generate_reports(self) -> None:
