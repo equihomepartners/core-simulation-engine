@@ -7,9 +7,14 @@ import os
 import json
 from decimal import Decimal
 from pathlib import Path
+import logging
 
 # Add the parent directory to the path so we can import modules
 sys.path.insert(0, '.')
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 from models_pkg.loan import Loan
 from models_pkg.portfolio import Portfolio
@@ -72,7 +77,10 @@ def generate_phase1_data():
     with open(target_dir / 'phase1_portfolio.json', 'w') as f:
         json.dump(portfolio_dict, f, indent=2)
     
-    print(f"Phase 1 portfolio data saved to {target_dir / 'phase1_portfolio.json'}")
+    logger.info(
+        "Phase 1 portfolio data saved to %s",
+        target_dir / 'phase1_portfolio.json',
+    )
 
 
 if __name__ == '__main__':

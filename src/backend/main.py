@@ -4,11 +4,19 @@ import json
 import asyncio
 from datetime import datetime
 from fastapi import WebSocketDisconnect
+import logging
 
 from api.simulation_api import router as simulation_router
 from api.gp_entity_api import router as gp_entity_router
 from api.health_api import router as health_router, api_router as health_api_router
 from api.config_api import router as config_router
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 # Create FastAPI app
 app = FastAPI(
@@ -116,7 +124,11 @@ async def test_simulation(simulation_id: str):
     }
 
     # Simulate starting a simulation
-    print(f"Starting test simulation for ID {simulation_id} with parameters: {test_parameters}")
+    logger.info(
+        "Starting test simulation for ID %s with parameters: %s",
+        simulation_id,
+        test_parameters,
+    )
 
     # Send initial simulation start message to connected clients
     for ws in active_connections:

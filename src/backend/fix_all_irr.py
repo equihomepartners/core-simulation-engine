@@ -224,11 +224,13 @@ if __name__ == "__main__":
     result = fix_irr_values(simulation_id)
 
     if result:
-        print(f"Successfully fixed IRR values for simulation {simulation_id}")
-        print(f"Gross IRR: {result['gross_irr']*100:.2f}%")
-        print(f"Fund IRR: {result['fund_irr']*100:.2f}%")
-        print(f"LP IRR: {result['lp_irr']*100:.2f}%")
+        logger.info(
+            f"Successfully fixed IRR values for simulation {simulation_id}"
+        )
+        logger.info(f"Gross IRR: {result['gross_irr']*100:.2f}%")
+        logger.info(f"Fund IRR: {result['fund_irr']*100:.2f}%")
+        logger.info(f"LP IRR: {result['lp_irr']*100:.2f}%")
         sys.exit(0)
     else:
-        print(f"Failed to fix IRR values for simulation {simulation_id}")
+        logger.error(f"Failed to fix IRR values for simulation {simulation_id}")
         sys.exit(1)

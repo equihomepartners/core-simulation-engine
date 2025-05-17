@@ -11,6 +11,7 @@ import json
 import socket
 import argparse
 import subprocess
+import logging
 from pathlib import Path
 
 # Get the project root directory
@@ -18,13 +19,20 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent.absolute()
 # Use a single, canonical connection config located at the project root
 CONNECTION_CONFIG_PATH = PROJECT_ROOT / "connection.config.json"
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
 def load_connection_config():
     """Load the connection configuration from the shared config file."""
     try:
         with open(CONNECTION_CONFIG_PATH, "r") as f:
             return json.load(f)
     except Exception as e:
-        print(f"Error loading connection config: {e}")
+        logger.error(f"Error loading connection config: {e}")
         # Default configuration
         return {
             "backend": {
@@ -43,7 +51,7 @@ def find_available_port(start_port):
     """Find an available port starting from the specified port."""
     port = start_port
     while not check_port_availability(port):
-        print(f"Port {port} is already in use, trying next port...")
+        logger.info(f"Port {port} is already in use, trying next port...")
         port += 1
     return port
 
@@ -59,16 +67,16 @@ def start_server(host, port, reload=True):
     if reload:
         cmd.append("--reload")
     
-    # Print the command
-    print(f"Starting server with command: {' '.join(cmd)}")
+    # Log the command
+    logger.info("Starting server with command: %s", " ".join(cmd))
     
     # Start the server
     try:
         subprocess.run(cmd, check=True)
     except KeyboardInterrupt:
-        print("\nServer stopped by user")
+        logger.info("Server stopped by user")
     except subprocess.CalledProcessError as e:
-        print(f"Error starting server: {e}")
+        logger.error(f"Error starting server: {e}")
         sys.exit(1)
 
 def main():
@@ -88,10 +96,10 @@ def main():
     
     # Check if the port is available
     if not check_port_availability(port):
-        print(f"Warning: Port {port} is already in use")
+        logger.warning(f"Port {port} is already in use")
         if input("Would you like to use a different port? (y/n): ").lower() == 'y':
             port = find_available_port(port + 1)
-            print(f"Using port {port} instead")
+            logger.info(f"Using port {port} instead")
     
     # Update the connection config with the actual port being used
     config["backend"]["port"] = port
