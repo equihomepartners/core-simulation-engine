@@ -18,6 +18,7 @@ import uuid
 
 from models_pkg import Fund, Loan, Portfolio
 from utils import decimal_truncated_normal, generate_zone_allocation
+from .loan_lifecycle_enhanced import maintain_zone_balance
 
 # --- Parameterized Defaults ---
 MIN_LOAN_SIZE = Decimal('10000')
@@ -400,7 +401,9 @@ def process_year_enhanced(
     active_loans: List[Loan],
     current_year: int,
     fund: Fund,
-    market_conditions: Optional[Dict[str, Any]] = None
+    market_conditions: Optional[Dict[str, Any]] = None,
+    rebalancing_strength: float = 1.0,
+    zone_rebalancing_enabled: bool = True,
 ) -> Tuple[List[Loan], List[Loan], List[Loan], Dict[str, Any]]:
     """
     Process loans for a given year with enhanced features including market conditions.
@@ -410,6 +413,8 @@ def process_year_enhanced(
         current_year: Current year in the simulation
         fund: Fund instance with configuration parameters
         market_conditions: Optional market conditions for this year
+        rebalancing_strength: How strongly to rebalance zone allocations
+        zone_rebalancing_enabled: Whether zone rebalancing is enabled
 
     Returns:
         Tuple of (active_loans, exited_loans, new_reinvestments, year_metrics)
@@ -518,12 +523,22 @@ def process_year_enhanced(
                 reinvestment_params['zone_allocations'] = zone_allocations
 
             # Generate new loans with adjusted parameters
-            new_reinvestments = generate_reinvestment_loans_enhanced(
-                reinvestment_amount,
-                current_year,
-                fund,
-                reinvestment_params
-            )
+            if zone_rebalancing_enabled:
+                new_reinvestments = maintain_zone_balance(
+                    still_active_loans,
+                    reinvestment_amount,
+                    fund.zone_allocations,
+                    current_year,
+                    fund,
+                    rebalancing_strength,
+                )
+            else:
+                new_reinvestments = generate_reinvestment_loans_enhanced(
+                    reinvestment_amount,
+                    current_year,
+                    fund,
+                    reinvestment_params,
+                )
 
     # Combine still active loans and new reinvestments
     updated_active_loans = still_active_loans + new_reinvestments
@@ -748,7 +763,9 @@ def calculate_year_metrics_enhanced(
 def model_portfolio_evolution_enhanced(
     initial_loans: List[Loan],
     fund: Fund,
-    market_conditions: Optional[Dict[str, Dict[str, Any]]] = None
+    market_conditions: Optional[Dict[str, Dict[str, Any]]] = None,
+    rebalancing_strength: float = 1.0,
+    zone_rebalancing_enabled: bool = True,
 ) -> Dict[int, Dict[str, Any]]:
     """
     Enhanced model of portfolio evolution that incorporates market conditions.
@@ -757,6 +774,8 @@ def model_portfolio_evolution_enhanced(
         initial_loans: List of initial loans
         fund: Fund instance with configuration parameters
         market_conditions: Optional dictionary mapping years to market conditions
+        rebalancing_strength: How strongly to rebalance zone allocations
+        zone_rebalancing_enabled: Whether zone rebalancing is enabled
 
     Returns:
         Dictionary mapping years to portfolio state
@@ -832,7 +851,9 @@ def model_portfolio_evolution_enhanced(
             yearly_portfolio[year-1]['active_loans'],
             year,
             fund,
-            year_market_conditions
+            year_market_conditions,
+            rebalancing_strength,
+            zone_rebalancing_enabled,
         )
 
         # Store portfolio state for this year
@@ -1044,7 +1065,9 @@ def model_portfolio_evolution_granular(
     initial_loans: List[Loan],
     fund: Fund,
     market_conditions: Optional[Dict[int, Any]] = None,
-    config: Optional[dict] = None
+    config: Optional[dict] = None,
+    rebalancing_strength: float = 1.0,
+    zone_rebalancing_enabled: bool = True,
 ) -> Dict[int, Dict[str, Any]]:
     """
     @backend
@@ -1054,6 +1077,8 @@ def model_portfolio_evolution_granular(
         fund: Fund instance with configuration parameters (may or may not include 'time_granularity')
         market_conditions: Optional dictionary mapping periods to market conditions
         config: Optional original config dict to use as fallback for time_granularity
+        rebalancing_strength: Strength of zone rebalancing if enabled
+        zone_rebalancing_enabled: Whether zone rebalancing is enabled
     Returns:
         Dictionary mapping periods (years or months) to portfolio state
     """
@@ -1083,4 +1108,10 @@ def model_portfolio_evolution_granular(
         return model_portfolio_evolution_monthly(initial_loans, fund, market_conditions)
     else:
         logger.info("Using yearly granularity for portfolio evolution")
-        return model_portfolio_evolution_enhanced(initial_loans, fund, market_conditions)
+        return model_portfolio_evolution_enhanced(
+            initial_loans,
+            fund,
+            market_conditions,
+            rebalancing_strength,
+            zone_rebalancing_enabled,
+        )
