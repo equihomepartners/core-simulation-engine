@@ -2,6 +2,12 @@
 
 All notable changes to the Equihome Fund Simulation Engine will be documented in this file. This serves as a progress tracker and memory aid for development.
 
+## [2025-05-17] Documentation Updates
+
+### Added
+- Documented new parameters in `simulation_config_schema.md` (leverage, default correlation, zone balancing, LTV distribution)
+- Verified `PARAMETER_TRACKING.md` matches the updated schema
+
 ## [2025-04-17] API Connectivity Fixes 
 
 ### Fixed
