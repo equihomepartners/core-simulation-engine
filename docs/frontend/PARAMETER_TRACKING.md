@@ -248,6 +248,17 @@ This change ensures that the backend respects the `deployment_monthly_granularit
 | `gp_entity.expenses[].enabled` | Boolean | Whether the expense is enabled | `true` | Checkbox |
 | `gp_entity.expenses[].category` | String | Category of the expense ('staff', 'office', 'technology', 'marketing', 'legal', 'other') | `'other'` | Dropdown |
 
+#### Revenue & Expense Monthly Pattern Parameters
+
+| Parameter | Type | Description | Default | UI Component |
+|-----------|------|-------------|---------|-------------|
+| `gp_entity.monthly_patterns.management_fees` | Array | Monthly distribution weights for management fees (12 values) | `null` | Complex input |
+| `gp_entity.monthly_patterns.carried_interest` | Array | Monthly distribution weights for carried interest (12 values) | `null` | Complex input |
+| `gp_entity.monthly_patterns.origination_fees` | Array | Monthly distribution weights for origination fees (12 values) | `null` | Complex input |
+| `gp_entity.monthly_patterns.additional_revenue` | Array | Monthly distribution weights for additional revenue (12 values) | `null` | Complex input |
+| `gp_entity.monthly_patterns.base_expenses` | Array | Monthly distribution weights for base management company expenses (12 values) | `null` | Complex input |
+| `gp_entity.expenses[].monthly_pattern` | Array | Monthly distribution weights for custom expenses | `'even'` | Complex input |
+
 #### Dividend Policy Parameters
 
 | Parameter | Type | Description | Default | UI Component |

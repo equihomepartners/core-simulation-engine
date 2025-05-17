@@ -76,6 +76,9 @@ class GPEntity:
         # Cashflow frequency
         self.cashflow_frequency = config.get('cashflow_frequency', 'yearly')  # 'yearly' or 'monthly'
 
+        # Monthly distribution patterns for revenue and base expenses
+        self.monthly_patterns = config.get('monthly_patterns', {})
+
         # Custom expenses
         self.expenses = [ExpenseItem(expense_config) for expense_config in config.get('expenses', [])]
 
@@ -427,19 +430,25 @@ class GPEntity:
 
         years = sorted([int(year) for year in all_years])
 
-        # Patterns for main revenue/expense sources
-        def get_pattern(source, default='even'):
-            # Accepts a string or a 12-element list
-            if isinstance(source, dict) and 'monthly_pattern' in source:
-                return source['monthly_pattern']
-            return default
+        # Helper to convert a pattern to 12 monthly weights
+        def weights_from_pattern(pattern: Union[str, List[float]]) -> List[float]:
+            if isinstance(pattern, list) and len(pattern) == 12:
+                weights = [float(w) for w in pattern]
+                total = sum(weights)
+                if total == 0:
+                    return [1 / 12.0] * 12
+                return [w / total for w in weights]
+            if pattern == 'quarterly':
+                return [0, 0, 1/4, 0, 0, 1/4, 0, 0, 1/4, 0, 0, 1/4]
+            if pattern == 'annual':
+                return [0]*11 + [1.0]
+            return [1 / 12.0] * 12
 
-        # Management fees, carried interest, origination fees, additional revenue, base expenses
-        mgmt_pattern = get_pattern(basic_economics, 'even')
-        carry_pattern = get_pattern(basic_economics, 'even')
-        orig_pattern = get_pattern(basic_economics, 'even')
-        addl_pattern = get_pattern(management_company_metrics, 'even')
-        base_exp_pattern = get_pattern(management_company_metrics, 'even')
+        mgmt_weights = weights_from_pattern(self.monthly_patterns.get('management_fees', 'even'))
+        carry_weights = weights_from_pattern(self.monthly_patterns.get('carried_interest', 'even'))
+        orig_weights = weights_from_pattern(self.monthly_patterns.get('origination_fees', 'even'))
+        addl_weights = weights_from_pattern(self.monthly_patterns.get('additional_revenue', 'even'))
+        base_exp_weights = weights_from_pattern(self.monthly_patterns.get('base_expenses', 'even'))
 
         for year in years:
             year_str = str(year)
@@ -450,15 +459,7 @@ class GPEntity:
             yearly_additional_revenue = management_company_metrics['yearly_additional_revenue'].get(year_str, Decimal('0'))
             yearly_base_expenses = management_company_metrics['yearly_expenses'].get(year_str, Decimal('0'))
 
-            # Patterns for each revenue/expense
-            mgmt_weights = [1/12.0]*12
-            carry_weights = [1/12.0]*12
-            orig_weights = [1/12.0]*12
-            addl_weights = [1/12.0]*12
-            base_exp_weights = [1/12.0]*12
 
-            # Custom patterns can be added to config in the future
-            # For now, all are even unless extended
 
             # Custom expenses
             yearly_custom_expenses = Decimal('0')
