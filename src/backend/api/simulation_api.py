@@ -152,6 +152,75 @@ if not hasattr(manager, 'send_update'):
         setattr(manager, 'disconnect', _disconnect)
 
 # Pydantic models for request/response validation
+
+class GreenSleeveConfig(BaseModel):
+    """Configuration for the green-sleeve NAV facility."""
+
+    enabled: bool = Field(True, description="Toggle the Green NAV facility")
+    max_mult: float = Field(1.5, ge=0, description="Limit as multiple of sleeve NAV")
+    spread_bps: int = Field(275, ge=0, description="Credit spread over base (bps)")
+    commitment_fee_bps: int = Field(50, ge=0, description="Commitment fee on undrawn (bps)")
+
+    class Config:
+        extra = 'forbid'
+
+
+class APlusOveradvanceConfig(BaseModel):
+    """Configuration for TLS-grade A+ over-advance facility."""
+
+    enabled: bool = Field(False, description="Enable TLS-grade A+ over-advance")
+    tls_grade: str = Field("A+", description="TLS grade eligible")
+    advance_rate: float = Field(0.75, ge=0, le=1, description="Advance rate on eligible NAV (0-1)")
+
+    class Config:
+        extra = 'forbid'
+
+
+class DealNoteConfig(BaseModel):
+    """Configuration for deal-level structured notes."""
+
+    enabled: bool = Field(False, description="Enable structured notes per deal")
+    note_pct: float = Field(0.30, ge=0, le=1, description="Note principal as % of value (0-1)")
+    note_rate: float = Field(0.07, ge=0, le=1, description="Fixed interest rate (decimal)")
+
+    class Config:
+        extra = 'forbid'
+
+
+class RampLineConfig(BaseModel):
+    """Configuration for the temporary warehouse line during ramp."""
+
+    enabled: bool = Field(False, description="Enable ramp warehouse line")
+    limit_pct_commit: float = Field(0.15, ge=0, le=1, description="Limit as % of commitments (0-1)")
+    draw_period_months: int = Field(24, ge=1, description="Draw window length in months")
+    spread_bps: int = Field(300, ge=0, description="Spread on ramp line (bps)")
+
+    class Config:
+        extra = 'forbid'
+
+
+class LeverageRule(BaseModel):
+    """IF/THEN dynamic leverage rule."""
+
+    trigger: str
+    action: str
+    max: Optional[float] = None
+
+    class Config:
+        extra = 'allow'
+
+
+class LeverageConfig(BaseModel):
+    """Configuration block for leverage facilities."""
+
+    green_sleeve: Optional[GreenSleeveConfig] = Field(default_factory=GreenSleeveConfig)
+    a_plus_overadvance: Optional[APlusOveradvanceConfig] = Field(default_factory=APlusOveradvanceConfig)
+    deal_note: Optional[DealNoteConfig] = Field(default_factory=DealNoteConfig)
+    ramp_line: Optional[RampLineConfig] = Field(default_factory=RampLineConfig)
+    dynamic_rules: List[LeverageRule] = Field(default_factory=list)
+
+    class Config:
+        extra = 'forbid'
 class SimulationConfig(BaseModel):
     """Configuration for a simulation."""
 
@@ -169,6 +238,9 @@ class SimulationConfig(BaseModel):
     stress_testing_enabled: bool = Field(False, description="Enable stress testing")
     external_data_enabled: bool = Field(False, description="Enable external data sources")
     generate_reports: bool = Field(True, description="Generate reports")
+    leverage: Optional[LeverageConfig] = Field(
+        None, description="Configuration for leverage facilities"
+    )
 
     # Market condition parameters
     base_appreciation_rate: float = Field(0.03, description="Base appreciation rate (0-1)")
@@ -251,6 +323,7 @@ class SimulationConfig(BaseModel):
 
     class Config:
         """Pydantic configuration."""
+        extra = 'forbid'
         schema_extra = {
             "example": {
                 "fund_size": 100000000,

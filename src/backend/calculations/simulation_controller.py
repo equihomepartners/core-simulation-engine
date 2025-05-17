@@ -265,6 +265,7 @@ class SimulationController:
             'gp_entity_enabled': False,
             'aggregate_gp_economics': True,
             'monte_carlo_parameters': {},
+            'leverage': {},
             'deployment_monthly_granularity': False,
             'time_granularity': 'yearly'
         }
