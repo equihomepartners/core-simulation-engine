@@ -375,6 +375,16 @@ This change ensures that the backend respects the `deployment_monthly_granularit
 | `monte_carlo_parameters.market_conditions.cycle_length_years` | Number | Average length of market cycle in years | `5` | Number input |
 | `monte_carlo_parameters.market_conditions.cycle_amplitude` | Number | Amplitude of market cycles | `0.3` | Slider |
 
+### Inner Monte Carlo Parameters
+
+| Parameter | Type | Description | Default | UI Component |
+|-----------|------|-------------|---------|-------------|
+| `monte_carlo_parameters.inner.iterations` | Number | Number of inner simulations run for each outer iteration | `100` | Number input |
+| `monte_carlo_parameters.inner.processes` | Number | Parallel processes for inner loop execution | `2` | Number input |
+| `monte_carlo_parameters.inner.seed` | Number | Random seed for inner simulations | `null` | Number input |
+
+These options appear in the wizard under **Advanced Monte Carlo Options** once Monte Carlo is enabled. They allow fine‑tuning of nested simulations used for variance analysis.
+
 ### Sensitivity Analysis Parameters
 
 | Parameter | Type | Description | Default | UI Component |
