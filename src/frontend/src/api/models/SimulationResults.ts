@@ -8,6 +8,7 @@ import type { PerformanceMetrics } from './PerformanceMetrics';
 import type { PortfolioEvolution } from './PortfolioEvolution';
 import type { SimulationConfig } from './SimulationConfig';
 import type { VintageVarResults } from './VintageVarResults';
+import type { LeverageMetrics } from './LeverageMetrics';
 /**
  * Results of a simulation.
  */
@@ -82,6 +83,7 @@ export type SimulationResults = {
      * Monte Carlo simulation results
      */
     monte_carlo_results?: Record<string, any>;
+    leverage_metrics?: LeverageMetrics;
     bootstrap_results?: BootstrapResults;
     grid_stress_results?: GridStressResults;
     vintage_var?: VintageVarResults;
