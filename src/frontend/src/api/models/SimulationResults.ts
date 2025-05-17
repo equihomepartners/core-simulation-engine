@@ -34,6 +34,10 @@ export type SimulationResults = {
      * Progress of the simulation (0-1)
      */
     progress?: number;
+    /**
+     * Timestamp when results were generated
+     */
+    generated_at?: string;
     metrics?: PerformanceMetrics;
     performance_metrics?: PerformanceMetrics;
     /**
