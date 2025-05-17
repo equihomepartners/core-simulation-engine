@@ -82,6 +82,24 @@ export const simulationSchema = z.object({
   report_config: z.record(z.string(), z.any()).optional(),
   stress_config: z.record(z.string(), z.any()).optional(),
   gp_entity: z.record(z.string(), z.any()).optional(),
+
+  // Default Correlation
+  default_correlation: z
+    .object({
+      enabled: z.boolean().default(true),
+      same_zone: z.number().min(0).max(1).default(0.3),
+      cross_zone: z.number().min(0).max(1).default(0.1),
+    })
+    .default({ enabled: true, same_zone: 0.3, cross_zone: 0.1 }),
+
+  // Zone Rebalancing
+  zone_rebalancing_enabled: z.boolean().default(true),
+  rebalancing_strength: z.number().min(0).max(1).default(0.5),
+  zone_drift_threshold: z.number().min(0).max(0.5).default(0.1),
+  zone_allocation_precision: z.number().min(0).max(1).default(0.8),
+
+  // Lifecycle Timing
+  exit_year_max_std_dev: z.number().min(1).max(5).default(3),
 });
 
 // Define the type based on the schema
@@ -154,6 +172,22 @@ export const defaultSimulationConfig: SimulationConfig = {
   generate_reports: true,
   gp_entity_enabled: false,
   aggregate_gp_economics: true,
+
+  // Default Correlation
+  default_correlation: {
+    enabled: true,
+    same_zone: 0.3,
+    cross_zone: 0.1,
+  },
+
+  // Zone Rebalancing
+  zone_rebalancing_enabled: true,
+  rebalancing_strength: 0.5,
+  zone_drift_threshold: 0.1,
+  zone_allocation_precision: 0.8,
+
+  // Lifecycle Timing
+  exit_year_max_std_dev: 3,
 };
 
 // Define the wizard steps
@@ -222,10 +256,25 @@ export const wizardSteps = [
     title: 'Advanced',
     description: 'Configure advanced analytics and reporting',
     fields: [
-      'monte_carlo_enabled', 'num_simulations', 'variation_factor',
-      'monte_carlo_seed', 'optimization_enabled', 'stress_testing_enabled',
-      'external_data_enabled', 'generate_reports', 'gp_entity_enabled',
-      'aggregate_gp_economics', 'report_config', 'stress_config', 'gp_entity',
+      'monte_carlo_enabled',
+      'num_simulations',
+      'variation_factor',
+      'monte_carlo_seed',
+      'optimization_enabled',
+      'stress_testing_enabled',
+      'external_data_enabled',
+      'generate_reports',
+      'gp_entity_enabled',
+      'aggregate_gp_economics',
+      'default_correlation',
+      'zone_rebalancing_enabled',
+      'rebalancing_strength',
+      'zone_drift_threshold',
+      'zone_allocation_precision',
+      'exit_year_max_std_dev',
+      'report_config',
+      'stress_config',
+      'gp_entity',
     ],
   },
   {
