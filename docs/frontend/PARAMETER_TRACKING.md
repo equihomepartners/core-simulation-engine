@@ -340,6 +340,8 @@ This change ensures that the backend respects the `deployment_monthly_granularit
 |-----------|------|-------------|---------|-------------|
 | `monte_carlo_enabled` | Boolean | Whether to enable Monte Carlo simulation | `false` | Checkbox |
 | `num_simulations` | Number | Number of Monte Carlo simulations to run | `1000` | Number input |
+| `inner_monte_carlo_enabled` | Boolean | Enable nested Monte Carlo simulation | `false` | Checkbox |
+| `num_inner_simulations` | Number | Number of inner simulations per outer run | `1000` | Number input |
 | `num_processes` | Number | Number of processes to use for parallel execution | `4` | Number input |
 | `random_seed` | Number | Random seed for reproducibility | `null` | Number input |
 | `distribution_type` | String | Type of probability distribution to use | `'normal'` | Dropdown |

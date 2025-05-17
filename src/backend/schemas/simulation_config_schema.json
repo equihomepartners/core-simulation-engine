@@ -353,6 +353,18 @@
       "description": "Whether to run Monte Carlo simulation",
       "default": false
     },
+    "inner_monte_carlo_enabled": {
+      "type": "boolean",
+      "description": "Enable nested Monte Carlo simulation",
+      "default": false
+    },
+    "num_inner_simulations": {
+      "type": "integer",
+      "description": "Number of inner Monte Carlo simulations per outer run",
+      "minimum": 1,
+      "maximum": 10000,
+      "default": 1000
+    },
     "monte_carlo_parameters": {
       "type": "object",
       "description": "Advanced configuration for variable-level Monte Carlo sampling. Keys map to module names (e.g. exit_timing) and each contains a 'parameters' map of variable specs with base/dist/args.",

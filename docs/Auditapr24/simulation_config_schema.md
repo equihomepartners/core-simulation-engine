@@ -80,7 +80,9 @@ This document defines the authoritative schema for all simulation configuration 
 
 ## **7. Advanced/Analytics**
 - `monte_carlo_enabled` (*optional*, `bool`): Enable Monte Carlo simulation. Default: `false`
+- `inner_monte_carlo_enabled` (*optional*, `bool`): Enable nested Monte Carlo simulation. Default: `false`
 - `num_simulations` (*optional*, `int`): Number of Monte Carlo runs. Default: `1000`
+- `num_inner_simulations` (*optional*, `int`): Number of inner simulations per outer run. Default: `1000`
 - `variation_factor` (*optional*, `float`): Parameter variation for MC. Default: `0.1`
 - `monte_carlo_seed` (*optional*, `int`): Random seed for MC. Default: `null`
 - `optimization_enabled` (*optional*, `bool`): Enable portfolio optimization. Default: `false`

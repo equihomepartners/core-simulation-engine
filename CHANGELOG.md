@@ -1350,3 +1350,4 @@ All notable changes to the Equihome Fund Simulation Engine will be documented in
 
 ### Added
 - **disable_carry_when_no_commitment** flag (default `true`) respected in both European and American waterfalls. When GP commitment is zero and the flag is true, carried‑interest rate is forced to 0 to reflect a manager‑only GP structure unless explicitly overridden.
+- Added `inner_monte_carlo_enabled` and `num_inner_simulations` parameters to simulation configuration schema for nested Monte Carlo support.
