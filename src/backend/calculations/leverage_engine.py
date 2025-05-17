@@ -12,7 +12,7 @@ Design goals for v0:
     – `leverage_metrics` summary (avg_ratio, max_drawn, total_int)
 
 Downstream consumers:
-• `SimulationController` stores both objects under results['leverage'].
+• `SimulationController` stores leverage metrics under results['leverage_metrics'].
 • `CashFlows` unchanged – we tack the interest line item onto cash_flows
   inside this engine to avoid circular imports.
 """

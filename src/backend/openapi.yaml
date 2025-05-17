@@ -1241,6 +1241,8 @@ components:
         monte_carlo_results:
           type: object
           description: Monte Carlo simulation results
+        leverage_metrics:
+          $ref: '#/components/schemas/LeverageMetrics'
         bootstrap_results:
           $ref: '#/components/schemas/BootstrapResults'
         grid_stress_results:

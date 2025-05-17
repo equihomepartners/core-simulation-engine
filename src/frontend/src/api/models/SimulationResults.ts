@@ -83,6 +83,7 @@ export type SimulationResults = {
      * Monte Carlo simulation results
      */
     monte_carlo_results?: Record<string, any>;
+    leverage_metrics?: LeverageMetrics;
     bootstrap_results?: BootstrapResults;
     grid_stress_results?: GridStressResults;
     vintage_var?: VintageVarResults;
