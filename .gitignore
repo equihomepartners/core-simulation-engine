@@ -67,3 +67,7 @@ dist/
 coverage/
 logs/
 *.log
+
+# Logs and screenshots
+*_log.txt
+cypress/screenshots/
