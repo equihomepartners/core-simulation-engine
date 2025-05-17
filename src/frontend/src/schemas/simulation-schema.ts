@@ -135,6 +135,8 @@ export const simulationSchema = z.object({
   // 7. Advanced/Analytics
   monte_carlo_enabled: z.boolean().default(false),
   num_simulations: z.number().int().min(10).max(10000, "Number of simulations must be between 10 and 10,000").default(1000),
+  inner_monte_carlo_enabled: z.boolean().default(false),
+  num_inner_simulations: z.number().int().min(1).max(1000, "Number of inner simulations must be between 1 and 1,000").default(100),
   variation_factor: z.number().min(0).max(1, "Variation factor must be between 0 and 1").default(0.1),
   monte_carlo_seed: z.number().int().nullable().default(null),
   optimization_enabled: z.boolean().default(false),
@@ -156,7 +158,7 @@ export const defaultSimulationConfig: SimulationConfig = {
   // 1. Fund Structure
   fund_size: 100_000_000,
   fund_term: 10,
-  
+
   // 2. Fees and Expenses
   management_fee_rate: 0.02,
   management_fee_basis: 'committed_capital',
@@ -165,7 +167,7 @@ export const defaultSimulationConfig: SimulationConfig = {
   management_fee_step_down_rate: 0.5,
   expense_rate: 0.005,
   formation_costs: 0,
-  
+
   // 3. Deployment and Capital Calls
   deployment_pace: 'even',
   deployment_period: 3,
@@ -173,7 +175,7 @@ export const defaultSimulationConfig: SimulationConfig = {
   deployment_monthly_granularity: false,
   capital_call_schedule: 'upfront',
   capital_call_years: 3,
-  
+
   // 4. Reinvestment and Exit
   reinvestment_period: 5,
   reinvestment_percentage: 0.0,
@@ -184,7 +186,7 @@ export const defaultSimulationConfig: SimulationConfig = {
   exit_year_std_dev: 1.5,
   early_exit_probability: 0.3,
   force_exit_within_fund_term: true,
-  
+
   // 5. Waterfall and Returns
   waterfall_structure: 'european',
   hurdle_rate: 0.08,
@@ -197,7 +199,7 @@ export const defaultSimulationConfig: SimulationConfig = {
   distribution_policy: 'available_cash',
   clawback_provision: true,
   management_fee_offset_percentage: 0.0,
-  
+
   // 6. Market and Loan Parameters
   avg_loan_size: 250000,
   loan_size_std_dev: 50000,
@@ -244,6 +246,8 @@ export const defaultSimulationConfig: SimulationConfig = {
   // 7. Advanced/Analytics
   monte_carlo_enabled: false,
   num_simulations: 1000,
+  inner_monte_carlo_enabled: false,
+  num_inner_simulations: 100,
   variation_factor: 0.1,
   monte_carlo_seed: null,
   optimization_enabled: false,
@@ -332,6 +336,8 @@ export const wizardSteps = [
       'leverage',
       'monte_carlo_enabled',
       'num_simulations',
+      'inner_monte_carlo_enabled',
+      'num_inner_simulations',
       'variation_factor',
       'monte_carlo_seed',
       'optimization_enabled',

@@ -22,3 +22,4 @@ export * from './models/LeveragePreviewResponse';
 export * from './models/MonteCarloResults';
 export * from './models/MonteCarloVisualization';
 export * from './services/DefaultService';
+export * from './simulations';
