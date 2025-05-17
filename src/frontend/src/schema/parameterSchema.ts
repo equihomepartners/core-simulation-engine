@@ -396,16 +396,6 @@ export const parameterSchema: ParameterSchemaEntry[] = [
     validation: { min: 0 },
   },
   {
-    key: 'exit_year_max_std_dev',
-    label: 'Exit Year Max Std Dev Multiplier',
-    type: 'number',
-    uiComponent: 'NumberInput',
-    defaultValue: 3,
-    step: 'AdvancedParameters',
-    section: 'Lifecycle Timing',
-    validation: { min: 1, max: 5 },
-  },
-  {
     key: 'min_holding_period',
     label: 'Minimum Holding Period',
     type: 'number',
