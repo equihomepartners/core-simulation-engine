@@ -1038,7 +1038,39 @@ def generate_capital_call_schedule_monthly(params):
         for m in range(1, total_months + 1):
             # Use negative value for capital calls (outflows)
             schedule[m] = -monthly_amount
-    # TODO: Implement other paces (front_loaded, back_loaded, bell_curve)
+    elif deployment_pace == 'front_loaded':
+        remaining = fund_size
+        for m in range(1, total_months + 1):
+            call_percentage = 0.7 ** (m - 1)
+            call_amount = min(remaining, fund_size * call_percentage / total_months)
+            schedule[m] = -call_amount
+            remaining -= call_amount
+        if remaining > 0:
+            schedule[total_months] = schedule.get(total_months, 0) - remaining
+    elif deployment_pace == 'back_loaded':
+        remaining = fund_size
+        for m in range(1, total_months + 1):
+            call_percentage = 1.5 ** (m - 1)
+            call_amount = min(remaining, fund_size * call_percentage / total_months)
+            schedule[m] = -call_amount
+            remaining -= call_amount
+        if remaining > 0:
+            schedule[total_months] = schedule.get(total_months, 0) - remaining
+    elif deployment_pace == 'bell_curve':
+        mid_point = total_months // 2
+        weights = []
+        for m in range(1, total_months + 1):
+            if mid_point == 0:
+                weight = 1
+            elif m <= mid_point:
+                weight = m / mid_point
+            else:
+                denom = total_months - mid_point
+                weight = (total_months - m + 1) / denom if denom > 0 else 1
+            weights.append(weight)
+        total_weight = sum(weights)
+        for m, weight in enumerate(weights, start=1):
+            schedule[m] = -(fund_size * weight / total_weight)
     return schedule
 
 def generate_deployment_schedule_monthly(params, loans):
