@@ -18,6 +18,7 @@ from .loan_lifecycle import (
     generate_reinvestment_loans,
     calculate_year_metrics
 )
+from .inner_monte_carlo import run_config_mc, percentiles, summarize_percentiles
 
 __all__ = [
     'generate_portfolio',
@@ -28,7 +29,10 @@ __all__ = [
     'model_portfolio_evolution_from_config',
     'process_year',
     'generate_reinvestment_loans',
-    'calculate_year_metrics'
+    'calculate_year_metrics',
+    'run_config_mc',
+    'percentiles',
+    'summarize_percentiles'
 ]
 
 # ---------------------------------------------------------------------------
