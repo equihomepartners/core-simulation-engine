@@ -234,6 +234,18 @@ class SimulationConfig(BaseModel):
     # Fund parameters
     fund_size: int = Field(100000000, description="Fund size in dollars")
     fund_term: int = Field(10, description="Fund term in years")
+    fund_id: Optional[str] = Field(
+        None,
+        description="Unique identifier for a fund",
+    )
+    fund_group: Optional[str] = Field(
+        None,
+        description="Group identifier for multi-fund setups",
+    )
+    tranche_id: Optional[str] = Field(
+        None,
+        description="Tranche identifier if using tranches",
+    )
     gp_commitment_percentage: float = Field(0.05, description="GP commitment percentage (0-1)")
     hurdle_rate: float = Field(0.08, description="Hurdle rate (0-1)")
     carried_interest_rate: float = Field(0.20, description="Carried interest rate (0-1)")
@@ -335,6 +347,9 @@ class SimulationConfig(BaseModel):
             "example": {
                 "fund_size": 100000000,
                 "fund_term": 10,
+                "fund_id": "example_fund",
+                "fund_group": "group_a",
+                "tranche_id": "tranche_1",
                 "gp_commitment_percentage": 0.05,
                 "hurdle_rate": 0.08,
                 "carried_interest_rate": 0.20,
