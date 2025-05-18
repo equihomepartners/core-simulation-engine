@@ -43,9 +43,7 @@ This document defines the authoritative schema for all simulation configuration 
 
 ## **4. Reinvestment and Exit**
 - `reinvestment_period` (*optional*, `int`): Years during which reinvestment is allowed. Default: `5`
-- `reinvestment_percentage` (*optional*, `float`): Fraction of exits to reinvest. Default: `0.0`
-- `reinvestment_rate` (*optional*, `float`): Alias for above. Default: `0.0`
-- `profit_reinvestment_percentage` (*optional*, `float`): For American waterfall. Default: `0.0`
+- `reinvestment_rate` (*optional*, `float`): Fraction of exits to reinvest. Default: `0.0`
 - `reinvestment_reserve_rate` (*optional*, `float`): Fraction of cash reserved for reinvestment. Default: `0.8`
 - `avg_loan_exit_year` (*optional*, `float`): Average exit year for loans. Default: `7`
 - `exit_year_std_dev` (*optional*, `float`): Std dev of exit year. Default: `1.5`
