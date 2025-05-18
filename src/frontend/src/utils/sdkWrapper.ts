@@ -296,6 +296,19 @@ export const getMonteCarloResults = async (
 };
 
 /**
+ * Create a multi-fund simulation
+ */
+export const createMultiFundSimulation = async (payload: any) => {
+  try {
+    const result = await simulationSDK.createMultiFundSimulation(payload);
+    return result;
+  } catch (error) {
+    log(LogLevel.ERROR, LogCategory.API, 'Error creating multi-fund simulation:', { error });
+    throw error;
+  }
+};
+
+/**
  * Get efficient frontier data
  */
 export const getEfficientFrontier = async (optimizationId: string) => {
@@ -308,6 +321,19 @@ export const getEfficientFrontier = async (optimizationId: string) => {
     return await resp.json();
   } catch (error) {
     log(LogLevel.ERROR, LogCategory.API, `Error getting efficient frontier ${optimizationId}:`, { error });
+    throw error;
+  }
+};
+
+/**
+ * Create a tranched fund simulation
+ */
+export const createTranchedFundSimulation = async (payload: any) => {
+  try {
+    const result = await simulationSDK.createTranchedFundSimulation(payload);
+    return result;
+  } catch (error) {
+    log(LogLevel.ERROR, LogCategory.API, 'Error creating tranched fund simulation:', { error });
     throw error;
   }
 };
@@ -336,6 +362,8 @@ export const sdkWrapper = {
   getMonteCarloResults,
   getEfficientFrontier,
   runSimulationWithConfig,
+  createMultiFundSimulation,
+  createTranchedFundSimulation,
   get100MPreset,
   setCacheEnabled,
   isCacheEnabled,

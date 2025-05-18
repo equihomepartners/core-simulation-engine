@@ -2256,6 +2256,56 @@ export class SimulationSDK {
   }
 
   /**
+   * Create a multi-fund simulation
+   * @param payload Configuration payload for multiple funds
+   * @returns Aggregated simulation results
+   */
+  async createMultiFundSimulation(payload: any): Promise<any> {
+    try {
+      log(LogLevel.INFO, LogCategory.API, 'Creating multi-fund simulation');
+      const response = await apiClient.request({
+        method: 'POST',
+        url: '/api/multi-fund-simulations/',
+        body: transformApiRequest(payload),
+        mediaType: 'application/json'
+      });
+      return transformApiResponse(response);
+    } catch (error) {
+      log(
+        LogLevel.ERROR,
+        LogCategory.API,
+        `Error creating multi-fund simulation: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Create a tranched fund simulation
+   * @param payload Configuration payload defining the tranches
+   * @returns Aggregated simulation results
+   */
+  async createTranchedFundSimulation(payload: any): Promise<any> {
+    try {
+      log(LogLevel.INFO, LogCategory.API, 'Creating tranched fund simulation');
+      const response = await apiClient.request({
+        method: 'POST',
+        url: '/api/tranched-fund-simulations/',
+        body: transformApiRequest(payload),
+        mediaType: 'application/json'
+      });
+      return transformApiResponse(response);
+    } catch (error) {
+      log(
+        LogLevel.ERROR,
+        LogCategory.API,
+        `Error creating tranched fund simulation: ${error}`
+      );
+      throw error;
+    }
+  }
+
+  /**
    * Save a configuration
    * @param name Configuration name
    * @param description Configuration description

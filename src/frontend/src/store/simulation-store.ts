@@ -15,12 +15,19 @@ interface SimulationState {
   isLoadingCurrentSimulation: boolean;
   currentSimulationError: Error | null;
 
+  // Aggregated results from multi-fund or tranched simulations
+  aggregatedResults: any | null;
+  isLoadingAggregatedResults: boolean;
+  aggregatedResultsError: Error | null;
+
   // Actions
   fetchSimulations: () => Promise<void>;
   fetchSimulation: (id: string, forceRefresh?: boolean) => Promise<void>;
   createSimulation: (config: any) => Promise<any>;
   runSimulation: (id: string) => Promise<void>;
   runSimulationWithConfig: (config: any) => Promise<any>;
+  createMultiFundSimulation: (payload: any) => Promise<any>;
+  createTranchedFundSimulation: (payload: any) => Promise<any>;
   getSimulationResults: (id: string, timeGranularity?: 'yearly' | 'monthly') => Promise<any>;
   getMonteCarloResults: (
     id: string,
@@ -42,6 +49,10 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
   currentSimulation: null,
   isLoadingCurrentSimulation: false,
   currentSimulationError: null,
+
+  aggregatedResults: null,
+  isLoadingAggregatedResults: false,
+  aggregatedResultsError: null,
 
   // Actions
   fetchSimulations: async () => {
@@ -110,6 +121,40 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
       return result;
     } catch (error) {
       log(LogLevel.ERROR, LogCategory.STORE, 'Error running simulation with config:', { error });
+      throw error;
+    }
+  },
+
+  createMultiFundSimulation: async (payload: any) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, 'Creating multi-fund simulation');
+      set({ isLoadingAggregatedResults: true, aggregatedResultsError: null });
+      const result = await sdkWrapper.createMultiFundSimulation(payload);
+      set({ aggregatedResults: result, isLoadingAggregatedResults: false });
+      return result;
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, 'Error creating multi-fund simulation:', { error });
+      set({
+        isLoadingAggregatedResults: false,
+        aggregatedResultsError: error instanceof Error ? error : new Error(String(error))
+      });
+      throw error;
+    }
+  },
+
+  createTranchedFundSimulation: async (payload: any) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, 'Creating tranched fund simulation');
+      set({ isLoadingAggregatedResults: true, aggregatedResultsError: null });
+      const result = await sdkWrapper.createTranchedFundSimulation(payload);
+      set({ aggregatedResults: result, isLoadingAggregatedResults: false });
+      return result;
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, 'Error creating tranched fund simulation:', { error });
+      set({
+        isLoadingAggregatedResults: false,
+        aggregatedResultsError: error instanceof Error ? error : new Error(String(error))
+      });
       throw error;
     }
   },
