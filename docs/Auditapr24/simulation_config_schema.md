@@ -116,6 +116,8 @@ This document defines the authoritative schema for all simulation configuration 
 - `variation_factor` (*optional*, `float`): Parameter variation for MC. Default: `0.1`
 - `monte_carlo_seed` (*optional*, `int`): Random seed for MC. Default: `null`
 - `optimization_enabled` (*optional*, `bool`): Enable portfolio optimization. Default: `false`
+- `generate_efficient_frontier` (*optional*, `bool`): Generate efficient frontier during optimization. Default: `false`
+- `efficient_frontier_points` (*optional*, `int`): Number of points on the efficient frontier. Default: `50`
 - `stress_testing_enabled` (*optional*, `bool`): Enable stress testing. Default: `false`
 - `external_data_enabled` (*optional*, `bool`): Use external data. Default: `false`
 - `generate_reports` (*optional*, `bool`): Generate reports. Default: `true`
