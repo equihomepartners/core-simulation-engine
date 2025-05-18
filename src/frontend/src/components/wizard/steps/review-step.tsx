@@ -65,7 +65,6 @@ export function ReviewStep() {
           fields={[
             { name: 'reinvestment_period', label: 'Reinvestment Period', type: 'number' },
             { name: 'reinvestment_rate', label: 'Reinvestment Rate', type: 'percentage' },
-            { name: 'profit_reinvestment_percentage', label: 'Profit Reinvestment Percentage', type: 'percentage' },
             { name: 'reinvestment_reserve_rate', label: 'Reinvestment Reserve Rate', type: 'percentage' },
             { name: 'avg_loan_exit_year', label: 'Average Loan Exit Year', type: 'number' },
             { name: 'exit_year_std_dev', label: 'Exit Year Standard Deviation', type: 'number' },

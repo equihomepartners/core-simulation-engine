@@ -31,9 +31,7 @@ export const simulationSchema = z.object({
 
   // 4. Reinvestment and Exit
   reinvestment_period: z.number().int().min(0).max(20, "Reinvestment period must be between 0 and 20 years").default(5),
-  reinvestment_percentage: z.number().min(0).max(1, "Reinvestment percentage must be between 0% and 100%").default(0.0),
   reinvestment_rate: z.number().min(0).max(1, "Reinvestment rate must be between 0% and 100%").default(0.0),
-  profit_reinvestment_percentage: z.number().min(0).max(1, "Profit reinvestment percentage must be between 0% and 100%").default(0.0),
   reinvestment_reserve_rate: z.number().min(0).max(1, "Reinvestment reserve rate must be between 0% and 100%").default(0.8),
   avg_loan_exit_year: z.number().min(1).max(20, "Average loan exit year must be between 1 and 20").default(7),
   exit_year_std_dev: z.number().min(0).max(10, "Exit year standard deviation must be between 0 and 10").default(1.5),
@@ -202,9 +200,7 @@ export const defaultSimulationConfig: SimulationConfig = {
 
   // 4. Reinvestment and Exit
   reinvestment_period: 5,
-  reinvestment_percentage: 0.0,
   reinvestment_rate: 0.0,
-  profit_reinvestment_percentage: 0.0,
   reinvestment_reserve_rate: 0.8,
   avg_loan_exit_year: 7,
   exit_year_std_dev: 1.5,
@@ -334,8 +330,7 @@ export const wizardSteps = [
     title: 'Reinvestment & Exit',
     description: 'Configure reinvestment strategy and exit parameters',
     fields: [
-      'reinvestment_period', 'reinvestment_percentage', 'reinvestment_rate',
-      'profit_reinvestment_percentage', 'reinvestment_reserve_rate',
+      'reinvestment_period', 'reinvestment_rate', 'reinvestment_reserve_rate',
       'avg_loan_exit_year', 'exit_year_std_dev', 'early_exit_probability',
       'force_exit_within_fund_term',
     ],

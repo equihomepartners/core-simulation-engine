@@ -37,16 +37,6 @@ export function ReinvestmentStep() {
             defaultValue={0.0}
           />
           <ParameterField
-            name="profit_reinvestment_percentage"
-            label="Profit Reinvestment Percentage"
-            tooltip="The percentage of profits to reinvest (for American waterfall)"
-            type="percentage"
-            min={0}
-            max={1}
-            step={0.01}
-            defaultValue={0.0}
-          />
-          <ParameterField
             name="reinvestment_reserve_rate"
             label="Reinvestment Reserve Rate"
             tooltip="The fraction of cash reserved for reinvestment"
