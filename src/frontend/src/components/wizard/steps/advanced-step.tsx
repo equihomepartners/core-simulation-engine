@@ -112,49 +112,6 @@ export function AdvancedStep() {
           />
         </div>
       </FormSection>
-
-      <FormSection
-        title="Zone Rebalancing"
-        description="Control automatic rebalancing of zone allocations"
-        defaultExpanded={false}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ParameterField
-            name="zone_rebalancing_enabled"
-            label="Enable Zone Rebalancing"
-            type="switch"
-            defaultValue={true}
-          />
-          <ParameterField
-            name="rebalancing_strength"
-            label="Rebalancing Strength"
-            type="percentage"
-            min={0}
-            max={1}
-            step={0.01}
-            defaultValue={0.5}
-          />
-          <ParameterField
-            name="zone_drift_threshold"
-            label="Zone Drift Threshold"
-            type="percentage"
-            min={0}
-            max={0.5}
-            step={0.01}
-            defaultValue={0.1}
-          />
-          <ParameterField
-            name="zone_allocation_precision"
-            label="Zone Allocation Precision"
-            type="percentage"
-            min={0}
-            max={1}
-            step={0.01}
-            defaultValue={0.8}
-          />
-        </div>
-      </FormSection>
-
       <FormSection
         title="Lifecycle Timing"
         description="Advanced exit timing parameters"
