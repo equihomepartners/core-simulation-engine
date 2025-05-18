@@ -349,6 +349,22 @@ export function AdvancedStep() {
             defaultValue={false}
           />
           <ParameterField
+            name="generate_efficient_frontier"
+            label="Generate Efficient Frontier"
+            tooltip="Generate efficient frontier during optimization"
+            type="switch"
+            defaultValue={false}
+          />
+          <ParameterField
+            name="efficient_frontier_points"
+            label="Efficient Frontier Points"
+            tooltip="Number of points for efficient frontier curve"
+            type="number"
+            min={1}
+            step={1}
+            defaultValue={50}
+          />
+          <ParameterField
             name="stress_testing_enabled"
             label="Enable Stress Testing"
             tooltip="Whether to enable stress testing"

@@ -140,6 +140,12 @@ export const simulationSchema = z.object({
   variation_factor: z.number().min(0).max(1, "Variation factor must be between 0 and 1").default(0.1),
   monte_carlo_seed: z.number().int().nullable().default(null),
   optimization_enabled: z.boolean().default(false),
+  generate_efficient_frontier: z.boolean().default(false),
+  efficient_frontier_points: z
+    .number()
+    .int()
+    .min(1)
+    .default(50),
   stress_testing_enabled: z.boolean().default(false),
   external_data_enabled: z.boolean().default(false),
   generate_reports: z.boolean().default(true),
@@ -269,6 +275,8 @@ export const defaultSimulationConfig: SimulationConfig = {
   variation_factor: 0.1,
   monte_carlo_seed: null,
   optimization_enabled: false,
+  generate_efficient_frontier: false,
+  efficient_frontier_points: 50,
   stress_testing_enabled: false,
   external_data_enabled: false,
   generate_reports: true,
@@ -375,6 +383,8 @@ export const wizardSteps = [
       'variation_factor',
       'monte_carlo_seed',
       'optimization_enabled',
+      'generate_efficient_frontier',
+      'efficient_frontier_points',
       'stress_testing_enabled',
       'external_data_enabled',
       'generate_reports',
