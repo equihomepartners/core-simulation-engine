@@ -12,6 +12,8 @@ import { useSimulationResults } from '@/hooks/use-simulation-results';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import {
   ChevronLeft,
   RefreshCw,
@@ -53,6 +55,9 @@ import { LPEconomicsTab } from '@/components/results/lp-economics-tab';
 import { InvestmentJourneyVisualization } from '@/components/results/investment-journey-visualization';
 import { MonteCarloResults } from '@/components/results/MonteCarloResults';
 import { EfficientFrontierChart } from '@/components/results/EfficientFrontierChart';
+import { StressImpactHeatmap } from '@/components/results/StressImpactHeatmap';
+import { BootstrapFanChart } from '@/components/results/BootstrapFanChart';
+import { VintageVarAreaChart } from '@/components/results/VintageVarAreaChart';
 import { MetricCard } from '@/components/ui/metric-card';
 import { LogLevel, LogCategory, log, logBackendDataStructure } from '@/utils/logging';
 import { formatCurrency, formatPercentage, formatMultiple, formatDecimal, formatNumber } from '@/lib/formatters';
@@ -91,6 +96,10 @@ export function Results() {
 
   // State for debug info
   const [showDebugInfo, setShowDebugInfo] = useState(false);
+
+  // Advanced visualization settings
+  const [chartColorScheme, setChartColorScheme] = useState('default');
+  const [showAnnotations, setShowAnnotations] = useState(true);
 
   // Fetch simulation results with the selected time granularity
   const {
@@ -450,6 +459,33 @@ export function Results() {
             <>
               <MonteCarloResults simulationId={simulationId} />
               <EfficientFrontierChart optimizationId={simulationId} />
+              <StressImpactHeatmap simulationId={simulationId} />
+              <BootstrapFanChart simulationId={simulationId} />
+              <VintageVarAreaChart simulationId={simulationId} />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Visualization Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <Label htmlFor="color-scheme">Color Scheme</Label>
+                    <Select value={chartColorScheme} onValueChange={setChartColorScheme}>
+                      <SelectTrigger id="color-scheme" className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="default">Default</SelectItem>
+                        <SelectItem value="warm">Warm</SelectItem>
+                        <SelectItem value="cool">Cool</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch id="annotations" checked={showAnnotations} onCheckedChange={setShowAnnotations} />
+                    <Label htmlFor="annotations">Show Annotations</Label>
+                  </div>
+                </CardContent>
+              </Card>
             </>
           )}
         </TabsContent>

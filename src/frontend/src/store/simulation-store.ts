@@ -34,6 +34,22 @@ interface SimulationState {
     resultType?: 'distribution' | 'sensitivity' | 'confidence',
     metricType?: 'irr' | 'multiple' | 'default_rate'
   ) => Promise<any>;
+  getStressTestResults: (
+    id: string,
+    timeGranularity?: 'yearly' | 'monthly'
+  ) => Promise<any>;
+  getBootstrapResults: (
+    id: string,
+    timeGranularity?: 'yearly' | 'monthly'
+  ) => Promise<any>;
+  getGridStressResults: (
+    id: string,
+    timeGranularity?: 'yearly' | 'monthly'
+  ) => Promise<any>;
+  getVintageVarResults: (
+    id: string,
+    timeGranularity?: 'yearly' | 'monthly'
+  ) => Promise<any>;
   getEfficientFrontier: (optimizationId: string) => Promise<any>;
   get100MPreset: () => any;
   clearCurrentSimulation: () => void;
@@ -207,6 +223,58 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
       return data;
     } catch (error) {
       log(LogLevel.ERROR, LogCategory.STORE, `Error getting Monte Carlo results for ${id}:`, { error });
+      throw error;
+    }
+  },
+
+  getStressTestResults: async (
+    id: string,
+    timeGranularity: 'yearly' | 'monthly' = 'yearly'
+  ) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, `Getting stress test results for ${id}`);
+      return await sdkWrapper.getStressTestResults(id, timeGranularity);
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, `Error getting stress test results for ${id}:`, { error });
+      throw error;
+    }
+  },
+
+  getBootstrapResults: async (
+    id: string,
+    timeGranularity: 'yearly' | 'monthly' = 'yearly'
+  ) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, `Getting bootstrap results for ${id}`);
+      return await sdkWrapper.getBootstrapResults(id, timeGranularity);
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, `Error getting bootstrap results for ${id}:`, { error });
+      throw error;
+    }
+  },
+
+  getGridStressResults: async (
+    id: string,
+    timeGranularity: 'yearly' | 'monthly' = 'yearly'
+  ) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, `Getting grid stress results for ${id}`);
+      return await sdkWrapper.getGridStressResults(id, timeGranularity);
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, `Error getting grid stress results for ${id}:`, { error });
+      throw error;
+    }
+  },
+
+  getVintageVarResults: async (
+    id: string,
+    timeGranularity: 'yearly' | 'monthly' = 'yearly'
+  ) => {
+    try {
+      log(LogLevel.INFO, LogCategory.STORE, `Getting vintage VaR results for ${id}`);
+      return await sdkWrapper.getVintageVarResults(id, timeGranularity);
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.STORE, `Error getting vintage VaR results for ${id}:`, { error });
       throw error;
     }
   },

@@ -17,3 +17,7 @@ export * from './useSimulationStatus';
 export * from './useWindowSize';
 export * from './use-montecarlo-results';
 export * from './use-efficient-frontier';
+export * from './use-stress-test-results';
+export * from './use-bootstrap-results';
+export * from './use-grid-stress-results';
+export * from './use-vintage-var-results';
