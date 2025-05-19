@@ -24,16 +24,15 @@ import { IRRBreakdownCard } from './irr-breakdown-card';
 import { IRRComponentsCard } from './irr-components-card';
 import { InvestmentJourneyVisualization } from './investment-journey-visualization';
 
-// Import new section components
+// Import section components
 import { HeaderBarA } from './lp-economics/HeaderBarA';
 import { KPIRibbonB } from './lp-economics/KPIRibbonB';
 import { NavDpiQuadChartC } from './lp-economics/NavDpiQuadChartC';
-// Placeholder imports for future sections - will be created later
-// import { RiskLiquidityQuadChartD } from './lp-economics/RiskLiquidityQuadChartD';
-// import { CashflowWaterfallE } from './lp-economics/CashflowWaterfallE';
-// import { ZoneVintageBreakdownF } from './lp-economics/ZoneVintageBreakdownF';
-// import { ForwardIRRDistributionG } from './lp-economics/ForwardIRRDistributionG';
-// import { ScenarioTornadoPanelH } from './lp-economics/ScenarioTornadoPanelH';
+import { RiskLiquidityQuadChartD } from './lp-economics/RiskLiquidityQuadChartD';
+import { CashflowWaterfallE } from './lp-economics/CashflowWaterfallE';
+import { ZoneVintageBreakdownF } from './lp-economics/ZoneVintageBreakdownF';
+import { ForwardIRRDistributionG } from './lp-economics/ForwardIRRDistributionG';
+import { ScenarioTornadoPanelH } from './lp-economics/ScenarioTornadoPanelH';
 
 interface LPEconomicsTabProps {
   simulation: any;
@@ -79,10 +78,10 @@ export function LPEconomicsTab({ simulation, results, isLoading, timeGranularity
   const lpTvpi = lpMetrics.tvpi ?? lpMetrics.lpMultiple ?? waterfall.lp_multiple;
   const lpDpi = lpMetrics.dpi; // Usually calculated or directly from waterfall if available
   const lpRvpi = lpMetrics.rvpi; // Usually calculated or directly from waterfall if available
-  
+
   const totalCapitalCalled = cashFlows.lp_contributions_total ?? waterfall.total_lp_contribution;
   const totalDistributions = cashFlows.lp_distributions_total ?? waterfall.total_lp_distribution;
-  
+
   let lpNetProfit = null;
   if (totalDistributions !== undefined && totalCapitalCalled !== undefined) {
     lpNetProfit = totalDistributions - totalCapitalCalled;
@@ -105,53 +104,79 @@ export function LPEconomicsTab({ simulation, results, isLoading, timeGranularity
 
   return (
     <div className="flex flex-col h-full">
+      {/* A. Header Bar (40px) */}
       <HeaderBarA simulation={simulation} results={results} onExport={onExport} />
-      
-      <div className="flex-grow overflow-y-auto space-y-1">
+
+      <div className="flex-grow overflow-y-auto space-y-4 p-4">
+        {/* B. KPI Ribbon */}
         <KPIRibbonB simulation={simulation} results={results} isLoading={isLoading} />
 
-        {/* Section C: NAV vs DPI QuadChart - Removed card-like styling from this wrapper */}
-        <div className="h-[500px] flex flex-col"> 
-          {(isLoading && !results) ? (
-            <Skeleton className="h-full w-full" />
-          ) : results ? (
-            <NavDpiQuadChartC 
-              simulation={simulation} 
-              results={results}
-              isLoading={isLoading}
-              timeGranularity={timeGranularity} 
-            />
-            ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground text-center">NAV vs DPI data unavailable.</p>
-              </div>
-            )}
-          </div>
+        {/* C. NAV vs DPI QuadChart - Full Row */}
+        {isLoading ? (
+          <Skeleton className="h-[450px] w-full" />
+        ) : (
+          <NavDpiQuadChartC
+            simulation={simulation}
+            results={results}
+            isLoading={isLoading}
+            timeGranularity={timeGranularity}
+          />
+        )}
 
-        {/* Placeholder D - Removed card-like styling */}
-        <div className="min-h-[300px] flex items-center justify-center">
-          <p className="text-muted-foreground text-center">D. Risk & Liquidity K-Curve QuadChart<br/>(Coming Soon)</p>
-          </div>
+        {/* D. Risk & Liquidity QuadChart - Full Row */}
+        {isLoading ? (
+          <Skeleton className="h-[450px] w-full" />
+        ) : (
+          <RiskLiquidityQuadChartD
+            simulation={simulation}
+            results={results}
+            isLoading={isLoading}
+          />
+        )}
 
-        {/* Placeholder E - Removed card-like styling */}
-        <div className="min-h-[200px] flex items-center justify-center">
-          <p className="text-muted-foreground text-center">E. Cash-Flow Waterfall + Run-Rate Heat-Strip<br/>(Coming Soon)</p>
-        </div>
+        {/* E. Cash-Flow Waterfall + Run-Rate Heat-strip */}
+        {isLoading ? (
+          <Skeleton className="h-[300px] w-full" />
+        ) : (
+          <CashflowWaterfallE
+            simulation={simulation}
+            results={results}
+            isLoading={isLoading}
+          />
+        )}
 
-        {/* Placeholder F - Removed card-like styling */}
-        <div className="min-h-[200px] flex items-center justify-center">
-          <p className="text-muted-foreground text-center">F. Zone & Vintage Breakdown<br/>(Coming Soon)</p>
-      </div>
+        {/* F. Zone & Vintage Breakdown */}
+        {isLoading ? (
+          <Skeleton className="h-[400px] w-full" />
+        ) : (
+          <ZoneVintageBreakdownF
+            simulation={simulation}
+            results={results}
+            isLoading={isLoading}
+          />
+        )}
 
-        {/* Placeholder G - Removed card-like styling */}
-        <div className="min-h-[100px] flex items-center justify-center">
-          <p className="text-muted-foreground text-center">G. Forward IRR Distribution Ribbon<br/>(Coming Soon)</p>
-      </div>
+        {/* G. Forward IRR Distribution Ribbon */}
+        {isLoading ? (
+          <Skeleton className="h-[150px] w-full" />
+        ) : (
+          <ForwardIRRDistributionG
+            simulation={simulation}
+            results={results}
+            isLoading={isLoading}
+          />
+        )}
 
-        {/* Placeholder H - Removed card-like styling */}
-        <div className="min-h-[150px] flex items-center justify-center">
-          <p className="text-muted-foreground text-center">H. Scenario Toggle & Tornado Panel<br/>(Coming Soon)</p>
-        </div>
+        {/* H. Scenario Toggle & Tornado Panel */}
+        {isLoading ? (
+          <Skeleton className="h-[200px] w-full" />
+        ) : (
+          <ScenarioTornadoPanelH
+            simulation={simulation}
+            results={results}
+            isLoading={isLoading}
+          />
+        )}
       </div>
     </div>
   );

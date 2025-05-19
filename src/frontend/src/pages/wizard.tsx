@@ -7,6 +7,8 @@ import { DeploymentStep } from '@/components/wizard/steps/deployment-step';
 import { ReinvestmentStep } from '@/components/wizard/steps/reinvestment-step';
 import { WaterfallStep } from '@/components/wizard/steps/waterfall-step';
 import { MarketLoanStep } from '@/components/wizard/steps/market-loan-step';
+import { SydneyDataStep } from '@/components/wizard/steps/sydney-data-step';
+import { LeverageStep } from '@/components/wizard/steps/leverage-step';
 import { AdvancedStep } from '@/components/wizard/steps/advanced-step';
 import { ReviewStep } from '@/components/wizard/steps/review-step';
 import { wizardSteps } from '@/schemas/simulation-schema';
@@ -40,8 +42,12 @@ function WizardContent() {
       case 5:
         return <MarketLoanStep />;
       case 6:
-        return <AdvancedStep />;
+        return <SydneyDataStep />;
       case 7:
+        return <LeverageStep />;
+      case 8:
+        return <AdvancedStep />;
+      case 9:
         return <ReviewStep />;
       default:
         return <FundStructureStep />;

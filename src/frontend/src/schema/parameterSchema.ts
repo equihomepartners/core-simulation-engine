@@ -149,7 +149,7 @@ export const parameterSchema: ParameterSchemaEntry[] = [
     type: 'boolean',
     uiComponent: 'Checkbox',
     defaultValue: false,
-    step: 'BasicFundConfig', 
+    step: 'BasicFundConfig',
     section: 'Deployment',
     validation: {},
   },
@@ -1143,6 +1143,27 @@ export const parameterSchema: ParameterSchemaEntry[] = [
     validation: {},
   },
   {
+    key: 'generate_efficient_frontier',
+    label: 'Generate Efficient Frontier',
+    type: 'boolean',
+    uiComponent: 'Checkbox',
+    defaultValue: false,
+    options: [],
+    step: 'AnalysisSettings',
+    section: 'Analysis Settings',
+    validation: {},
+  },
+  {
+    key: 'efficient_frontier_points',
+    label: 'Efficient Frontier Points',
+    type: 'number',
+    uiComponent: 'NumberInput',
+    defaultValue: 50,
+    step: 'AnalysisSettings',
+    section: 'Analysis Settings',
+    validation: { min: 1, max: 100 },
+  },
+  {
     key: 'stress_testing_enabled',
     label: 'Stress Testing Enabled',
     type: 'boolean',
@@ -1495,7 +1516,7 @@ export const parameterSchema: ParameterSchemaEntry[] = [
     section: 'Appreciation Sharing',
     validation: { min: 0.5, max: 0.9 },
   },
-  
+
   // Stress Testing Parameters - KEEP ONLY ONE ENTRY
   {
     key: 'stress_test_scenarios',
@@ -1543,4 +1564,4 @@ export const getDefaultUIComponentForType = (type: ParameterSchemaEntry['type'])
         default:
             return assertNever(type);
     }
-}; 
+};

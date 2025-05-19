@@ -31,7 +31,7 @@ interface SimulationState {
   getSimulationResults: (id: string, timeGranularity?: 'yearly' | 'monthly') => Promise<any>;
   getMonteCarloResults: (
     id: string,
-    resultType?: 'distribution' | 'sensitivity' | 'confidence',
+    resultType?: 'distribution' | 'sensitivity' | 'confidence' | 'cash_flow',
     metricType?: 'irr' | 'multiple' | 'default_rate'
   ) => Promise<any>;
   getStressTestResults: (
@@ -210,7 +210,7 @@ export const useSimulationStore = create<SimulationState>((set, get) => ({
 
   getMonteCarloResults: async (
     id: string,
-    resultType: 'distribution' | 'sensitivity' | 'confidence' = 'distribution',
+    resultType: 'distribution' | 'sensitivity' | 'confidence' | 'cash_flow' = 'distribution',
     metricType: 'irr' | 'multiple' | 'default_rate' = 'irr'
   ) => {
     try {

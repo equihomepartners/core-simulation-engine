@@ -1,22 +1,29 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 import json
 import asyncio
 from datetime import datetime
 from fastapi import WebSocketDisconnect
 import logging
+from pydantic import ValidationError
 
 from api.simulation_api import router as simulation_router
 from api.gp_entity_api import router as gp_entity_router
 from api.health_api import router as health_router, api_router as health_api_router
 from api.config_api import router as config_router
 
-# Configure logging
+# Configure logging - only show errors
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.ERROR,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+# Set all loggers to ERROR level
+for log_name in logging.root.manager.loggerDict:
+    logging.getLogger(log_name).setLevel(logging.ERROR)
 
 # Create FastAPI app
 app = FastAPI(
@@ -33,6 +40,16 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
 )
+
+# Add exception handlers
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Handle validation errors and return detailed error messages."""
+    logger.error(f"Validation error: {exc.errors()}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors()},
+    )
 
 # Mount API routers
 app.include_router(simulation_router)

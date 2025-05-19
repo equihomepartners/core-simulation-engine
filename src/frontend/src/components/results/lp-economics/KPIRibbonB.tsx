@@ -27,12 +27,12 @@ interface KPIRibbonBProps {
 // Placeholder for sparkline component - to be implemented
 const Sparkline = ({ data }: { data: number[] }) => {
   if (!data || data.length === 0) return <div className="h-6 w-12 bg-gray-200 rounded-sm opacity-50" />;
-  return <div className="text-xs text-gray-400">~</div>; 
+  return <div className="text-xs text-gray-400">~</div>;
 };
 
 const QChangeIndicator = ({ change, type }: { change: string | null, type: 'increase' | 'decrease' | 'neutral' }) => {
   if (change === null) return <span className="text-xs text-gray-400"></span>; // No change data
-  
+
   let IconComponent = Minus;
   let textColor = 'text-gray-500';
   if (type === 'increase') {
@@ -96,7 +96,7 @@ export function KPIRibbonB({ simulation, results, isLoading }: KPIRibbonBProps) 
     const cashFlowsData = results.cash_flows || {};
     const yearlySummary = cashFlowsData.yearly_summary || {};
     const monthlySummary = cashFlowsData.monthly_summary || {};
-    
+
     const availableCash = yearlySummary[lastYearKey]?.cash_balance ?? monthlySummary[lastYearKey*12+11]?.cash_balance;
     const nav = lastYearData.total_value;
     if (nav && nav > 0 && availableCash !== undefined) {
@@ -110,7 +110,7 @@ export function KPIRibbonB({ simulation, results, isLoading }: KPIRibbonBProps) 
   if (leverageMetrics.avg_leverage !== undefined) { // from getApiLeverageMetrics
     leverageUtilVal = leverageMetrics.avg_leverage;
   } else if (leverageMetrics.total_debt_outstanding !== undefined && results.metrics?.current_nav !== undefined && results.metrics.current_nav > 0) {
-     leverageUtilVal = leverageMetrics.total_debt_outstanding / results.metrics.current_nav; 
+     leverageUtilVal = leverageMetrics.total_debt_outstanding / results.metrics.current_nav;
   }
   const leverageLimit = 0.30;
 
@@ -167,9 +167,9 @@ export function KPIRibbonB({ simulation, results, isLoading }: KPIRibbonBProps) 
 
   return (
     <TooltipProvider>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 p-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 p-3 bg-gray-50 border-y">
         {kpis.map((kpi, index) => (
-          <Card key={index} className="bg-white border border-gray-200 rounded-md group hover:scale-102 hover:shadow-lg transition-transform duration-150 ease-in-out">
+          <Card key={index} className="bg-white border border-gray-200 rounded-md group hover:scale-105 hover:shadow-md transition-transform duration-150 ease-in-out">
             <CardContent className="p-3 flex flex-col justify-between h-full">
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -186,7 +186,7 @@ export function KPIRibbonB({ simulation, results, isLoading }: KPIRibbonBProps) 
                   </Tooltip>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-semibold text-gray-800 truncate">
+                  <span className="text-2xl font-semibold text-[#0B1C3F] truncate">
                     {kpi.value}
                   </span>
                   {kpi.qqChange && (
@@ -208,4 +208,4 @@ export function KPIRibbonB({ simulation, results, isLoading }: KPIRibbonBProps) 
       </div>
     </TooltipProvider>
   );
-} 
+}

@@ -47,9 +47,38 @@ export function useSimulationResults(
         // Log the structure of the results for debugging
         log(LogLevel.DEBUG, LogCategory.API, `Results structure:`,
           Object.keys(results || {}).length > 0 ?
-            `Found ${Object.keys(results).length} top-level keys` :
+            `Found ${Object.keys(results).length} top-level keys: ${Object.keys(results).join(', ')}` :
             'Empty results'
         );
+
+        // Log detailed structure of key objects
+        if (results) {
+          if (results.portfolio) {
+            log(LogLevel.DEBUG, LogCategory.API, 'Portfolio structure:',
+              `Keys: ${Object.keys(results.portfolio).join(', ')}`);
+
+            if (results.portfolio.loans) {
+              log(LogLevel.DEBUG, LogCategory.API, 'Portfolio loans:',
+                `Found ${Array.isArray(results.portfolio.loans) ? results.portfolio.loans.length : 0} loans`);
+
+              if (Array.isArray(results.portfolio.loans) && results.portfolio.loans.length > 0) {
+                const sampleLoan = results.portfolio.loans[0];
+                log(LogLevel.DEBUG, LogCategory.API, 'Sample loan structure:',
+                  `Keys: ${Object.keys(sampleLoan).join(', ')}`);
+              }
+            }
+          }
+
+          if (results.portfolio_evolution) {
+            log(LogLevel.DEBUG, LogCategory.API, 'Portfolio evolution structure:',
+              `Keys: ${Object.keys(results.portfolio_evolution).join(', ')}`);
+          }
+
+          if (results.cash_flows) {
+            log(LogLevel.DEBUG, LogCategory.API, 'Cash flows structure:',
+              `Keys: ${Object.keys(results.cash_flows).join(', ')}`);
+          }
+        }
 
         // Process the results to ensure we have the right structure
         const processedResults = processResults(results);

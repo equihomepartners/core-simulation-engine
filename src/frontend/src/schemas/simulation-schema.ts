@@ -153,21 +153,6 @@ export const simulationSchema = z.object({
   stress_config: z.record(z.string(), z.any()).optional(),
   gp_entity: z.record(z.string(), z.any()).optional(),
 
-  // Default Correlation
-  default_correlation: z
-    .object({
-      enabled: z.boolean().default(true),
-      same_zone: z.number().min(0).max(1).default(0.3),
-      cross_zone: z.number().min(0).max(1).default(0.1),
-    })
-    .default({ enabled: true, same_zone: 0.3, cross_zone: 0.1 }),
-
-  // Zone Rebalancing
-  zone_rebalancing_enabled: z.boolean().default(true),
-  rebalancing_strength: z.number().min(0).max(1).default(0.5),
-  zone_drift_threshold: z.number().min(0).max(0.5).default(0.1),
-  zone_allocation_precision: z.number().min(0).max(1).default(0.8),
-
   // Lifecycle Timing
   exit_year_max_std_dev: z.number().min(1).max(5).default(3),
 });
@@ -279,19 +264,6 @@ export const defaultSimulationConfig: SimulationConfig = {
   gp_entity_enabled: false,
   aggregate_gp_economics: true,
 
-  // Default Correlation
-  default_correlation: {
-    enabled: true,
-    same_zone: 0.3,
-    cross_zone: 0.1,
-  },
-
-  // Zone Rebalancing
-  zone_rebalancing_enabled: true,
-  rebalancing_strength: 0.5,
-  zone_drift_threshold: 0.1,
-  zone_allocation_precision: 0.8,
-
   // Lifecycle Timing
   exit_year_max_std_dev: 3,
 };
@@ -357,11 +329,29 @@ export const wizardSteps = [
     ],
   },
   {
+    id: 'sydney-data',
+    title: 'Sydney Data',
+    description: 'Configure Sydney suburb data and zone profiles',
+    fields: [
+      'geo_strategy',
+      'use_tls_zone_growth',
+      'zone_profiles',
+      'risk_weight_table',
+    ],
+  },
+  {
+    id: 'leverage',
+    title: 'Leverage',
+    description: 'Configure fund leverage options',
+    fields: [
+      'leverage',
+    ],
+  },
+  {
     id: 'advanced',
     title: 'Advanced',
     description: 'Configure advanced analytics and reporting',
     fields: [
-      'use_tls_zone_growth',
       'default_correlation',
       'rebalancing_strength',
       'zone_drift_threshold',
@@ -370,7 +360,6 @@ export const wizardSteps = [
       'ltv_std_dev',
       'min_ltv',
       'max_ltv',
-      'leverage',
       'monte_carlo_enabled',
       'num_simulations',
       'inner_monte_carlo_enabled',

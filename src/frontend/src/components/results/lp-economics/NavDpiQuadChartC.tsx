@@ -54,10 +54,10 @@ const prepareChartData = (
   config: SimulationConfig,
   showGrossValues: boolean,
   currency: string,
-  componentEffectiveLpTotalCommittedCapital: number 
+  componentEffectiveLpTotalCommittedCapital: number
 ) => {
   console.log('[NavDpiQuadChartC] prepareChartData called with showGrossValues:', showGrossValues);
-  
+
   const fundSize = typeof config.fund_size === 'number' ? config.fund_size : 0;
   const gpCommitmentPercentage = typeof config.gp_commitment_percentage === 'number' ? config.gp_commitment_percentage : 0;
   const lpSharePercentage = 1 - gpCommitmentPercentage; // If gp_commit is 0.05 (5%), lp_share is 0.95 (95%)
@@ -128,8 +128,8 @@ const prepareChartData = (
       maxCumulativeLPCalled = tempCumulativeLPCalled;
     }
   });
-  
-  const effectiveLpTotalCommittedCapital = 
+
+  const effectiveLpTotalCommittedCapital =
     componentEffectiveLpTotalCommittedCapital > 0 ? componentEffectiveLpTotalCommittedCapital :
     maxCumulativeLPCalled > 0 ? maxCumulativeLPCalled :
     configBasedLpCommittedCapital; // Use corrected config-based LP capital
@@ -184,7 +184,7 @@ const prepareChartData = (
       }
     }
     // If all sources are zero/absent, contributions and distributions will remain 0.
-    
+
     // Use gross_net_cash_flow for gross distributions if available, otherwise fallback to LP distributions
     // This aligns with how gross IRR/Multiples are often calculated (fund performance before specific LP waterfall)
     const grossDistributionsPeriodic = parseFloat(
@@ -236,7 +236,7 @@ const prepareChartData = (
       // The `lp_nav_eop` is net. To make it gross, add back what was taken.
       // The fields `management_fees` and `carried_interest` in `periodData` are the *periodic amounts*.
       // To show a Gross NAV line, we add back the *cumulative* fees and carry that have been applied to LPs.
-      
+
       // Corrected thinking: `lp_nav_eop` is the end-of-period NAV *after* all flows and accruals for that period.
       // If we want a "Gross NAV" that represents value before LP-specific fees/carry,
       // we need to add back the *cumulative* fees and carry that have been allocated *away from LPs*.
@@ -257,7 +257,7 @@ const prepareChartData = (
 
     const dpi = cumulativeCapitalCalledLp > 0 ? cumulativeDistributionsLp / cumulativeCapitalCalledLp : 0;
     const grossDpi = cumulativeCapitalCalledLp > 0 ? cumulativeGrossDistributions / cumulativeCapitalCalledLp : 0;
-    
+
     const navPerUnitProxy = cumulativeCapitalCalledLp > 0 ? displayNavLpEop / cumulativeCapitalCalledLp : 0;
 
     // Unfunded Commitment
@@ -286,7 +286,7 @@ const prepareChartData = (
 
   // Final Metrics Calculation
   const finalPeriodData = chartData.length > 0 ? chartData[chartData.length - 1] : null;
-  
+
   // Ensure all these have fallbacks to 0 if finalPeriodData is null
   const finalNetNAV = finalPeriodData ? finalPeriodData._netNavLpEop : 0;
   const finalNetTotalDistributions = finalPeriodData ? finalPeriodData._netCumulativeDistributionsLp : 0;
@@ -317,13 +317,13 @@ const prepareChartData = (
     finalNetNAV,
     finalGrossTVPI,
     finalGrossDPI,
-    finalGrossNAV: finalApproxGrossNAV, 
+    finalGrossNAV: finalApproxGrossNAV,
     totalCommitted: effectiveLpTotalCommittedCapital,
     totalCalled: numFinalTotalCalled, // Use the number version
     totalDistributedNet: numFinalNetTotalDistributions, // Use the number version
     totalDistributedGross: numFinalGrossTotalDistributions, // Use the number version
   });
-  
+
   // VC DEBUG Log full chart data
   console.log('[NavDpiQuadChartC] Full chartData being used by component:', JSON.stringify(chartData, null, 2));
 
@@ -333,7 +333,7 @@ const prepareChartData = (
     // reinvestment_period is typically in years. If periods are 0-indexed years:
     // A reinvestment_period of 5 means years 0,1,2,3,4 are investment.
     // The end is after year 4 (index 4).
-    const targetPeriodIndex = config.reinvestment_period -1; 
+    const targetPeriodIndex = config.reinvestment_period -1;
     if (targetPeriodIndex < chartData.length) {
       endOfInvestmentPeriodIndex = targetPeriodIndex;
     }
@@ -348,7 +348,7 @@ const prepareChartData = (
       break;
     }
   }
-  
+
   const eventMarkerData = {
     endOfInvestmentPeriodName: endOfInvestmentPeriodIndex !== -1 ? chartData[endOfInvestmentPeriodIndex]?.name : undefined,
     firstDistributionPeriodName: firstDistributionPeriodIndex !== -1 ? chartData[firstDistributionPeriodIndex]?.name : undefined,
@@ -365,8 +365,8 @@ const prepareChartData = (
       finalGrossNAV: finalApproxGrossNAV,
       totalCommitted: effectiveLpTotalCommittedCapital,
       totalCalled: numFinalTotalCalled, // Use the number version
-      totalDistributed: showGrossValues ? numFinalGrossTotalDistributions : numFinalNetTotalDistributions, 
-      totalValue: showGrossValues ? (numFinalGrossTotalDistributions + finalApproxGrossNAV) : (numFinalNetTotalDistributions + numFinalNetNAV), 
+      totalDistributed: showGrossValues ? numFinalGrossTotalDistributions : numFinalNetTotalDistributions,
+      totalValue: showGrossValues ? (numFinalGrossTotalDistributions + finalApproxGrossNAV) : (numFinalNetTotalDistributions + numFinalNetNAV),
     },
     effectiveLpTotalCommittedCapital,
     eventMarkerData, // Added for event markers
@@ -452,7 +452,7 @@ export function NavDpiQuadChartC({ simulation, results, isLoading, timeGranulari
   }
 
   return (
-    <Card className="relative shadow-none border border-gray-200 flex flex-col">
+    <Card className="border border-gray-200 h-full">
       <CardHeader className="py-3 px-4 border-b border-gray-200">
         <div className="flex justify-between items-center">
           <CardTitle className="text-base font-semibold text-[#0B1C3F]">LP NAV Progression vs DPI</CardTitle>
@@ -495,16 +495,16 @@ export function NavDpiQuadChartC({ simulation, results, isLoading, timeGranulari
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-grow p-2 pr-4">
+      <CardContent className="p-4 h-[450px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 25 }} stackOffset="sign">
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" strokeOpacity={0.6}/>
             <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#4b5563' }} axisLine={{ stroke: '#d1d5db' }} tickLine={{ stroke: '#d1d5db' }} />
-            
+
             <YAxis yAxisId="left" tickFormatter={(value) => formatCurrencyShort(value, 0)} tick={{ fontSize: 10, fill: '#4b5563'}} axisLine={{ stroke: '#d1d5db' }} tickLine={{ stroke: '#d1d5db' }} />
             <YAxis yAxisId="right" orientation="right" tickFormatter={(value) => formatMultiple(value)} tick={{ fontSize: 10, fill: '#4b5563' }} axisLine={{ stroke: '#d1d5db' }} tickLine={{ stroke: '#d1d5db' }} />
-            
-            <Tooltip 
+
+            <Tooltip
                 contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '4px', padding: '8px 12px', fontSize: '12px', borderColor: '#e5e7eb' }}
                 itemStyle={{ padding: '2px 0'}}
                 labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
@@ -514,9 +514,9 @@ export function NavDpiQuadChartC({ simulation, results, isLoading, timeGranulari
                     if (name === "LP Distributions") return [formatCurrency(value, 0), name];
                     if (name === "LP NAV (EOP)") return [formatCurrency(value, 0), name];
                     if (name === "LP DPI") return [formatMultiple(value), name];
-                    if (name === "LP NAV / $1 Commit") return [formatMultiple(value), name]; 
+                    if (name === "LP NAV / $1 Commit") return [formatMultiple(value), name];
                     if (name === "LP Unfunded Commitment") return [formatCurrency(value, 0), name];
-                    
+
                     // Check for periodic contributions/distributions from payload
                     const payload = props.payload as ChartDataPoint;
                     if (payload) {
@@ -557,17 +557,17 @@ export function NavDpiQuadChartC({ simulation, results, isLoading, timeGranulari
 
             {/* Negative Area for Capital Called (Base of J-Curve) */}
             <Area yAxisId="left" type="monotone" dataKey="displayCumulativeCapitalCalledLp" stackId="lpValue" stroke="#C0504D" fill="#C0504D" fillOpacity={0.4} name="LP Capital Outlay" dot={false}/>
-            
+
             {/* Stacked Area for LP Value (will now stack on top of the potentially negative capital outlay) */}
             <Area yAxisId="left" type="monotone" dataKey="navLpEop" stackId="lpValue" stroke="#314C7E" fill="#314C7E" fillOpacity={0.4} name="LP NAV (EOP)" dot={false}/>
             <Area yAxisId="left" type="monotone" dataKey="cumulativeDistributionsLp" stackId="lpValue" stroke="#00A0B0" fill="#00A0B0" fillOpacity={0.3} name="LP Distributions" dot={false}/>
-            
+
             {/* Line for LP Capital Called (Positive Magnitude) */}
             <Line yAxisId="left" type="monotone" dataKey="cumulativeCapitalCalledLp" stroke="#0B1C3F" strokeWidth={2} name="LP Capital Called" dot={false} />
 
             {/* Line for DPI on secondary axis */}
             <Line yAxisId="right" type="monotone" dataKey="dpi" stroke="#FF8C00" strokeWidth={1.5} name="LP DPI" dot={false} strokeDasharray="3 3" />
-            
+
             {/* Optional Line for NAV per Unit Proxy on secondary axis */}
             {chartData.some(d => d.navPerUnitProxy !== null) && (
                 <Line yAxisId="right" type="monotone" dataKey="navPerUnitProxy" stroke="#6b7280" strokeWidth={1.5} name="LP NAV / $1 Commit" dot={false} strokeDasharray="5 5" />
@@ -586,8 +586,8 @@ export function NavDpiQuadChartC({ simulation, results, isLoading, timeGranulari
                 stroke="#6a0dad"
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
-                label={ 
-                  <RechartsText 
+                label={
+                  <RechartsText
                     x={0}
                     y={0}
                     dy={-5}
@@ -609,8 +609,8 @@ export function NavDpiQuadChartC({ simulation, results, isLoading, timeGranulari
                 stroke="#28a745"
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
-                label={ 
-                  <RechartsText 
+                label={
+                  <RechartsText
                     x={0}
                     y={0}
                     dy={15}
@@ -630,7 +630,7 @@ export function NavDpiQuadChartC({ simulation, results, isLoading, timeGranulari
           </AreaChart>
         </ResponsiveContainer>
       </CardContent>
-      
+
       {/* Data Table - Conditionally Rendered */}
       {showDataTable && chartData && chartData.length > 0 && (
         <div className="p-3 border-t border-gray-200 overflow-auto text-xs" style={{ maxHeight: '250px' }}>
@@ -673,19 +673,19 @@ export function NavDpiQuadChartC({ simulation, results, isLoading, timeGranulari
         </h4>
         <div className="space-y-0.5">
           <div className="flex justify-between">
-            <span className="text-gray-500">MOIC:</span> 
+            <span className="text-gray-500">MOIC:</span>
             <span className="font-medium text-gray-800 ml-2">
               {showGrossValues ? (formatMultiple(grossMoic) || 'N/A') : (formatMultiple(lpMoic) || 'N/A')}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">TVPI:</span> 
+            <span className="text-gray-500">TVPI:</span>
             <span className="font-medium text-gray-800 ml-2">
               {showGrossValues ? (formatMultiple(grossTvpi) || 'N/A') : (formatMultiple(lpTvpi) || 'N/A')}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">DPI:</span> 
+            <span className="text-gray-500">DPI:</span>
             <span className="font-medium text-gray-800 ml-2">
               {showGrossValues ? (formatMultiple(grossDpiFinal) || 'N/A') : (formatMultiple(lpDpiFinal) || 'N/A')}
             </span>
@@ -694,4 +694,4 @@ export function NavDpiQuadChartC({ simulation, results, isLoading, timeGranulari
       </div>
     </Card>
   );
-} 
+}

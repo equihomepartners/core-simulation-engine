@@ -14,7 +14,7 @@ import {
   SimulationDetail,
   SimulationResults
 } from '../api';
-import { LogLevel, LogCategory, log, logBackendDataStructure } from '../utils/logging';
+import { logApiResponse } from '../utils/structured-logger';
 import { transformApiResponse, transformApiRequest, ensureBothCases } from '../utils/transformUtils';
 
 // Initialize the API client
@@ -35,7 +35,8 @@ const configureApi = (baseUrl: string = '') => {
   // Add request/response interceptors if needed
   OpenAPI.WITH_CREDENTIALS = true;
 
-  log(LogLevel.INFO, LogCategory.API, `API configured with base URL: ${OpenAPI.BASE}`);
+  // Log API configuration
+  console.log(`API configured with base URL: ${OpenAPI.BASE}`);
 };
 
 /**
@@ -59,7 +60,7 @@ export class SimulationSDK {
    */
   async listSimulations(status?: string, limit: number = 10, offset: number = 0) {
     try {
-      log(LogLevel.INFO, LogCategory.API, `Listing simulations with status: ${status || 'all'}`);
+      console.info(`Listing simulations with status: ${status || 'all'}`);
       const response = await apiClient.default.getApiSimulations(
         status as any,
         limit,
@@ -68,11 +69,11 @@ export class SimulationSDK {
 
       // Transform all field names from snake_case to camelCase
       const transformedResponse = transformApiResponse(response);
-      log(LogLevel.DEBUG, LogCategory.API, `Transformed simulation list`);
+      console.log(`Transformed simulation list`);
 
       return transformedResponse;
     } catch (error) {
-      log(LogLevel.ERROR, LogCategory.API, `Error listing simulations: ${error}`);
+      console.error(`Error listing simulations: ${error}`);
       throw error;
     }
   }
@@ -84,20 +85,29 @@ export class SimulationSDK {
    */
   async createSimulation(config: SimulationConfig): Promise<SimulationResponse> {
     try {
-      log(LogLevel.INFO, LogCategory.API, 'Creating new simulation');
+      console.info('Creating new simulation', config);
 
       // Transform request data from camelCase to snake_case if needed
       const transformedConfig = config;
+
+      // Log the config being sent to the API
+      console.log('Sending config to API:', JSON.stringify(transformedConfig, null, 2));
 
       const response = await apiClient.default.postApiSimulations(transformedConfig);
 
       // Transform response from snake_case to camelCase
       const transformedResponse = transformApiResponse(response);
-      log(LogLevel.INFO, LogCategory.API, `Simulation created with ID: ${transformedResponse.simulationId || response.simulation_id}`);
+      console.info(`Simulation created with ID: ${transformedResponse.simulationId || response.simulation_id}`);
 
       return transformedResponse;
     } catch (error) {
-      log(LogLevel.ERROR, LogCategory.API, `Error creating simulation: ${error}`);
+      console.error(`Error creating simulation: ${error}`);
+
+      // Log detailed error information
+      if (error.response && error.response.data) {
+        console.error('Validation error details:', error.response.data);
+      }
+
       throw error;
     }
   }
@@ -109,16 +119,16 @@ export class SimulationSDK {
    */
   async getSimulation(id: string): Promise<SimulationDetail> {
     try {
-      log(LogLevel.INFO, LogCategory.API, `Getting simulation: ${id}`);
+      console.info(`Getting simulation: ${id}`);
       const response = await apiClient.default.getApiSimulations1(id);
 
       // Transform all field names from snake_case to camelCase
       const transformedResponse = transformApiResponse(response);
-      log(LogLevel.DEBUG, LogCategory.API, `Transformed simulation details for ${id}`);
+      console.log(`Transformed simulation details for ${id}`);
 
       return transformedResponse;
     } catch (error) {
-      log(LogLevel.ERROR, LogCategory.API, `Error getting simulation ${id}: ${error}`);
+      console.error(`Error getting simulation ${id}: ${error}`);
       throw error;
     }
   }
@@ -131,16 +141,16 @@ export class SimulationSDK {
    */
   async getSimulationStatus(id: string, includePartialResults: boolean = false): Promise<SimulationStatus> {
     try {
-      log(LogLevel.INFO, LogCategory.API, `Getting status for simulation: ${id}`);
+      console.info(`Getting status for simulation: ${id}`);
       const response = await apiClient.default.getApiSimulationsStatus(id, includePartialResults);
 
       // Transform all field names from snake_case to camelCase
       const transformedResponse = transformApiResponse(response);
-      log(LogLevel.DEBUG, LogCategory.API, `Transformed simulation status for ${id}`);
+      console.log(`Transformed simulation status for ${id}`);
 
       return transformedResponse;
     } catch (error) {
-      log(LogLevel.ERROR, LogCategory.API, `Error getting simulation status ${id}: ${error}`);
+      console.error(`Error getting simulation status ${id}: ${error}`);
       throw error;
     }
   }
@@ -153,36 +163,32 @@ export class SimulationSDK {
    */
   async getSimulationResults(id: string, timeGranularity: 'yearly' | 'monthly' = 'yearly'): Promise<SimulationResults> {
     try {
-      log(LogLevel.INFO, LogCategory.API, `Getting results for simulation: ${id}`);
+      // Log the API call
+      console.log(`Getting results for simulation: ${id} (${timeGranularity})`);
+
+      // Make the API call
       const response = await apiClient.default.getApiSimulationsResults(id, timeGranularity);
 
-      // Log the complete backend data structure (only once per session)
-      logBackendDataStructure(response, `Simulation Results (ID: ${id})`);
+      // Log the API response in a structured way
+      logApiResponse(`/api/simulations/${id}/results`, response, id);
 
       // Fetch portfolio evolution data separately to ensure we have the correct format
       try {
-        log(LogLevel.INFO, LogCategory.API, `Getting portfolio evolution data for: ${id}`);
+        console.log(`Getting portfolio evolution data for: ${id}`);
+
         const portfolioEvolutionResponse = await fetch(`/api/simulations/${id}/portfolio-evolution/`);
 
         if (portfolioEvolutionResponse.ok) {
           const portfolioEvolutionData = await portfolioEvolutionResponse.json();
 
-          // Log the raw portfolio evolution data
-          log(LogLevel.DEBUG, LogCategory.API, `Got portfolio evolution data for ${id}:`, portfolioEvolutionData);
+          // Log the portfolio evolution data
+          logApiResponse(`/api/simulations/${id}/portfolio-evolution`, portfolioEvolutionData, id);
 
           // Add the portfolio evolution data to the response
           response.portfolio_evolution = portfolioEvolutionData;
-
-          // Log the keys to verify the structure
-          const keys = Object.keys(portfolioEvolutionData);
-          log(LogLevel.INFO, LogCategory.API, `Portfolio evolution data keys: ${keys.join(', ')}`);
-
-          // Check if the data has numeric keys
-          const hasNumericKeys = keys.some(key => !isNaN(Number(key)));
-          log(LogLevel.INFO, LogCategory.API, `Portfolio evolution has numeric keys: ${hasNumericKeys}`);
         }
       } catch (portfolioError) {
-        log(LogLevel.WARN, LogCategory.API, `Error getting portfolio evolution data for ${id}: ${portfolioError}`);
+        console.error(`Error getting portfolio evolution data for ${id}:`, portfolioError);
         // Continue with the original response
       }
 
@@ -191,11 +197,10 @@ export class SimulationSDK {
 
       // Transform all field names from snake_case to camelCase
       const transformedResponse = transformApiResponse(normalizedResponse);
-      log(LogLevel.DEBUG, LogCategory.API, `Transformed simulation results for ${id}`);
 
       return transformedResponse;
     } catch (error) {
-      log(LogLevel.ERROR, LogCategory.API, `Error getting simulation results ${id}: ${error}`);
+      console.error(`Error getting simulation results for ${id}:`, error);
       throw error;
     }
   }
@@ -207,7 +212,7 @@ export class SimulationSDK {
    */
   private normalizeSimulationResults(results: any): any {
     if (!results) {
-      log(LogLevel.WARN, LogCategory.API, 'Received null or undefined simulation results');
+      console.warn('Received null or undefined simulation results');
       return {};
     }
 
@@ -232,19 +237,121 @@ export class SimulationSDK {
     // Ensure all required fields exist
     for (const field of requiredFields) {
       if (!normalized[field]) {
-        log(LogLevel.WARN, LogCategory.API, `Missing required field in simulation results: ${field}`);
+        console.warn(`Missing required field in simulation results: ${field}`);
         normalized[field] = {};
 
         // Also add the camelCase version
         const camelField = field.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
         normalized[camelField] = {};
       } else if (normalized[field] === null) {
-        log(LogLevel.WARN, LogCategory.API, `Field in simulation results is null: ${field}`);
+        console.warn(`Field in simulation results is null: ${field}`);
         normalized[field] = {};
 
         // Also add the camelCase version
         const camelField = field.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
         normalized[camelField] = {};
+      }
+    }
+
+    // Extract loans from portfolio if available
+    if (normalized.portfolio && normalized.portfolio.loans && Array.isArray(normalized.portfolio.loans)) {
+      console.info('Extracting loans from portfolio.loans');
+      normalized.loans = normalized.portfolio.loans;
+    }
+
+    // Ensure portfolio_evolution has all required fields
+    if (normalized.portfolio_evolution) {
+      const requiredEvolutionFields = [
+        'years',
+        'active_loans',
+        'exited_loans',
+        'total_value',
+        'reinvestments',
+        'reinvested_amount'
+      ];
+
+      for (const field of requiredEvolutionFields) {
+        if (!normalized.portfolio_evolution[field]) {
+          console.warn(`Missing required field in portfolio_evolution: ${field}`);
+          normalized.portfolio_evolution[field] = [];
+
+          // Also add the camelCase version
+          const camelField = field.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+          normalized.portfolioEvolution[camelField] = [];
+        }
+      }
+    }
+
+    // Ensure cash_flows has all required fields
+    if (normalized.cash_flows) {
+      const requiredCashFlowFields = [
+        'years',
+        'capital_called',
+        'origination_fees',
+        'interest_income',
+        'appreciation_income',
+        'exit_proceeds',
+        'management_fees',
+        'carried_interest',
+        'lp_distributions',
+        'net_cash_flow',
+        'cumulative_distributions'
+      ];
+
+      for (const field of requiredCashFlowFields) {
+        if (!normalized.cash_flows[field]) {
+          console.warn(`Missing required field in cash_flows: ${field}`);
+          normalized.cash_flows[field] = [];
+
+          // Also add the camelCase version
+          const camelField = field.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+          normalized.cashFlows[camelField] = [];
+        }
+      }
+    }
+
+    // Create zone_performance if it doesn't exist
+    if (!normalized.zone_performance) {
+      normalized.zone_performance = {};
+      normalized.zonePerformance = {};
+
+      // Try to extract zone performance from portfolio data
+      if (normalized.portfolio && normalized.portfolio.loans && Array.isArray(normalized.portfolio.loans)) {
+        const zoneIRRs = {
+          green: [],
+          orange: [],
+          red: []
+        };
+
+        normalized.portfolio.loans.forEach((loan: any) => {
+          const zone = loan.zone?.toLowerCase();
+          const irr = loan.irr;
+
+          if (zone && irr !== undefined && irr !== null) {
+            if (zone === 'green' || zone === 'orange' || zone === 'red') {
+              zoneIRRs[zone].push(irr);
+            }
+          }
+        });
+
+        // Calculate median IRR for each zone
+        for (const zone of ['green', 'orange', 'red']) {
+          if (zoneIRRs[zone].length > 0) {
+            zoneIRRs[zone].sort((a: number, b: number) => a - b);
+            const medianIndex = Math.floor(zoneIRRs[zone].length / 2);
+            const median = zoneIRRs[zone].length % 2 === 0
+              ? (zoneIRRs[zone][medianIndex - 1] + zoneIRRs[zone][medianIndex]) / 2
+              : zoneIRRs[zone][medianIndex];
+
+            normalized.zone_performance[zone] = {
+              irr: median,
+              multiple: 1 + median * 5, // Rough estimate
+              default_rate: zone === 'green' ? 0.01 : zone === 'orange' ? 0.03 : 0.05
+            };
+
+            normalized.zonePerformance[zone] = normalized.zone_performance[zone];
+          }
+        }
       }
     }
 
@@ -280,22 +387,22 @@ export class SimulationSDK {
    * @param results Simulation results to normalize
    */
   private extractPerformanceMetrics(results: any): void {
-    log(LogLevel.DEBUG, LogCategory.API, 'Extracting performance metrics');
+    console.log('Extracting performance metrics');
 
     // Get performance_metrics object (try both snake_case and camelCase)
     const performanceMetrics = results.performance_metrics || results.performanceMetrics || {};
 
     if (Object.keys(performanceMetrics).length === 0) {
-      log(LogLevel.WARN, LogCategory.API, 'No performance metrics found');
+      console.warn('No performance metrics found');
 
       // Check for errors in the simulation results
       if (results.error || (Array.isArray(results.errors) && results.errors.length > 0)) {
         const errorMessage = results.error || (results.errors && results.errors[0]);
-        log(LogLevel.WARN, LogCategory.API, `Simulation error detected: ${errorMessage}`);
+        console.warn(`Simulation error detected: ${errorMessage}`);
 
         // If there's a waterfall calculation error, we can still extract metrics from cash flows
         if (errorMessage && errorMessage.includes('Waterfall')) {
-          log(LogLevel.INFO, LogCategory.API, 'Waterfall calculation error detected, extracting metrics from cash flows');
+          console.info('Waterfall calculation error detected, extracting metrics from cash flows');
           this.extractMetricsFromCashFlows(results);
         }
       }
@@ -304,7 +411,7 @@ export class SimulationSDK {
     }
 
     // Log the performance metrics for debugging
-    log(LogLevel.DEBUG, LogCategory.API, 'Performance metrics found:', performanceMetrics);
+    console.log('Performance metrics found:', performanceMetrics);
 
     // Ensure metrics object exists
     if (!results.metrics) {
@@ -349,14 +456,12 @@ export class SimulationSDK {
       // Try snake_case version
       if (performanceMetrics[source] !== undefined) {
         results.metrics[target] = performanceMetrics[source];
-        log(LogLevel.DEBUG, LogCategory.API, `Extracted metric ${source} -> ${target}: ${performanceMetrics[source]}`);
       }
 
       // Try camelCase version
       const camelSource = source.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
       if (performanceMetrics[camelSource] !== undefined && results.metrics[target] === undefined) {
         results.metrics[target] = performanceMetrics[camelSource];
-        log(LogLevel.DEBUG, LogCategory.API, `Extracted metric ${camelSource} -> ${target}: ${performanceMetrics[camelSource]}`);
       }
     }
 
@@ -367,28 +472,14 @@ export class SimulationSDK {
     // We've fixed the backend to properly calculate gross IRR
     if ((results.metrics.gross_irr === undefined || results.metrics.gross_irr === null) &&
         (results.metrics.grossIrr === undefined || results.metrics.grossIrr === null)) {
-      log(LogLevel.WARN, LogCategory.API, 'Gross IRR not found in performance metrics');
+      console.warn('Gross IRR not found in performance metrics');
     }
 
     // If fund_irr is available but irr is not, use fund_irr as irr for backward compatibility
     if ((results.metrics.irr === undefined || results.metrics.irr === null) &&
         results.metrics.fund_irr !== undefined && results.metrics.fund_irr !== null) {
       results.metrics.irr = results.metrics.fund_irr;
-      log(LogLevel.INFO, LogCategory.API, `Using fund_irr as irr for backward compatibility: ${results.metrics.fund_irr}`);
-    }
-
-    // If gross multiple is not available but net multiple is, log and do not estimate
-    if ((results.metrics.gross_multiple === undefined || results.metrics.gross_multiple === null) &&
-        (results.metrics.grossMultiple === undefined || results.metrics.grossMultiple === null) &&
-        (results.metrics.multiple !== undefined || results.metrics.moic !== undefined)) {
-      log(LogLevel.INFO, LogCategory.API, `Gross multiple not found. It will not be estimated from net multiple.`);
-    }
-
-    // If gross ROI is not available but net ROI is, log and do not estimate
-    if ((results.metrics.gross_roi === undefined || results.metrics.gross_roi === null) &&
-        (results.metrics.grossRoi === undefined || results.metrics.grossRoi === null) &&
-        results.metrics.roi !== undefined && results.metrics.roi !== null) {
-      log(LogLevel.INFO, LogCategory.API, `Gross ROI not found. It will not be estimated from net ROI.`);
+      console.info(`Using fund_irr as irr for backward compatibility: ${results.metrics.fund_irr}`);
     }
 
     // Extract cash flow metrics from equity_multiple_details
@@ -455,14 +546,14 @@ export class SimulationSDK {
     const lpContribution = lpContributionRaw !== undefined && lpContributionRaw !== null ? parseFloat(String(lpContributionRaw)) : 0;
 
     if (Object.keys(waterfall).length > 0) {
-        log(LogLevel.INFO, LogCategory.API, 'Overriding/setting LP metrics in results.metrics from waterfall_results');
-        
+        console.info('Overriding/setting LP metrics in results.metrics from waterfall_results');
+
         // Total LP Distributions
         if (waterfall.total_lp_distribution !== undefined || waterfall.totalLpDistribution !== undefined) {
             const totalLpDist = parseFloat(String(waterfall.total_lp_distribution || waterfall.totalLpDistribution));
             results.metrics.total_distributions = totalLpDist;
             results.metrics.totalDistributions = totalLpDist;
-            log(LogLevel.DEBUG, LogCategory.API, `Set results.metrics.total_distributions from waterfall: ${totalLpDist}`);
+            console.log(`Set results.metrics.total_distributions from waterfall: ${totalLpDist}`);
         }
 
         // LP IRR
@@ -472,7 +563,7 @@ export class SimulationSDK {
             results.metrics.lpIrr = finalLpIrr;
             results.metrics.lp_net_irr = finalLpIrr;
             results.metrics.lpNetIrr = finalLpIrr;
-            log(LogLevel.DEBUG, LogCategory.API, `Confirmed results.metrics.lp_irr from waterfall: ${finalLpIrr}`);
+            console.log(`Confirmed results.metrics.lp_irr from waterfall: ${finalLpIrr}`);
         }
 
         // LP Multiple (TVPI)
@@ -482,7 +573,7 @@ export class SimulationSDK {
             results.metrics.lpMultiple = finalLpMultiple;
             results.metrics.tvpi = finalLpMultiple;
             results.metrics.TVPI = finalLpMultiple;
-            log(LogLevel.DEBUG, LogCategory.API, `Set results.metrics.lp_multiple (and tvpi) from waterfall: ${finalLpMultiple}`);
+            console.log(`Set results.metrics.lp_multiple (and tvpi) from waterfall: ${finalLpMultiple}`);
         }
 
         // LP DPI
@@ -491,11 +582,11 @@ export class SimulationSDK {
             const lpDpi = currentTotalDistributionsVal / lpContribution;
             results.metrics.dpi = lpDpi;
             results.metrics.DPI = lpDpi;
-            log(LogLevel.DEBUG, LogCategory.API, `Calculated results.metrics.dpi for LP from waterfall data: ${lpDpi}`);
+            console.log(`Calculated results.metrics.dpi for LP from waterfall data: ${lpDpi}`);
         } else {
             results.metrics.dpi = 0;
             results.metrics.DPI = 0;
-            log(LogLevel.DEBUG, LogCategory.API, `LP Contribution is 0, setting LP DPI to 0.`);
+            console.log(`LP Contribution is 0, setting LP DPI to 0.`);
         }
 
         // LP RVPI (depends on current_nav being correct in results.metrics already)
@@ -504,16 +595,16 @@ export class SimulationSDK {
             const lpRvpi = currentNavVal / lpContribution;
             results.metrics.rvpi = lpRvpi;
             results.metrics.RVPI = lpRvpi;
-            log(LogLevel.DEBUG, LogCategory.API, `Calculated results.metrics.rvpi for LP using current_nav: ${lpRvpi}`);
+            console.log(`Calculated results.metrics.rvpi for LP using current_nav: ${lpRvpi}`);
         } else {
             results.metrics.rvpi = 0;
             results.metrics.RVPI = 0;
-            log(LogLevel.DEBUG, LogCategory.API, `LP Contribution is 0, setting LP RVPI to 0.`);
+            console.log(`LP Contribution is 0, setting LP RVPI to 0.`);
         }
     }
 
     // Log the extracted metrics for debugging
-    log(LogLevel.DEBUG, LogCategory.API, 'Extracted metrics (after waterfall override if any):', results.metrics);
+    console.log('Extracted metrics (after waterfall override if any):', results.metrics);
   }
 
   /**
@@ -521,16 +612,16 @@ export class SimulationSDK {
    * @param results Simulation results to normalize
    */
   private extractLPMetricsFromWaterfall(results: any): void {
-    log(LogLevel.DEBUG, LogCategory.API, 'Extracting LP metrics from waterfall results');
+    console.log('Extracting LP metrics from waterfall results');
 
     // Check for errors in the simulation results
     if (results.error || (Array.isArray(results.errors) && results.errors.length > 0)) {
       const errorMessage = results.error || (results.errors && results.errors[0]);
-      log(LogLevel.WARN, LogCategory.API, `Simulation error detected: ${errorMessage}`);
+      console.warn(`Simulation error detected: ${errorMessage}`);
 
       // If there's a waterfall calculation error, we can't extract LP metrics
       if (errorMessage && errorMessage.includes('Waterfall')) {
-        log(LogLevel.WARN, LogCategory.API, 'Waterfall calculation error detected, cannot extract LP metrics');
+        console.warn('Waterfall calculation error detected, cannot extract LP metrics');
         return;
       }
     }
@@ -539,7 +630,7 @@ export class SimulationSDK {
     const waterfallResults = results.waterfall_results || results.waterfallResults || {};
 
     if (Object.keys(waterfallResults).length === 0) {
-      log(LogLevel.WARN, LogCategory.API, 'No waterfall results found');
+      console.warn('No waterfall results found');
       return;
     }
 
@@ -551,7 +642,7 @@ export class SimulationSDK {
       results.metrics.lp_irr = lpIrr;
       results.metrics.lpIrr = lpIrr;
 
-      log(LogLevel.INFO, LogCategory.API, `Extracted LP IRR from waterfall: ${lpIrr}`);
+      console.info(`Extracted LP IRR from waterfall: ${lpIrr}`);
     }
 
     // Extract LP multiple from waterfall results
@@ -562,7 +653,7 @@ export class SimulationSDK {
       results.metrics.lp_multiple = lpMultiple;
       results.metrics.lpMultiple = lpMultiple;
 
-      log(LogLevel.INFO, LogCategory.API, `Extracted LP multiple from waterfall: ${lpMultiple}`);
+      console.info(`Extracted LP multiple from waterfall: ${lpMultiple}`);
     }
 
     // Calculate LP ROI from LP multiple if available
@@ -573,7 +664,7 @@ export class SimulationSDK {
       results.metrics.lp_roi = lpRoi;
       results.metrics.lpRoi = lpRoi;
 
-      log(LogLevel.INFO, LogCategory.API, `Calculated LP ROI from LP multiple: ${lpRoi}`);
+      console.info(`Calculated LP ROI from LP multiple: ${lpRoi}`);
     }
   }
 
@@ -582,19 +673,19 @@ export class SimulationSDK {
    * @param results Simulation results to normalize
    */
   private extractGPEconomicsFromWaterfall(results: any): void {
-    log(LogLevel.DEBUG, LogCategory.API, 'Extracting GP economics from waterfall results');
+    console.log('Extracting GP economics from waterfall results');
 
     // Check if gp_economics is empty
     const gpEconomics = results.gp_economics || results.gpEconomics || {};
     if (Object.keys(gpEconomics).length > 0) {
-      log(LogLevel.DEBUG, LogCategory.API, 'GP economics already exists, skipping extraction');
+      console.log('GP economics already exists, skipping extraction');
       return;
     }
 
     // Get waterfall results (try both snake_case and camelCase)
     const waterfallResults = results.waterfall_results || results.waterfallResults || {};
     if (Object.keys(waterfallResults).length === 0) {
-      log(LogLevel.WARN, LogCategory.API, 'No waterfall results found, cannot extract GP economics');
+      console.warn('No waterfall results found, cannot extract GP economics');
       return;
     }
 
@@ -604,12 +695,12 @@ export class SimulationSDK {
     // Get cash flows (try both snake_case and camelCase)
     const cashFlows = results.cash_flows || results.cashFlows || {};
     if (Object.keys(cashFlows).length === 0) {
-      log(LogLevel.WARN, LogCategory.API, 'No cash flows found, cannot extract GP economics');
+      console.warn('No cash flows found, cannot extract GP economics');
       return;
     }
 
     // Log the waterfall results for debugging
-    log(LogLevel.DEBUG, LogCategory.API, 'Waterfall results found:', waterfallResults);
+    console.log('Waterfall results found:', waterfallResults);
 
     try {
       // Extract GP commitment percentage from config or waterfall params
@@ -642,7 +733,7 @@ export class SimulationSDK {
       //   fundSize * managementFeeRate * fundTerm : 0; // Simplified calculation
       const totalManagementFees = parseFloat(waterfallResults.total_management_fees || waterfallResults.totalManagementFees || 0);
       if (totalManagementFees === 0) {
-        log(LogLevel.WARN, LogCategory.API, 'Total management fees not found directly in waterfall_results for GP Economics, defaulting to 0.');
+        console.warn('Total management fees not found directly in waterfall_results for GP Economics, defaulting to 0.');
       }
 
       // Extract carried interest from waterfall results
@@ -774,9 +865,9 @@ export class SimulationSDK {
         gpIrr: gpIRR
       };
 
-      log(LogLevel.INFO, LogCategory.API, 'Successfully extracted GP economics from waterfall results');
+      console.info('Successfully extracted GP economics from waterfall results');
     } catch (error) {
-      log(LogLevel.ERROR, LogCategory.API, 'Error extracting GP economics from waterfall results:', error);
+      console.error('Error extracting GP economics from waterfall results:', error);
     }
   }
 
@@ -785,13 +876,13 @@ export class SimulationSDK {
    * @param results Simulation results to normalize
    */
   private extractPortfolioMetrics(results: any): void {
-    log(LogLevel.DEBUG, LogCategory.API, 'Extracting portfolio metrics');
+    console.log('Extracting portfolio metrics');
 
     // Get portfolio_evolution object (try both snake_case and camelCase)
     const portfolioEvolution = results.portfolio_evolution || results.portfolioEvolution || {};
 
     if (Object.keys(portfolioEvolution).length === 0) {
-      log(LogLevel.WARN, LogCategory.API, 'No portfolio evolution data found');
+      console.warn('No portfolio evolution data found');
       return;
     }
 
@@ -806,14 +897,14 @@ export class SimulationSDK {
         .sort((a, b) => b - a);
 
       if (years.length === 0) {
-        log(LogLevel.WARN, LogCategory.API, 'No years found in portfolio evolution data');
+        console.warn('No years found in portfolio evolution data');
         return;
       }
 
       const lastYear = years[0].toString();
       const lastYearData = portfolioEvolution[lastYear] || {};
 
-      log(LogLevel.DEBUG, LogCategory.API, `Extracting portfolio metrics from year ${lastYear}:`, lastYearData);
+      console.log(`Extracting portfolio metrics from year ${lastYear}:`, lastYearData);
 
       // Ensure metrics object exists
       if (!results.metrics) {
@@ -851,13 +942,13 @@ export class SimulationSDK {
       const years = portfolioEvolution.years || [];
 
       if (years.length === 0) {
-        log(LogLevel.WARN, LogCategory.API, 'No years found in portfolio evolution data');
+        console.warn('No years found in portfolio evolution data');
         return;
       }
 
       const lastIndex = years.length - 1;
 
-      log(LogLevel.DEBUG, LogCategory.API, `Extracting portfolio metrics from index ${lastIndex}`);
+      console.log(`Extracting portfolio metrics from index ${lastIndex}`);
 
       // Ensure metrics object exists
       if (!results.metrics) {
@@ -910,7 +1001,7 @@ export class SimulationSDK {
     }
 
     // Log the extracted metrics for debugging
-    log(LogLevel.DEBUG, LogCategory.API, 'Extracted portfolio metrics:', {
+    console.log('Extracted portfolio metrics:', {
       active_loans: results.metrics.active_loans,
       exited_loans: results.metrics.exited_loans,
       total_loans: results.metrics.total_loans,
@@ -923,13 +1014,13 @@ export class SimulationSDK {
    * @param results Simulation results to normalize
    */
   private normalizePortfolioEvolution(results: any): void {
-    log(LogLevel.DEBUG, LogCategory.API, 'Normalizing portfolio evolution data');
+    console.log('Normalizing portfolio evolution data');
 
     // Check if portfolio_evolution already exists with proper structure
     if (results.portfolio_evolution &&
         (Array.isArray(results.portfolio_evolution.years) ||
          Array.isArray(results.portfolio_evolution.active_loans))) {
-      log(LogLevel.DEBUG, LogCategory.API, 'Portfolio evolution already exists with array structure');
+      console.log('Portfolio evolution already exists with array structure');
 
       // Ensure both snake_case and camelCase versions exist
       if (!results.portfolioEvolution) {
@@ -947,7 +1038,7 @@ export class SimulationSDK {
     if (results.portfolioEvolution &&
         (Array.isArray(results.portfolioEvolution.years) ||
          Array.isArray(results.portfolioEvolution.activeLoans))) {
-      log(LogLevel.DEBUG, LogCategory.API, 'Portfolio evolution already exists with array structure (camelCase)');
+      console.log('Portfolio evolution already exists with array structure (camelCase)');
 
       // Copy to snake_case version if needed
       if (!results.portfolio_evolution) {
@@ -965,16 +1056,16 @@ export class SimulationSDK {
     if (results.portfolio_evolution &&
         typeof results.portfolio_evolution === 'object' &&
         Object.keys(results.portfolio_evolution).some(key => !isNaN(Number(key)))) {
-      log(LogLevel.INFO, LogCategory.API, 'Converting portfolio evolution from object with numeric keys to array format');
+      console.info('Converting portfolio evolution from object with numeric keys to array format');
 
       // Log the raw portfolio evolution data
-      log(LogLevel.DEBUG, LogCategory.API, 'Raw portfolio evolution data with numeric keys:', results.portfolio_evolution);
+      console.log('Raw portfolio evolution data with numeric keys:', results.portfolio_evolution);
 
       // Convert object with numeric keys to array format
       const portfolioEvolution = this.convertNumericKeysToArrays(results.portfolio_evolution);
 
       // Log the converted portfolio evolution data
-      log(LogLevel.DEBUG, LogCategory.API, 'Converted portfolio evolution data:', portfolioEvolution);
+      console.log('Converted portfolio evolution data:', portfolioEvolution);
 
       if (portfolioEvolution) {
         // Replace the original object with the converted array format
@@ -986,11 +1077,11 @@ export class SimulationSDK {
         this.ensurePortfolioEvolutionFields(results.portfolioEvolution);
 
         // Log the final portfolio evolution data after ensuring fields
-        log(LogLevel.DEBUG, LogCategory.API, 'Final portfolio evolution data after normalization:', results.portfolio_evolution);
+        console.log('Final portfolio evolution data after normalization:', results.portfolio_evolution);
 
         return;
       } else {
-        log(LogLevel.ERROR, LogCategory.API, 'Failed to convert portfolio evolution data with numeric keys');
+        console.error('Failed to convert portfolio evolution data with numeric keys');
       }
     }
 
@@ -998,7 +1089,7 @@ export class SimulationSDK {
     if (results.portfolioEvolution &&
         typeof results.portfolioEvolution === 'object' &&
         Object.keys(results.portfolioEvolution).some(key => !isNaN(Number(key)))) {
-      log(LogLevel.INFO, LogCategory.API, 'Converting portfolio evolution from object with numeric keys to array format (camelCase)');
+      console.info('Converting portfolio evolution from object with numeric keys to array format (camelCase)');
 
       // Convert object with numeric keys to array format
       const portfolioEvolution = this.convertNumericKeysToArrays(results.portfolioEvolution);
@@ -1018,7 +1109,7 @@ export class SimulationSDK {
 
     // Try to extract from yearly_portfolio data
     if (results.yearly_portfolio) {
-      log(LogLevel.INFO, LogCategory.API, 'Extracting portfolio evolution from yearly_portfolio data');
+      console.info('Extracting portfolio evolution from yearly_portfolio data');
 
       // Convert yearly_portfolio to portfolio_evolution format
       const portfolioEvolution = this.convertYearlyPortfolioToEvolution(results.yearly_portfolio);
@@ -1032,7 +1123,7 @@ export class SimulationSDK {
 
     // Try to extract from yearlyPortfolio data (camelCase)
     if (results.yearlyPortfolio) {
-      log(LogLevel.INFO, LogCategory.API, 'Extracting portfolio evolution from yearlyPortfolio data');
+      console.info('Extracting portfolio evolution from yearlyPortfolio data');
 
       // Convert yearlyPortfolio to portfolio_evolution format
       const portfolioEvolution = this.convertYearlyPortfolioToEvolution(results.yearlyPortfolio);
@@ -1045,7 +1136,7 @@ export class SimulationSDK {
     }
 
     // If we get here, we need to create default portfolio evolution
-    log(LogLevel.INFO, LogCategory.API, 'Creating default portfolio evolution');
+    console.info('Creating default portfolio evolution');
 
     const fundTerm = results.config?.fund_term || results.config?.fundTerm || 10;
     const years = Array.from({ length: fundTerm + 1 }, (_, i) => i);
@@ -1088,7 +1179,7 @@ export class SimulationSDK {
    */
   private convertNumericKeysToArrays(portfolioEvolution: any): any {
     if (!portfolioEvolution || typeof portfolioEvolution !== 'object') {
-      log(LogLevel.ERROR, LogCategory.API, 'Invalid portfolio evolution data:', portfolioEvolution);
+      console.error('Invalid portfolio evolution data:', portfolioEvolution);
       return null;
     }
 
@@ -1098,10 +1189,10 @@ export class SimulationSDK {
       .map(Number)
       .sort((a, b) => a - b);
 
-    log(LogLevel.DEBUG, LogCategory.API, `Found ${years.length} years in portfolio evolution:`, years);
+    console.log(`Found ${years.length} years in portfolio evolution:`, years);
 
     if (years.length === 0) {
-      log(LogLevel.ERROR, LogCategory.API, 'No numeric keys found in portfolio evolution data');
+      console.error('No numeric keys found in portfolio evolution data');
       return null;
     }
 
@@ -1121,10 +1212,10 @@ export class SimulationSDK {
     for (const year of years) {
       const yearData = portfolioEvolution[year.toString()];
 
-      log(LogLevel.DEBUG, LogCategory.API, `Processing year ${year} data:`, yearData);
+      console.log(`Processing year ${year} data:`, yearData);
 
       if (!yearData) {
-        log(LogLevel.WARN, LogCategory.API, `Missing data for year ${year}`);
+        console.warn(`Missing data for year ${year}`);
         // Add zeros for this year
         activeLoans.push(0);
         newLoans.push(0);
@@ -1161,7 +1252,7 @@ export class SimulationSDK {
       portfolioValue.push(portfolioValueValue);
       totalValue.push(totalValueValue);
 
-      log(LogLevel.DEBUG, LogCategory.API, `Year ${year} processed: active=${activeLoanValue}, exited=${exitedLoanValue}, portfolioValue=${portfolioValueValue}`);
+      console.log(`Year ${year} processed: active=${activeLoanValue}, exited=${exitedLoanValue}, portfolioValue=${portfolioValueValue}`);
     }
 
     // Create portfolio evolution object with arrays
@@ -1179,7 +1270,7 @@ export class SimulationSDK {
       total_value: totalValue
     };
 
-    log(LogLevel.DEBUG, LogCategory.API, 'Converted portfolio evolution data:', result);
+    console.log('Converted portfolio evolution data:', result);
 
     return result;
   }
@@ -1245,7 +1336,7 @@ export class SimulationSDK {
          portfolioEvolution.exited_loans_original.every((v: number) => v === 0)) &&
         (!Array.isArray(portfolioEvolution.exited_loans_reinvest) ||
          portfolioEvolution.exited_loans_reinvest.every((v: number) => v === 0))) {
-      log(LogLevel.WARN, LogCategory.API, 'exited_loans_original and exited_loans_reinvest not found or empty. Will not be estimated from exited_loans.');
+      console.warn('exited_loans_original and exited_loans_reinvest not found or empty. Will not be estimated from exited_loans.');
     }
 
     // If reinvestments doesn't exist but exited_loans_reinvest does,
@@ -1253,7 +1344,7 @@ export class SimulationSDK {
     if (Array.isArray(portfolioEvolution.exited_loans_reinvest) &&
         (!Array.isArray(portfolioEvolution.reinvestments) ||
          portfolioEvolution.reinvestments.every((v: number) => v === 0))) {
-      log(LogLevel.WARN, LogCategory.API, 'reinvestments not found or empty. Will not be estimated from exited_loans_reinvest.');
+      console.warn('reinvestments not found or empty. Will not be estimated from exited_loans_reinvest.');
     }
 
     // If reinvested_amount doesn't exist but reinvestments does,
@@ -1261,7 +1352,7 @@ export class SimulationSDK {
     if (Array.isArray(portfolioEvolution.reinvestments) &&
         (!Array.isArray(portfolioEvolution.reinvested_amount) ||
          portfolioEvolution.reinvested_amount.every((v: number) => v === 0))) {
-      log(LogLevel.WARN, LogCategory.API, 'reinvested_amount not found or empty. Will not be estimated from reinvestments.');
+      console.warn('reinvested_amount not found or empty. Will not be estimated from reinvestments.');
     }
   }
 
@@ -1361,14 +1452,14 @@ export class SimulationSDK {
    * @param results Simulation results to normalize
    */
   private normalizeZoneAllocation(results: any): void {
-    log(LogLevel.DEBUG, LogCategory.API, 'Normalizing zone allocation data');
+    console.log('Normalizing zone allocation data');
 
     // Check if zone_allocation already exists with proper structure
     if (results.zone_allocation &&
         (results.zone_allocation.green !== undefined ||
          results.zone_allocation.orange !== undefined ||
          results.zone_allocation.red !== undefined)) {
-      log(LogLevel.DEBUG, LogCategory.API, 'Zone allocation already exists');
+      console.log('Zone allocation already exists');
       return;
     }
 
@@ -1377,7 +1468,7 @@ export class SimulationSDK {
         (results.zoneAllocation.green !== undefined ||
          results.zoneAllocation.orange !== undefined ||
          results.zoneAllocation.red !== undefined)) {
-      log(LogLevel.DEBUG, LogCategory.API, 'Zone allocation already exists (camelCase)');
+      console.log('Zone allocation already exists (camelCase)');
 
       // Copy to snake_case version if needed
       if (!results.zone_allocation) {
@@ -1388,7 +1479,7 @@ export class SimulationSDK {
 
     // First, try to extract actual portfolio data from the loans array
     if (results.portfolio && results.portfolio.loans && Array.isArray(results.portfolio.loans) && results.portfolio.loans.length > 0) {
-      log(LogLevel.INFO, LogCategory.API, 'Extracting zone allocation from actual portfolio loans data');
+      console.info('Extracting zone allocation from actual portfolio loans data');
 
       // Count loans by zone
       const zoneCounts = {
@@ -1424,7 +1515,7 @@ export class SimulationSDK {
           red: zoneAmounts.red / totalAmount
         };
 
-        log(LogLevel.INFO, LogCategory.API, 'Using amount-based zone allocation from actual loans');
+        console.info('Using amount-based zone allocation from actual loans');
       } else if (totalLoans > 0) {
         results.zone_allocation = {
           green: zoneCounts.green / totalLoans,
@@ -1432,7 +1523,7 @@ export class SimulationSDK {
           red: zoneCounts.red / totalLoans
         };
 
-        log(LogLevel.INFO, LogCategory.API, 'Using count-based zone allocation from actual loans');
+        console.info('Using count-based zone allocation from actual loans');
       }
 
       if (results.zone_allocation) {
@@ -1444,7 +1535,7 @@ export class SimulationSDK {
 
     // Try to extract zone allocation from portfolio data
     if (results.portfolio) {
-      log(LogLevel.INFO, LogCategory.API, 'Extracting zone allocation from portfolio data');
+      console.info('Extracting zone allocation from portfolio data');
 
       // Check for zone_distribution in portfolio
       if (results.portfolio.zone_distribution) {
@@ -1517,7 +1608,7 @@ export class SimulationSDK {
 
     // Try to extract from yearly_portfolio data
     if (results.yearly_portfolio && Array.isArray(results.yearly_portfolio) && results.yearly_portfolio.length > 0) {
-      log(LogLevel.INFO, LogCategory.API, 'Extracting zone allocation from yearly_portfolio data');
+      console.info('Extracting zone allocation from yearly_portfolio data');
 
       // Get the latest year data
       const latestYearData = results.yearly_portfolio[results.yearly_portfolio.length - 1];
@@ -1541,7 +1632,7 @@ export class SimulationSDK {
 
     // Try to extract from portfolio_evolution data
     if (results.portfolio_evolution && results.portfolio_evolution.zone_allocation) {
-      log(LogLevel.INFO, LogCategory.API, 'Extracting zone allocation from portfolio_evolution data');
+      console.info('Extracting zone allocation from portfolio_evolution data');
 
       // Get the latest zone allocation data
       const zoneAllocation = results.portfolio_evolution.zone_allocation;
@@ -1566,7 +1657,7 @@ export class SimulationSDK {
 
     // Try to extract from config data - this is now a lower priority
     if (results.config && results.config.zone_allocations) {
-      log(LogLevel.INFO, LogCategory.API, 'Extracting zone allocation from config data (fallback)');
+      console.info('Extracting zone allocation from config data (fallback)');
 
       results.zone_allocation = { ...results.config.zone_allocations };
 
@@ -1576,7 +1667,7 @@ export class SimulationSDK {
     }
 
     // If we get here, we need to create default zone allocation
-    log(LogLevel.INFO, LogCategory.API, 'Creating default zone allocation');
+    console.info('Creating default zone allocation');
 
     results.zone_allocation = {
       green: 0.6,
@@ -1597,12 +1688,12 @@ export class SimulationSDK {
     const irr = results.metrics?.irr || results.metrics?.iRR || 0;
 
     // Log the IRR value for debugging
-    log(LogLevel.DEBUG, LogCategory.API, `Normalizing IRR breakdown with IRR value: ${irr}`);
+    console.log(`Normalizing IRR breakdown with IRR value: ${irr}`);
 
     // Check if irr_breakdown already exists with components
     if (results.irr_breakdown?.components && Array.isArray(results.irr_breakdown.components) &&
         results.irr_breakdown.components.length > 0) {
-      log(LogLevel.DEBUG, LogCategory.API, 'IRR breakdown components already exist');
+      console.log('IRR breakdown components already exist');
       return;
     }
 
@@ -1611,7 +1702,7 @@ export class SimulationSDK {
         (results.metrics.irr_components.appreciation !== undefined ||
          results.metrics.irr_components.interest !== undefined ||
          results.metrics.irr_components.fees !== undefined)) {
-      log(LogLevel.DEBUG, LogCategory.API, 'IRR components already exist in metrics');
+      console.log('IRR components already exist in metrics');
 
       // If irr_breakdown doesn't exist, create it from metrics.irr_components
       if (!results.irr_breakdown || !results.irr_breakdown.components) {
@@ -1659,7 +1750,7 @@ export class SimulationSDK {
       const irrComparison = results.performance_metrics?.irr_comparison || results.performanceMetrics?.irrComparison;
 
       if (irrComparison && Array.isArray(irrComparison.labels) && Array.isArray(irrComparison.values)) {
-        log(LogLevel.INFO, LogCategory.API, 'Creating IRR breakdown from performance_metrics.irr_comparison');
+        console.info('Creating IRR breakdown from performance_metrics.irr_comparison');
 
         // Extract components from IRR comparison
         const components = [];
@@ -1701,7 +1792,7 @@ export class SimulationSDK {
 
     // Check if we have cash_flows data to extract interest and appreciation components
     if (results.cash_flows && results.portfolio_evolution) {
-      log(LogLevel.INFO, LogCategory.API, 'Creating IRR breakdown from cash_flows and portfolio_evolution');
+      console.info('Creating IRR breakdown from cash_flows and portfolio_evolution');
 
       try {
         // Extract interest component from cash_flows
@@ -1762,12 +1853,12 @@ export class SimulationSDK {
 
         return;
       } catch (error) {
-        log(LogLevel.ERROR, LogCategory.API, 'Error creating IRR breakdown from cash_flows:', error);
+        console.error('Error creating IRR breakdown from cash_flows:', error);
       }
     }
 
     // If we get here, we need to create synthetic IRR components
-    log(LogLevel.INFO, LogCategory.API, 'Creating synthetic IRR breakdown components');
+    console.info('Creating synthetic IRR breakdown components');
 
     // Create synthetic IRR components based on the IRR value
     // Typical breakdown: 60% interest, 30% appreciation, 10% fees (negative)
@@ -1837,11 +1928,11 @@ export class SimulationSDK {
    */
   async deleteSimulation(id: string): Promise<{ message?: string }> {
     try {
-      log(LogLevel.INFO, LogCategory.API, `Deleting simulation: ${id}`);
+      console.info(`Deleting simulation: ${id}`);
       const response = await apiClient.default.deleteApiSimulations(id);
       return response;
     } catch (error) {
-      log(LogLevel.ERROR, LogCategory.API, `Error deleting simulation ${id}: ${error}`);
+      console.error(`Error deleting simulation ${id}: ${error}`);
       throw error;
     }
   }
@@ -1853,11 +1944,11 @@ export class SimulationSDK {
    */
   async cancelSimulation(id: string): Promise<{ message?: string, simulation_id?: string, status?: string, progress?: number }> {
     try {
-      log(LogLevel.INFO, LogCategory.API, `Cancelling simulation: ${id}`);
+      console.info(`Cancelling simulation: ${id}`);
       const response = await apiClient.default.postApiSimulationsCancel(id);
       return response;
     } catch (error) {
-      log(LogLevel.ERROR, LogCategory.API, `Error cancelling simulation ${id}: ${error}`);
+      console.error(`Error cancelling simulation ${id}: ${error}`);
       throw error;
     }
   }
@@ -1869,16 +1960,16 @@ export class SimulationSDK {
    */
   async getPortfolioEvolution(id: string) {
     try {
-      log(LogLevel.INFO, LogCategory.API, `Getting portfolio evolution for simulation: ${id}`);
+      console.info(`Getting portfolio evolution for simulation: ${id}`);
       const response = await apiClient.default.getApiSimulationsPortfolioEvolution(id);
 
       // Transform all field names from snake_case to camelCase
       const transformedResponse = transformApiResponse(response);
-      log(LogLevel.DEBUG, LogCategory.API, `Transformed portfolio evolution for ${id}`);
+      console.log(`Transformed portfolio evolution for ${id}`);
 
       return transformedResponse;
     } catch (error) {
-      log(LogLevel.ERROR, LogCategory.API, `Error getting portfolio evolution ${id}: ${error}`);
+      console.error(`Error getting portfolio evolution ${id}: ${error}`);
       throw error;
     }
   }
@@ -1904,7 +1995,7 @@ export class SimulationSDK {
     } = {}
   ) {
     try {
-      log(LogLevel.INFO, LogCategory.API, `Getting visualization for simulation: ${id}`);
+      console.info(`Getting visualization for simulation: ${id}`);
       const response = await apiClient.default.getApiSimulationsVisualization(
         id,
         chartType,
@@ -1917,7 +2008,7 @@ export class SimulationSDK {
       );
 
       // Log the raw response for debugging
-      logBackendDataStructure(response, `Visualization Raw Data (ID: ${id}, Chart: ${chartType})`);
+      console.log(`Visualization Raw Data (ID: ${id}, Chart: ${chartType})`, response);
 
       // Normalize the visualization data
       const normalizedResponse = this.normalizeVisualizationData(response, chartType);
@@ -1925,11 +2016,11 @@ export class SimulationSDK {
       // Transform all field names from snake_case to camelCase and ensure both formats exist
       const transformedResponse = transformApiResponse(normalizedResponse);
 
-      log(LogLevel.DEBUG, LogCategory.API, `Transformed visualization data for ${id}`);
+      console.log(`Transformed visualization data for ${id}`);
 
       return transformedResponse;
     } catch (error) {
-      log(LogLevel.ERROR, LogCategory.API, `Error getting visualization ${id}: ${error}`);
+      console.error(`Error getting visualization ${id}: ${error}`);
       throw error;
     }
   }
@@ -1942,7 +2033,7 @@ export class SimulationSDK {
    */
   private normalizeVisualizationData(data: any, chartType: string): any {
     if (!data) {
-      log(LogLevel.WARN, LogCategory.API, 'Received null or undefined visualization data');
+      console.warn('Received null or undefined visualization data');
       return this.getEmptyVisualizationData(chartType);
     }
 
@@ -2208,9 +2299,56 @@ export class SimulationSDK {
         format,
         metrics
       );
+
+      // Log the response structure
+      log(LogLevel.INFO, LogCategory.API, `Monte Carlo visualization response structure: ${JSON.stringify(Object.keys(response || {}))}`);
+
+      // Don't add any default or mock data - just return what we got from the API
+      if (!response.zone_irrs) {
+        log(LogLevel.WARNING, LogCategory.API, `No zone IRRs in Monte Carlo visualization response`);
+      }
+
       return response;
     } catch (error) {
       log(LogLevel.ERROR, LogCategory.API, `Error getting Monte Carlo visualization ${id}: ${error}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Get variance analysis data
+   * @param id Simulation ID
+   * @param numInnerSimulations Number of inner simulations to run
+   * @param includeSeedResults Whether to include individual seed results
+   * @returns Variance analysis data
+   */
+  async getVarianceAnalysis(
+    id: string,
+    numInnerSimulations: number = 100,
+    includeSeedResults: boolean = false
+  ) {
+    try {
+      log(LogLevel.INFO, LogCategory.API, `Getting variance analysis for simulation: ${id}`);
+
+      // Make a direct API call to run the variance analysis
+      const response = await fetch(`${OpenAPI.BASE}/api/simulations/${id}/variance-analysis?num_inner_simulations=${numInnerSimulations}&include_seed_results=${includeSeedResults}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch variance data: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      // Transform the response
+      return transformApiResponse(data);
+    } catch (error) {
+      log(LogLevel.ERROR, LogCategory.API, `Error getting variance analysis ${id}: ${error}`);
       throw error;
     }
   }
@@ -2563,7 +2701,14 @@ export class SimulationSDK {
 }
 
 // Export a singleton instance
-export const simulationSDK = new SimulationSDK();
+// Add a method to get the base URL
+class EnhancedSimulationSDK extends SimulationSDK {
+  getBaseUrl(): string {
+    return OpenAPI.BASE;
+  }
+}
+
+export const simulationSDK = new EnhancedSimulationSDK();
 
 // Export types from the generated SDK
 export type {

@@ -12,6 +12,20 @@ export function formatCurrency(
     return 'N/A';
   }
 
+  // Ensure value is within a reasonable range to avoid errors
+  if (Math.abs(value as number) > 1000000000000) { // Cap at trillion
+    value = value > 0 ? 1000000000000 : -1000000000000;
+  }
+
+  // Validate and cap maximumFractionDigits to avoid errors
+  const safeOptions = { ...options };
+  if (safeOptions.maximumFractionDigits !== undefined) {
+    safeOptions.maximumFractionDigits = Math.min(
+      Math.max(0, safeOptions.maximumFractionDigits),
+      20 // Maximum allowed by Intl.NumberFormat
+    );
+  }
+
   const defaultOptions: Intl.NumberFormatOptions = {
     style: 'currency',
     currency: 'USD',
@@ -19,26 +33,31 @@ export function formatCurrency(
     maximumFractionDigits: 0,
   };
 
-  // For large numbers, use millions/billions format
-  if (value >= 1_000_000) {
-    if (value >= 1_000_000_000) {
-      return formatCurrency(value / 1_000_000_000, {
+  try {
+    // For large numbers, use millions/billions format
+    if (value >= 1_000_000) {
+      if (value >= 1_000_000_000) {
+        return formatCurrency(value / 1_000_000_000, {
+          ...defaultOptions,
+          ...safeOptions,
+          maximumFractionDigits: 1,
+        }) + 'B';
+      }
+      return formatCurrency(value / 1_000_000, {
         ...defaultOptions,
-        ...options,
+        ...safeOptions,
         maximumFractionDigits: 1,
-      }) + 'B';
+      }) + 'M';
     }
-    return formatCurrency(value / 1_000_000, {
-      ...defaultOptions,
-      ...options,
-      maximumFractionDigits: 1,
-    }) + 'M';
-  }
 
-  return new Intl.NumberFormat('en-US', {
-    ...defaultOptions,
-    ...options,
-  }).format(value as number);
+    return new Intl.NumberFormat('en-US', {
+      ...defaultOptions,
+      ...safeOptions,
+    }).format(value as number);
+  } catch (error) {
+    console.error('Error formatting currency:', error);
+    return value !== undefined && value !== null ? `$${(value as number).toFixed(0)}` : 'N/A';
+  }
 }
 
 /**
@@ -55,16 +74,48 @@ export function formatPercentage(
     return 'N/A';
   }
 
+  // Ensure value is within a reasonable range to avoid errors
+  if (Math.abs(value as number) > 100) {
+    value = value > 0 ? 100 : -100;
+  }
+
+  // Validate and cap maximumFractionDigits to avoid errors
+  const safeOptions = { ...options };
+  if (safeOptions.maximumFractionDigits !== undefined) {
+    safeOptions.maximumFractionDigits = Math.min(
+      Math.max(0, safeOptions.maximumFractionDigits),
+      20 // Maximum allowed by Intl.NumberFormat
+    );
+  } else {
+    // Default to 1 decimal place if not specified
+    safeOptions.maximumFractionDigits = 1;
+  }
+
+  // Set minimumFractionDigits to be at most maximumFractionDigits
+  if (safeOptions.minimumFractionDigits !== undefined) {
+    safeOptions.minimumFractionDigits = Math.min(
+      safeOptions.minimumFractionDigits,
+      safeOptions.maximumFractionDigits
+    );
+  }
+
   const defaultOptions: Intl.NumberFormatOptions = {
     style: 'percent',
     minimumFractionDigits: 1,
     maximumFractionDigits: 1,
   };
 
-  return new Intl.NumberFormat('en-US', {
-    ...defaultOptions,
-    ...options,
-  }).format(value as number);
+  try {
+    return new Intl.NumberFormat('en-US', {
+      ...defaultOptions,
+      ...safeOptions,
+    }).format(value as number);
+  } catch (error) {
+    console.error('Error formatting percentage:', error);
+    // Fallback to simple percentage formatting
+    const decimals = safeOptions.maximumFractionDigits || 1;
+    return value !== undefined && value !== null ? `${(value * 100).toFixed(decimals)}%` : 'N/A';
+  }
 }
 
 /**
@@ -96,18 +147,36 @@ export function formatDate(
  * @returns Formatted number string
  */
 export function formatNumber(
-  value: number,
+  value: number | undefined | null,
   options: Intl.NumberFormatOptions = {}
 ): string {
+  if (value === undefined || value === null || isNaN(value as number)) {
+    return 'N/A';
+  }
+
+  // Validate and cap maximumFractionDigits to avoid errors
+  const safeOptions = { ...options };
+  if (safeOptions.maximumFractionDigits !== undefined) {
+    safeOptions.maximumFractionDigits = Math.min(
+      Math.max(0, safeOptions.maximumFractionDigits),
+      20 // Maximum allowed by Intl.NumberFormat
+    );
+  }
+
   const defaultOptions: Intl.NumberFormatOptions = {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   };
 
-  return new Intl.NumberFormat('en-US', {
-    ...defaultOptions,
-    ...options,
-  }).format(value);
+  try {
+    return new Intl.NumberFormat('en-US', {
+      ...defaultOptions,
+      ...safeOptions,
+    }).format(value as number);
+  } catch (error) {
+    console.error('Error formatting number:', error);
+    return value !== undefined && value !== null ? value.toString() : 'N/A';
+  }
 }
 
 /**
@@ -126,33 +195,69 @@ export function formatDecimal(
     return 'N/A';
   }
 
+  // Ensure value is within a reasonable range to avoid errors
+  if (Math.abs(value as number) > 1000000) {
+    value = value > 0 ? 1000000 : -1000000;
+  }
+
+  // Ensure decimals is within valid range
+  const safeDecimals = Math.min(Math.max(0, decimals), 20);
+
+  // Validate and cap maximumFractionDigits to avoid errors
+  const safeOptions = { ...options };
+  if (safeOptions.maximumFractionDigits !== undefined) {
+    safeOptions.maximumFractionDigits = Math.min(
+      Math.max(0, safeOptions.maximumFractionDigits),
+      20 // Maximum allowed by Intl.NumberFormat
+    );
+  }
+
   const defaultOptions: Intl.NumberFormatOptions = {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+    minimumFractionDigits: safeDecimals,
+    maximumFractionDigits: safeDecimals,
   };
 
-  return new Intl.NumberFormat('en-US', {
-    ...defaultOptions,
-    ...options,
-  }).format(value as number);
+  try {
+    return new Intl.NumberFormat('en-US', {
+      ...defaultOptions,
+      ...safeOptions,
+    }).format(value as number);
+  } catch (error) {
+    console.error('Error formatting decimal:', error);
+    return value !== undefined && value !== null ? (value as number).toFixed(safeDecimals) : 'N/A';
+  }
 }
 
 /**
  * Format a number as a multiple (e.g., 2.5x)
  * @param value Number to format
- * @param decimals Number of decimal places
+ * @param options Options object with decimals and signDisplay properties
  * @returns Formatted multiple string
  */
 export function formatMultiple(
   value: number | undefined | null,
-  decimals: number = 2
+  options: { decimals?: number; signDisplay?: 'auto' | 'always' | 'never' } = {}
 ): string {
   if (value === undefined || value === null || isNaN(value as number)) {
     return 'N/A';
   }
 
-  // Format with the specified number of decimal places
-  return `${(value as number).toFixed(decimals)}x`;
+  // Ensure value is within a reasonable range to avoid errors
+  if (Math.abs(value as number) > 1000000) {
+    value = value > 0 ? 1000000 : -1000000;
+  }
+
+  const decimals = options.decimals !== undefined ? options.decimals : 2;
+  const showSign = options.signDisplay === 'always';
+
+  try {
+    // Format with the specified number of decimal places
+    const formattedValue = (value as number).toFixed(decimals);
+    return showSign && value > 0 ? `+${formattedValue}x` : `${formattedValue}x`;
+  } catch (error) {
+    console.error('Error formatting multiple:', error);
+    return 'N/A';
+  }
 }
 
 /**
@@ -191,3 +296,8 @@ export function formatSimulationValue(value: any, type: string): string {
       return String(value);
   }
 }
+
+/**
+ * Alias for formatPercentage for backward compatibility
+ */
+export const formatPercent = formatPercentage;

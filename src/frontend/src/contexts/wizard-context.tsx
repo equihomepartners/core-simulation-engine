@@ -163,11 +163,69 @@ export function WizardProvider({ children }: WizardProviderProps) {
       let mainResult: any = null;
       let controlResult: any = null;
 
+      // Filter form data to only include fields expected by the backend
+      const filteredFormData = {
+        fund_size: formData.fund_size,
+        fund_term: formData.fund_term,
+        fund_id: formData.fund_id,
+        fund_group: formData.fund_group,
+        tranche_id: formData.tranche_id,
+        gp_commitment_percentage: formData.gp_commitment_percentage,
+        hurdle_rate: formData.hurdle_rate,
+        carried_interest_rate: formData.carried_interest_rate,
+        waterfall_structure: formData.waterfall_structure,
+        monte_carlo_enabled: formData.monte_carlo_enabled,
+        optimization_enabled: formData.optimization_enabled,
+        stress_testing_enabled: formData.stress_testing_enabled,
+        external_data_enabled: formData.external_data_enabled,
+        generate_reports: formData.generate_reports,
+        leverage: {
+          green_sleeve: formData.leverage?.green_sleeve,
+          a_plus_overadvance: formData.leverage?.a_plus_overadvance,
+          deal_note: formData.leverage?.deal_note,
+          ramp_line: formData.leverage?.ramp_line,
+          dynamic_rules: [] // Empty array to avoid validation errors
+        },
+        base_appreciation_rate: formData.base_appreciation_rate,
+        appreciation_volatility: formData.appreciation_volatility,
+        base_default_rate: formData.base_default_rate,
+        default_volatility: formData.default_volatility,
+        correlation: formData.correlation,
+        avg_loan_size: formData.avg_loan_size,
+        loan_size_std_dev: formData.loan_size_std_dev,
+        min_loan_size: formData.min_loan_size,
+        max_loan_size: formData.max_loan_size,
+        avg_loan_term: formData.avg_loan_term,
+        avg_loan_interest_rate: formData.avg_loan_interest_rate,
+        avg_loan_ltv: formData.avg_loan_ltv,
+        zone_allocations: formData.zone_allocations,
+        management_fee_rate: formData.management_fee_rate,
+        management_fee_basis: formData.management_fee_basis,
+        distribution_frequency: formData.distribution_frequency,
+        distribution_policy: formData.distribution_policy,
+        reinvestment_period: formData.reinvestment_period,
+        avg_loan_exit_year: formData.avg_loan_exit_year,
+        exit_year_std_dev: formData.exit_year_std_dev,
+        early_exit_probability: formData.early_exit_probability,
+        force_exit_within_fund_term: formData.force_exit_within_fund_term,
+        num_simulations: formData.num_simulations,
+        variation_factor: formData.variation_factor,
+        monte_carlo_seed: formData.monte_carlo_seed,
+        optimization_objective: formData.optimization_objective,
+        risk_free_rate: formData.risk_free_rate,
+        min_allocation: formData.min_allocation,
+        max_allocation: formData.max_allocation,
+        stress_config: formData.stress_config,
+        report_config: formData.report_config
+      };
+
+      console.log('Filtered form data:', filteredFormData);
+
       if (runDual) {
         // Fire both simulations in parallel for speed
         [mainResult, controlResult] = await Promise.all([
-          simulationSDK.createSimulation(formData),
-          simulationSDK.createSimulation(buildUnlevered(formData)),
+          simulationSDK.createSimulation(filteredFormData),
+          simulationSDK.createSimulation(buildUnlevered(filteredFormData)),
         ]);
 
         log(LogLevel.INFO, LogCategory.UI, 'Dual simulations created', { mainResult, controlResult });
@@ -202,19 +260,47 @@ export function WizardProvider({ children }: WizardProviderProps) {
       if (preset === 'default') {
         presetConfig = getDefaultPreset();
         log(LogLevel.INFO, LogCategory.UI, 'Loading default preset', presetConfig);
-        methods.reset(presetConfig);
+        localStorage.setItem('activePreset', 'default');
       } else if (preset === '100m') {
         presetConfig = get100MPreset();
         log(LogLevel.INFO, LogCategory.UI, 'Loading 100M preset', presetConfig);
-        methods.reset(presetConfig);
+        localStorage.setItem('activePreset', '100m');
       }
+
+      // Reset the form with the preset values
+      methods.reset(presetConfig);
+
+      // Force update all fields
+      Object.keys(presetConfig).forEach(key => {
+        console.log(`Setting ${key} to:`, presetConfig[key]);
+        methods.setValue(key, presetConfig[key]);
+      });
+
+      // Explicitly set the advanced parameters
+      console.log('Explicitly setting advanced parameters');
+      methods.setValue('optimization_enabled', true);
+      methods.setValue('generate_efficient_frontier', true);
+      methods.setValue('stress_testing_enabled', true);
+      methods.setValue('external_data_enabled', true);
+      methods.setValue('generate_reports', true);
+      methods.setValue('gp_entity_enabled', true);
+      methods.setValue('aggregate_gp_economics', true);
+      methods.setValue('run_dual_leverage_comparison', true);
 
       // Log specific fields we're concerned about
       const formValues = methods.getValues();
       log(LogLevel.INFO, LogCategory.UI, 'Form values after preset load', {
-        catch_up_rate: formValues.catch_up_rate,
-        catch_up_structure: formValues.catch_up_structure,
-        waterfall_structure: formValues.waterfall_structure
+        monte_carlo_enabled: formValues.monte_carlo_enabled,
+        inner_monte_carlo_enabled: formValues.inner_monte_carlo_enabled,
+        vintage_var_enabled: formValues.vintage_var_enabled,
+        optimization_enabled: formValues.optimization_enabled,
+        generate_efficient_frontier: formValues.generate_efficient_frontier,
+        stress_testing_enabled: formValues.stress_testing_enabled,
+        external_data_enabled: formValues.external_data_enabled,
+        generate_reports: formValues.generate_reports,
+        gp_entity_enabled: formValues.gp_entity_enabled,
+        aggregate_gp_economics: formValues.aggregate_gp_economics,
+        run_dual_leverage_comparison: formValues.run_dual_leverage_comparison
       });
     } catch (error) {
       log(LogLevel.ERROR, LogCategory.UI, `Error loading preset ${preset}:`, error);

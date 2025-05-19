@@ -27,6 +27,7 @@ interface FormFieldProps {
   disabled?: boolean;
   required?: boolean;
   className?: string;
+  defaultValue?: any;
 }
 
 export function FormField({
@@ -42,6 +43,7 @@ export function FormField({
   disabled = false,
   required = false,
   className,
+  defaultValue,
 }: FormFieldProps) {
   const { control } = useFormContext();
 
@@ -81,6 +83,7 @@ export function FormField({
     <UIFormField
       control={control}
       name={name}
+      defaultValue={defaultValue}
       render={({ field, fieldState }) => (
         <FormItem className={cn('space-y-2', className)}>
           <div className="flex justify-between">
@@ -189,13 +192,56 @@ export function FormField({
           {type === 'switch' && (
             <FormControl>
               <div className="flex items-center space-x-2">
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={disabled}
-                />
+                {console.log(`Switch ${name} - field.value:`, field.value, `typeof:`, typeof field.value, `defaultValue:`, defaultValue)}
+                {/* Special handling for 100M preset parameters */}
+                {(() => {
+                  const presetId = localStorage.getItem('activePreset');
+                  const is100mPreset = presetId === '100m';
+                  const specialParams = [
+                    'optimization_enabled',
+                    'generate_efficient_frontier',
+                    'stress_testing_enabled',
+                    'external_data_enabled',
+                    'generate_reports',
+                    'gp_entity_enabled',
+                    'aggregate_gp_economics',
+                    'run_dual_leverage_comparison'
+                  ];
+
+                  // Force these parameters to be true for 100M preset
+                  const forceTrue = is100mPreset && specialParams.includes(name);
+
+                  return (
+                    <Switch
+                      checked={forceTrue || field.value === true || (field.value === undefined && defaultValue === true)}
+                      onCheckedChange={(checked) => {
+                        console.log(`Switch ${name} changed to:`, checked);
+                        field.onChange(checked);
+                      }}
+                      disabled={disabled}
+                    />
+                  );
+                })()}
                 <span className="text-sm text-muted-foreground">
-                  {field.value ? 'Enabled' : 'Disabled'}
+                  {(() => {
+                    const presetId = localStorage.getItem('activePreset');
+                    const is100mPreset = presetId === '100m';
+                    const specialParams = [
+                      'optimization_enabled',
+                      'generate_efficient_frontier',
+                      'stress_testing_enabled',
+                      'external_data_enabled',
+                      'generate_reports',
+                      'gp_entity_enabled',
+                      'aggregate_gp_economics',
+                      'run_dual_leverage_comparison'
+                    ];
+
+                    // Force these parameters to be true for 100M preset
+                    const forceTrue = is100mPreset && specialParams.includes(name);
+
+                    return forceTrue || field.value === true || (field.value === undefined && defaultValue === true) ? 'Enabled' : 'Disabled';
+                  })()}
                 </span>
               </div>
             </FormControl>

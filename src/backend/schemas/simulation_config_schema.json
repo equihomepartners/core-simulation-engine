@@ -234,32 +234,7 @@
       },
       "additionalProperties": false
     },
-    "zone_rebalancing_enabled": {
-      "type": "boolean",
-      "description": "Whether to enable zone rebalancing",
-      "default": true
-    },
-    "rebalancing_strength": {
-      "type": "number",
-      "description": "How strongly to rebalance zone allocations (0-1)",
-      "minimum": 0,
-      "maximum": 1,
-      "default": 0.5
-    },
-    "zone_drift_threshold": {
-      "type": "number",
-      "description": "Maximum allowed drift from target allocation",
-      "minimum": 0,
-      "maximum": 0.5,
-      "default": 0.1
-    },
-    "zone_allocation_precision": {
-      "type": "number",
-      "description": "How precisely to match target zone allocations (0-1)",
-      "minimum": 0,
-      "maximum": 1,
-      "default": 0.8
-    },
+
     "appreciation_rates": {
       "type": "object",
       "description": "Zone-specific appreciation rates",

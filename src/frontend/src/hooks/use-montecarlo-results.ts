@@ -3,7 +3,7 @@ import { useSimulationStore } from '@/store/simulation-store';
 
 export function useMonteCarloResults(
   simulationId: string,
-  resultType: 'distribution' | 'sensitivity' | 'confidence' = 'distribution',
+  resultType: 'distribution' | 'sensitivity' | 'confidence' | 'cash_flow' = 'distribution',
   metric: 'irr' | 'multiple' | 'default_rate' = 'irr'
 ) {
   const { getMonteCarloResults } = useSimulationStore();

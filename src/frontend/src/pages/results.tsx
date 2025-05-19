@@ -37,7 +37,8 @@ import {
   Clock,
   Users,
   Layers,
-  MinusCircle
+  MinusCircle,
+  Terminal
 } from 'lucide-react';
 
 // Import our enhanced components
@@ -52,6 +53,7 @@ import { GPEconomicsMetrics } from '@/components/results/gp-economics-metrics';
 import { GPIRRBreakdownChart } from '@/components/results/gp-irr-breakdown-chart';
 import { EnhancedZoneAllocationChart } from '@/components/results/enhanced-zone-allocation-chart';
 import { LPEconomicsTab } from '@/components/results/lp-economics-tab';
+import { PortfolioReturnsTab } from '@/components/results/portfolio-returns-tab';
 import { InvestmentJourneyVisualization } from '@/components/results/investment-journey-visualization';
 import { MonteCarloResults } from '@/components/results/MonteCarloResults';
 import { EfficientFrontierChart } from '@/components/results/EfficientFrontierChart';
@@ -59,7 +61,7 @@ import { StressImpactHeatmap } from '@/components/results/StressImpactHeatmap';
 import { BootstrapFanChart } from '@/components/results/BootstrapFanChart';
 import { VintageVarAreaChart } from '@/components/results/VintageVarAreaChart';
 import { MetricCard } from '@/components/ui/metric-card';
-import { LogLevel, LogCategory, log, logBackendDataStructure } from '@/utils/logging';
+import { useStructuredLogger } from '@/providers/structured-logger-provider';
 import { formatCurrency, formatPercentage, formatMultiple, formatDecimal, formatNumber } from '@/lib/formatters';
 
 // Import portfolio components
@@ -100,6 +102,9 @@ export function Results() {
   // Advanced visualization settings
   const [chartColorScheme, setChartColorScheme] = useState('default');
   const [showAnnotations, setShowAnnotations] = useState(true);
+
+  // Get the structured logger
+  const { showConsole, logSimulationEvent } = useStructuredLogger();
 
   // Fetch simulation results with the selected time granularity
   const {
@@ -143,122 +148,85 @@ export function Results() {
   // Log backend data structure once
   useEffect(() => {
     if (results && !isLoading) {
-      // Log the complete backend data structure
-      logBackendDataStructure(results, `Simulation Results (ID: ${simulationId})`);
-
-      // Add a simple, focused log to see key data structures
-      console.log('DATA AUDIT - Key Structures:', {
-        // Check if performance metrics exist
-        hasPerformanceMetrics: !!results.performance_metrics || !!results.performanceMetrics,
-
-        // Check portfolio evolution
-        portfolioEvolution: {
-          exists: !!results.portfolio_evolution || !!results.portfolioEvolution,
-          years: Object.keys(results.portfolio_evolution || results.portfolioEvolution || {}).length,
-          lastYear: (() => {
-            const pe = results.portfolio_evolution || results.portfolioEvolution || {};
-            const years = Object.keys(pe).map(Number).sort((a, b) => b - a);
-            return years[0];
-          })(),
-          sampleData: (() => {
-            const pe = results.portfolio_evolution || results.portfolioEvolution || {};
-            const years = Object.keys(pe).map(Number).sort((a, b) => b - a);
-            const lastYear = years[0]?.toString();
-            return lastYear ? pe[lastYear] : null;
-          })()
-        },
-
-        // Check if we have loan metrics
-        loanMetrics: {
-          inPortfolio: !!results.portfolio?.total_loans || !!results.portfolio?.totalLoans,
-          inMetrics: !!results.metrics?.total_loans || !!results.metrics?.totalLoans
-        },
-
-        // Check GP metrics
-        gpMetrics: {
-          hasGpMetrics: !!results.gp_metrics,
-          hasGpEconomics: !!results.gp_economics,
-          hasWaterfallResults: !!results.waterfall_results,
-          gpMetricsKeys: results.gp_metrics ? Object.keys(results.gp_metrics) : [],
-          gpEconomicsKeys: results.gp_economics ? Object.keys(results.gp_economics) : [],
-          waterfallResultsKeys: results.waterfall_results ? Object.keys(results.waterfall_results) : []
-        }
-      });
-
-      // Check specific metrics we're trying to display
-      console.log('DATA AUDIT - Specific Metrics:', {
-        // Returns metrics
-        returns: {
-          grossIrr: results?.performance_metrics?.irr || results?.performanceMetrics?.irr,
-          netIrr: results?.metrics?.irr,
-          grossMultiple: results?.performance_metrics?.moic || results?.performanceMetrics?.moic,
-          rvpi: results?.performance_metrics?.rvpi || results?.performanceMetrics?.rvpi,
-          dpi: results?.performance_metrics?.dpi || results?.performanceMetrics?.dpi,
-          realizedReturn: results?.performance_metrics?.roi || results?.performanceMetrics?.roi
-        },
-
-        // Cash flow metrics
-        cashFlows: {
-          totalCapitalCalls: results?.performance_metrics?.equity_multiple_details?.total_contribution ||
-                            results?.performanceMetrics?.equityMultipleDetails?.totalContribution,
-          totalDistributions: results?.performance_metrics?.equity_multiple_details?.total_distributions ||
-                             results?.performanceMetrics?.equityMultipleDetails?.totalDistributions,
-          netCashFlow: results?.performance_metrics?.roi_details?.total_profit ||
-                      results?.performanceMetrics?.roiDetails?.totalProfit
-        },
-
-        // Portfolio metrics from last year
-        portfolio: (() => {
-          const pe = results.portfolio_evolution || results.portfolioEvolution || {};
-          const years = Object.keys(pe).map(Number).sort((a, b) => b - a);
-          const lastYear = years[0]?.toString();
-          if (lastYear && pe[lastYear]) {
-            return {
-              activeLoans: pe[lastYear].active_loans || pe[lastYear].activeLoans,
-              exitedLoans: pe[lastYear].exited_loans || pe[lastYear].exitedLoans,
-              totalLoans: pe[lastYear].total_loans || pe[lastYear].totalLoans
-            };
+      // Log key metrics using our structured logger
+      logSimulationEvent(
+        `Simulation results loaded successfully`,
+        {
+          metrics: {
+            grossIrr: results?.metrics?.gross_irr || results?.metrics?.grossIrr,
+            fundIrr: results?.metrics?.fund_irr || results?.metrics?.fundIrr,
+            lpIrr: results?.metrics?.lp_irr || results?.metrics?.lpIrr,
+            moic: results?.metrics?.moic || results?.metrics?.multiple,
+            tvpi: results?.metrics?.tvpi || results?.metrics?.TVPI,
+            dpi: results?.metrics?.dpi || results?.metrics?.DPI,
+            rvpi: results?.metrics?.rvpi || results?.metrics?.RVPI
+          },
+          portfolio: {
+            totalLoans: results?.portfolio?.total_loans || results?.portfolio?.totalLoans,
+            activeLoans: results?.portfolio?.active_loans || results?.portfolio?.activeLoans,
+            exitedLoans: results?.portfolio?.exited_loans || results?.portfolio?.exitedLoans
+          },
+          hasAdvancedFeatures: {
+            monteCarloEnabled: !!results?.monte_carlo || !!results?.monteCarlo,
+            optimizationEnabled: !!results?.optimization || !!results?.efficientFrontier,
+            stressTestingEnabled: !!results?.stress_testing || !!results?.stressTesting
           }
-          return null;
-        })(),
-
-        // GP metrics
-        gpMetrics: {
-          irr: results?.gp_metrics?.irr || results?.gp_economics?.gp_irr || results?.waterfall_results?.gp_economics?.gp_irr,
-          multiple: results?.gp_metrics?.multiple || results?.gp_economics?.gp_multiple || results?.waterfall_results?.gp_economics?.gp_multiple,
-          managementFees: results?.gp_metrics?.management_fees || results?.gp_economics?.total_management_fees || results?.waterfall_results?.gp_economics?.management_fees_total,
-          carriedInterest: results?.gp_metrics?.carried_interest || results?.gp_economics?.total_carried_interest || results?.waterfall_results?.gp_economics?.carried_interest_total,
-          catchUp: results?.gp_metrics?.catch_up || results?.gp_economics?.total_catch_up || results?.waterfall_results?.gp_economics?.catch_up_total,
-          commitment: results?.gp_metrics?.commitment || results?.gp_economics?.gp_commitment || results?.waterfall_results?.gp_economics?.gp_commitment,
-          investmentReturn: results?.gp_metrics?.investment_return || results?.gp_economics?.investment_return || results?.waterfall_results?.gp_economics?.investment_return
         }
-      });
+      );
+
+      // Log IRR metrics specifically
+      if (results?.metrics?.gross_irr || results?.metrics?.grossIrr) {
+        const irrValue = (results?.metrics?.gross_irr || results?.metrics?.grossIrr) * 100;
+        logSimulationEvent(
+          `Gross IRR: ${irrValue.toFixed(2)}%`,
+          { value: irrValue }
+        );
+      }
+
+      if (results?.metrics?.fund_irr || results?.metrics?.fundIrr) {
+        const irrValue = (results?.metrics?.fund_irr || results?.metrics?.fundIrr) * 100;
+        logSimulationEvent(
+          `Fund IRR: ${irrValue.toFixed(2)}%`,
+          { value: irrValue }
+        );
+      }
+
+      if (results?.metrics?.lp_irr || results?.metrics?.lpIrr) {
+        const irrValue = (results?.metrics?.lp_irr || results?.metrics?.lpIrr) * 100;
+        logSimulationEvent(
+          `LP IRR: ${irrValue.toFixed(2)}%`,
+          { value: irrValue }
+        );
+      }
 
       // Log missing data (only once per missing item)
-      if (!results.metrics?.irr) {
-        log(LogLevel.WARN, LogCategory.DATA, 'Missing IRR data in simulation results');
+      if (!results.metrics?.irr && !results.metrics?.fund_irr && !results.metrics?.fundIrr) {
+        logSimulationEvent('Missing IRR data in simulation results');
       }
 
       if (!results.metrics?.moic && !results.metrics?.multiple) {
-        log(LogLevel.WARN, LogCategory.DATA, 'Missing equity multiple data in simulation results');
+        logSimulationEvent('Missing equity multiple data in simulation results');
       }
 
       if (!results.cash_flows && !results.cashFlows) {
-        log(LogLevel.WARN, LogCategory.DATA, 'Missing cash flow data in simulation results');
+        logSimulationEvent('Missing cash flow data in simulation results');
       }
 
       // Log GP metrics data
       if (!results.gp_metrics && !results.gp_economics && !results.waterfall_results?.gp_economics) {
-        log(LogLevel.WARN, LogCategory.DATA, 'Missing GP metrics data in simulation results');
+        logSimulationEvent('Missing GP metrics data in simulation results');
       } else {
-        log(LogLevel.INFO, LogCategory.DATA, 'GP metrics data found in simulation results', {
-          hasGpMetrics: !!results.gp_metrics,
-          hasGpEconomics: !!results.gp_economics,
-          hasWaterfallResults: !!results.waterfall_results?.gp_economics
-        });
+        logSimulationEvent(
+          'GP metrics data found in simulation results',
+          {
+            hasGpMetrics: !!results.gp_metrics,
+            hasGpEconomics: !!results.gp_economics,
+            hasWaterfallResults: !!results.waterfall_results?.gp_economics
+          }
+        );
       }
     }
-  }, [results, isLoading, simulationId]);
+  }, [results, isLoading, simulationId, logSimulationEvent]);
 
   // Add this console.log to help debug
   useEffect(() => {
@@ -278,7 +246,7 @@ export function Results() {
     const errorMessage = typeof error === 'object' && error !== null && 'message' in error
       ? String(error.message)
       : 'An unknown error occurred';
-      
+
     return (
       <Error
         title="Failed to load simulation results"
@@ -323,16 +291,16 @@ export function Results() {
         </div>
         <div className="flex items-center gap-2">
           {/* Add Journey tab quick access button */}
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setActiveTab('journey')}
             className="bg-purple-100 border-purple-300"
           >
             <Calendar className="h-4 w-4 mr-2" />
             View Journey
           </Button>
-          
+
           <Badge variant={simulation.status === 'completed' ? 'default' : 'secondary'}>
             {simulation.status ? simulation.status.charAt(0).toUpperCase() + simulation.status.slice(1) : 'Unknown'}
           </Badge>
@@ -345,6 +313,11 @@ export function Results() {
           <Button variant="outline" size="sm" onClick={handleExport} disabled={isLoading || !results}>
             <Download className="h-4 w-4 mr-2" />
             Export
+          </Button>
+
+          <Button variant="outline" size="sm" onClick={showConsole}>
+            <Terminal className="h-4 w-4 mr-2" />
+            Console
           </Button>
 
           <Button variant="outline" size="sm" onClick={() => setShowDebugInfo(!showDebugInfo)}>
@@ -444,8 +417,14 @@ export function Results() {
         </TabsContent>
 
         {/* Portfolio & Returns Tab */}
-        <TabsContent value="portfolio-returns" className="p-6">
-          <div className="text-muted-foreground">Portfolio & Returns dashboard coming soon.</div>
+        <TabsContent value="portfolio-returns">
+          <PortfolioReturnsTab
+            simulation={simulation}
+            results={results}
+            isLoading={isLoading}
+            timeGranularity={timeGranularity}
+            cumulativeMode={cumulativeMode}
+          />
         </TabsContent>
 
         {/* Journey Tab */}
@@ -567,8 +546,6 @@ export function Results() {
       )}
 
       {/* Enhanced Headline Metrics */}
-      {/* Log the complete data structure for debugging */}
-      {results && logBackendDataStructure(results, `Simulation Results (ID: ${simulationId})`)}
     </div>
   );
 }

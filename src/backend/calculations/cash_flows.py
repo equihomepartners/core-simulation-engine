@@ -700,12 +700,23 @@ def project_cash_flows(
         exited_loans = yearly_portfolio.get(year, {}).get('exited_loans', [])
         exit_proceeds = Decimal('0')
 
+        # Initialize exit proceeds breakdown
+        principal_sum = Decimal('0')
+        interest_sum = Decimal('0')
+        appreciation_sum = Decimal('0')
+
         for loan in exited_loans:
             # Get expected exit year based on loan type
             if isinstance(loan, dict):
                 expected_exit_year = int(loan.get('expected_exit_year', year))
+                loan_amount = Decimal(str(loan.get('loan_amount', 0)))
+                interest_rate = Decimal(str(loan.get('interest_rate', 0)))
+                origination_year = int(loan.get('origination_year', year))
             else:
                 expected_exit_year = int(getattr(loan, 'expected_exit_year', year))
+                loan_amount = Decimal(str(getattr(loan, 'loan_amount', 0)))
+                interest_rate = Decimal(str(getattr(loan, 'interest_rate', 0)))
+                origination_year = int(getattr(loan, 'origination_year', year))
 
             # Calculate exit value
             exit_value = calculate_exit_value(
@@ -715,9 +726,39 @@ def project_cash_flows(
                 period_type='year'
             )
 
+            # Calculate components for breakdown
+            years_held = min(year, expected_exit_year) - origination_year
+            accrued_interest = loan_amount * interest_rate * Decimal(str(years_held))
+
+            # Add to component sums
+            principal_sum += loan_amount
+            interest_sum += accrued_interest
+
+            # Calculate appreciation as the remainder (exit_value - principal - interest)
+            # This handles any special cases like defaults with recovery rates
+            loan_appreciation = max(Decimal('0'), exit_value - loan_amount - accrued_interest)
+            appreciation_sum += loan_appreciation
+
+            # Log the breakdown for debugging
+            logger.debug(f"Loan exit breakdown - Principal: ${loan_amount:,.2f}, "
+                        f"Interest: ${accrued_interest:,.2f}, "
+                        f"Appreciation: ${loan_appreciation:,.2f}, "
+                        f"Total: ${exit_value:,.2f}")
+
             exit_proceeds += exit_value
 
         cash_flows[year]['exit_proceeds'] = exit_proceeds
+
+        # Add exit proceeds breakdown to cash flows
+        cash_flows[year]['exit_proceeds_breakdown'] = {
+            'principal': principal_sum,
+            'interest': interest_sum,
+            'appreciation': appreciation_sum
+        }
+
+        # Log the breakdown for debugging
+        logger.info(f"Year {year} exit proceeds breakdown: Principal=${principal_sum:,.2f}, "
+                    f"Interest=${interest_sum:,.2f}, Appreciation=${appreciation_sum:,.2f}")
 
         # Management fees and fund expenses
         cash_flows[year]['management_fees'] = -management_fees.get(year, Decimal('0'))
@@ -941,6 +982,17 @@ def prepare_cash_flow_visualization_data(
     """
     years = sorted(cash_flows.keys())
 
+    # Exit proceeds breakdown by year
+    exit_proceeds_breakdown_by_year = {}
+    for year in years:
+        if 'exit_proceeds_breakdown' in cash_flows[year]:
+            exit_proceeds_breakdown_by_year[year] = {
+                'principal': float(cash_flows[year]['exit_proceeds_breakdown']['principal']),
+                'interest': float(cash_flows[year]['exit_proceeds_breakdown']['interest']),
+                'appreciation': float(cash_flows[year]['exit_proceeds_breakdown']['appreciation'])
+            }
+        # No else clause - we won't estimate the breakdown if it's not provided by the backend
+
     # Cash flow components over time
     cash_flow_components = {
         'years': years,
@@ -954,7 +1006,8 @@ def prepare_cash_flow_visualization_data(
         'reinvestment': [float(cash_flows[year]['reinvestment']) for year in years],
         'idle_cash_income': [float(cash_flows[year]['idle_cash_income']) for year in years],
         'net_cash_flow': [float(cash_flows[year]['net_cash_flow']) for year in years],
-        'cumulative_cash_flow': [float(cash_flows[year]['cumulative_cash_flow']) for year in years]
+        'cumulative_cash_flow': [float(cash_flows[year]['cumulative_cash_flow']) for year in years],
+        'exit_proceeds_breakdown': exit_proceeds_breakdown_by_year
     }
 
     # Cash balance over time
@@ -1007,6 +1060,32 @@ def prepare_cash_flow_visualization_data(
             float(sum(cash_flows[year]['net_cash_flow'] for year in years))
         ]
     }
+
+    # Calculate cumulative exit proceeds breakdown
+    total_principal = sum(cash_flows[year]['exit_proceeds_breakdown']['principal']
+                         for year in years if 'exit_proceeds_breakdown' in cash_flows[year])
+    total_interest = sum(cash_flows[year]['exit_proceeds_breakdown']['interest']
+                        for year in years if 'exit_proceeds_breakdown' in cash_flows[year])
+    total_appreciation = sum(cash_flows[year]['exit_proceeds_breakdown']['appreciation']
+                            for year in years if 'exit_proceeds_breakdown' in cash_flows[year])
+
+    # We won't estimate the breakdown if it's not provided by the backend
+    # Just log a warning if no breakdown is found
+    if total_principal == 0 and total_interest == 0 and total_appreciation == 0:
+        logger.warning("No exit proceeds breakdown found in cash flows data")
+
+    # Add exit proceeds breakdown to visualization data
+    waterfall_data['exit_proceeds_breakdown'] = {
+        'principal': float(total_principal),
+        'interest': float(total_interest),
+        'appreciation': float(total_appreciation)
+    }
+
+    # Log the breakdown for debugging
+    logger.info(f"Total exit proceeds breakdown - Principal: ${float(total_principal):,.2f}, "
+               f"Interest: ${float(total_interest):,.2f}, "
+               f"Appreciation: ${float(total_appreciation):,.2f}, "
+               f"Total: ${float(total_principal + total_interest + total_appreciation):,.2f}")
 
     return {
         'cash_flow_components': cash_flow_components,
@@ -1236,19 +1315,53 @@ def project_cash_flows_monthly(
 
         exited_loans = monthly_portfolio.get(month, {}).get('exited_loans', [])
         exit_proceeds = Decimal('0')
+
+        # Initialize exit proceeds breakdown
+        principal_sum = Decimal('0')
+        interest_sum = Decimal('0')
+        appreciation_sum = Decimal('0')
+
         for loan in exited_loans:
             if isinstance(loan, dict):
                 expected_exit_month = int(loan.get('expected_exit_month', loan.get('expected_exit_year', month)))
+                loan_amount = Decimal(str(loan.get('loan_amount', 0)))
+                interest_rate = Decimal(str(loan.get('interest_rate', 0)))
+                origination_month = int(loan.get('origination_month', loan.get('origination_year', 0) * 12))
             else:
                 expected_exit_month = int(getattr(loan, 'expected_exit_month', getattr(loan, 'expected_exit_year', month)))
+                loan_amount = Decimal(str(getattr(loan, 'loan_amount', 0)))
+                interest_rate = Decimal(str(getattr(loan, 'interest_rate', 0)))
+                origination_month = int(getattr(loan, 'origination_month', getattr(loan, 'origination_year', 0) * 12))
+
             exit_value = calculate_exit_value(
                 loan,
                 min(month, expected_exit_month),
                 Decimal(str(params.get('appreciation_share_rate', 0.5))),
                 period_type='month'
             )
+
+            # Calculate components for breakdown
+            months_held = min(month, expected_exit_month) - origination_month
+            accrued_interest = loan_amount * interest_rate * Decimal(str(months_held)) / Decimal('12')
+
+            # Add to component sums
+            principal_sum += loan_amount
+            interest_sum += accrued_interest
+
+            # Calculate appreciation as the remainder (exit_value - principal - interest)
+            loan_appreciation = max(Decimal('0'), exit_value - loan_amount - accrued_interest)
+            appreciation_sum += loan_appreciation
+
             exit_proceeds += exit_value
+
         cash_flows[month]['exit_proceeds'] = exit_proceeds
+
+        # Add exit proceeds breakdown to cash flows
+        cash_flows[month]['exit_proceeds_breakdown'] = {
+            'principal': principal_sum,
+            'interest': interest_sum,
+            'appreciation': appreciation_sum
+        }
         cash_flows[month]['management_fees'] = -Decimal(str(management_fees.get(month, Decimal('0'))))
         cash_flows[month]['fund_expenses'] = -Decimal(str(fund_expenses.get(month, Decimal('0'))))
         if month <= int(params.get('reinvestment_period', 5)) * 12:
@@ -1318,6 +1431,8 @@ def project_cash_flows_monthly(
 def aggregate_monthly_to_yearly(monthly_data: Dict[int, Dict[str, Any]]) -> Dict[int, Dict[str, Any]]:
     try:
         yearly_data = defaultdict(lambda: defaultdict(float))
+
+        # First pass: aggregate simple numeric values
         for month, data in monthly_data.items():
             year = (int(month) - 1) // 12 + 1
             for k, v in data.items():
@@ -1325,8 +1440,45 @@ def aggregate_monthly_to_yearly(monthly_data: Dict[int, Dict[str, Any]]) -> Dict
                     yearly_data[year][k] += float(v)
                 elif isinstance(v, list):
                     yearly_data[year][k] = yearly_data[year].get(k, []) + v
-                elif isinstance(v, dict):
+                elif isinstance(v, dict) and k != 'exit_proceeds_breakdown':
+                    # Skip exit_proceeds_breakdown for now, we'll handle it separately
                     pass
+
+        # Second pass: handle exit_proceeds_breakdown specially
+        for month, data in monthly_data.items():
+            year = (int(month) - 1) // 12 + 1
+            if 'exit_proceeds_breakdown' in data:
+                breakdown = data['exit_proceeds_breakdown']
+
+                # Initialize the breakdown dict if it doesn't exist
+                if 'exit_proceeds_breakdown' not in yearly_data[year]:
+                    yearly_data[year]['exit_proceeds_breakdown'] = {
+                        'principal': 0.0,
+                        'interest': 0.0,
+                        'appreciation': 0.0
+                    }
+
+                # Aggregate the breakdown components
+                yearly_data[year]['exit_proceeds_breakdown']['principal'] += float(breakdown.get('principal', 0))
+                yearly_data[year]['exit_proceeds_breakdown']['interest'] += float(breakdown.get('interest', 0))
+                yearly_data[year]['exit_proceeds_breakdown']['appreciation'] += float(breakdown.get('appreciation', 0))
+
+                # Log the aggregation for debugging
+                logger.debug(f"Aggregating exit proceeds breakdown for month {month} to year {year}: "
+                           f"Principal: ${float(breakdown.get('principal', 0)):,.2f}, "
+                           f"Interest: ${float(breakdown.get('interest', 0)):,.2f}, "
+                           f"Appreciation: ${float(breakdown.get('appreciation', 0)):,.2f}")
+
+        # Log the final yearly breakdown for debugging
+        for year, data in yearly_data.items():
+            if 'exit_proceeds_breakdown' in data:
+                breakdown = data['exit_proceeds_breakdown']
+                logger.info(f"Year {year} exit proceeds breakdown: "
+                           f"Principal: ${float(breakdown['principal']):,.2f}, "
+                           f"Interest: ${float(breakdown['interest']):,.2f}, "
+                           f"Appreciation: ${float(breakdown['appreciation']):,.2f}, "
+                           f"Total: ${float(breakdown['principal'] + breakdown['interest'] + breakdown['appreciation']):,.2f}")
+
         return {year: dict(vals) for year, vals in yearly_data.items()}
     except Exception as e:
         logger.error(f"Error aggregating monthly to yearly: {e}")
