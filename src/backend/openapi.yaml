@@ -10,7 +10,7 @@ info:
     - Retrieving simulation results
     - Analyzing GP Entity economics
     - Real-time updates via WebSockets
-  version: 2.1.0
+  version: 2.2.0
   contact:
     name: Equihome Partners
 servers:
@@ -377,6 +377,85 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VarianceAnalysisResults'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/variance-analysis/seeds:
+    get:
+      summary: Get Variance Analysis Seeds
+      description: Run Monte Carlo variance analysis and return individual seed results.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: num_inner_simulations
+          in: query
+          description: Number of Monte Carlo repetitions to run
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/variance-analysis/distribution:
+    get:
+      summary: Get Variance Analysis Distribution
+      description: Run Monte Carlo variance analysis and return an IRR distribution histogram.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: num_inner_simulations
+          in: query
+          description: Number of Monte Carlo repetitions to run
+          schema:
+            type: integer
+            default: 10
+        - name: bins
+          in: query
+          description: Number of histogram bins
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bins:
+                    type: array
+                    items:
+                      type: number
+                  frequencies:
+                    type: array
+                    items:
+                      type: integer
         '404':
           description: Not found
         '422':

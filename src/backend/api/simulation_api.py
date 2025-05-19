@@ -18,6 +18,7 @@ from datetime import datetime
 from enum import Enum
 from fastapi.responses import JSONResponse, StreamingResponse
 from decimal import Decimal
+import numpy as np
 
 from calculations.simulation_controller import SimulationController
 from calculations.variance_analysis import run_config_mc
@@ -1988,6 +1989,60 @@ async def run_variance_analysis(
     if include_seed_results:
         response["seed_results"] = seeds
     return response
+
+
+@router.get("/{simulation_id}/variance-analysis/seeds", response_model=List[dict])
+async def get_variance_seed_results(
+    simulation_id: str,
+    num_inner_simulations: int = Query(10, ge=1, description="Number of Monte Carlo repetitions"),
+):
+    """Return per-seed IRR results for variance analysis."""
+    if simulation_id not in simulation_results:
+        raise HTTPException(status_code=404, detail="Simulation not found")
+
+    config = simulation_results[simulation_id].get("config")
+    if not config:
+        raise HTTPException(status_code=404, detail="Simulation configuration missing")
+
+    try:
+        _, seeds = run_config_mc(config, num_inner_simulations)
+    except Exception as exc:
+        logger.error("Variance seed run failed: %s", exc, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    return seeds
+
+
+@router.get(
+    "/{simulation_id}/variance-analysis/distribution",
+    response_model=dict,
+    response_model_exclude_none=True,
+)
+async def get_variance_distribution(
+    simulation_id: str,
+    num_inner_simulations: int = Query(10, ge=1, description="Number of Monte Carlo repetitions"),
+    bins: int = Query(20, ge=1, description="Number of histogram bins"),
+):
+    """Return IRR distribution histogram from variance analysis."""
+    if simulation_id not in simulation_results:
+        raise HTTPException(status_code=404, detail="Simulation not found")
+
+    config = simulation_results[simulation_id].get("config")
+    if not config:
+        raise HTTPException(status_code=404, detail="Simulation configuration missing")
+
+    try:
+        _, seeds = run_config_mc(config, num_inner_simulations)
+    except Exception as exc:
+        logger.error("Variance distribution run failed: %s", exc, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    irr_values = [s.get("irr") for s in seeds if s.get("irr") is not None]
+    if not irr_values:
+        raise HTTPException(status_code=400, detail="No IRR values generated")
+
+    hist, edges = np.histogram(irr_values, bins=bins)
+    return {"bins": edges.tolist(), "frequencies": hist.astype(int).tolist()}
 
 
 # ---------------------------------------------------------------------------
