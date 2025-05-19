@@ -286,8 +286,17 @@ export const getMonteCarloResults = async (
   metricType: string = 'irr'
 ) => {
   try {
-    log(LogLevel.INFO, LogCategory.API, `Getting Monte Carlo results for ${id}`);
+    log(LogLevel.INFO, LogCategory.API, `Getting Monte Carlo results for ${id}, type: ${resultType}, metric: ${metricType}`);
+
+    // Use the SDK method
     const response = await simulationSDK.getMonteCarloVisualization(id, resultType, metricType);
+
+    // Log the response for debugging
+    log(LogLevel.INFO, LogCategory.API, `Monte Carlo results for ${id}:`, {
+      responseKeys: Object.keys(response || {}),
+      hasCashFlowFanChart: response && response.cash_flow_fan_chart ? true : false
+    });
+
     return response;
   } catch (error) {
     log(LogLevel.ERROR, LogCategory.API, `Error getting Monte Carlo results for ${id}:`, { error });
