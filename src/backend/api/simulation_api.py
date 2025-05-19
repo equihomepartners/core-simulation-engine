@@ -1969,7 +1969,8 @@ def calculate_reinvestments_from_cash_flows(cash_flows, years, avg_loan_size=250
 async def run_variance_analysis(
     simulation_id: str,
     num_inner_simulations: int = Query(10, ge=1, description="Number of Monte Carlo repetitions"),
-    include_seed_results: bool = Query(False, description="Include individual seed outcomes")
+    include_seed_results: bool = Query(False, description="Include individual seed outcomes"),
+    include_seed_details: bool = Query(False, description="Include cash flow and loan details for each seed"),
 ):
     """Run variance analysis for an existing simulation configuration."""
     if simulation_id not in simulation_results:
@@ -1980,13 +1981,19 @@ async def run_variance_analysis(
         raise HTTPException(status_code=404, detail="Simulation configuration missing")
 
     try:
-        aggregated, seeds = run_config_mc(config, num_inner_simulations)
+        aggregated, seeds = run_config_mc(
+            config,
+            num_inner_simulations,
+            collect_details=include_seed_details,
+        )
     except Exception as exc:
         logger.error("Variance analysis failed: %s", exc, exc_info=True)
         raise HTTPException(status_code=500, detail=str(exc))
 
     response = aggregated
-    if include_seed_results:
+    if include_seed_details:
+        response["seed_details"] = seeds
+    elif include_seed_results:
         response["seed_results"] = seeds
     return response
 

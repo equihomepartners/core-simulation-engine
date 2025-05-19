@@ -1,7 +1,7 @@
 """Variance analysis utilities for running multiple seeded simulations."""
 from __future__ import annotations
 
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 import numpy as np
 import logging
 
@@ -11,12 +11,17 @@ from .statistics import RiskMetrics
 logger = logging.getLogger(__name__)
 
 
-def run_config_mc(config: Dict[str, Any], num_inner_simulations: int = 10) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
+def run_config_mc(
+    config: Dict[str, Any],
+    num_inner_simulations: int = 10,
+    collect_details: bool = False,
+) -> Tuple[Dict[str, Any], List[Dict[str, Any]]]:
     """Run a simulation configuration multiple times with different seeds.
 
     Args:
         config: Simulation configuration dictionary.
         num_inner_simulations: Number of seeded runs to execute.
+        collect_details: If True, include cash flows and loan data for each seed.
 
     Returns:
         Tuple of (aggregated metrics, per-seed results).
@@ -31,17 +36,22 @@ def run_config_mc(config: Dict[str, Any], num_inner_simulations: int = 10) -> Tu
         cfg["monte_carlo_seed"] = run_seed
         try:
             controller = SimulationController(cfg)
-            # disable progress callbacks for internal runs
-            controller.set_progress_callback(lambda *a, **k: None)
+            controller.set_progress_callback(lambda *a, **k: None)  # disable progress callbacks
             res = controller.run_simulation()
             irr = res.get("performance_metrics", {}).get("irr")
         except Exception as exc:  # pragma: no cover - defensive
             logger.error("Variance analysis run failed: %s", exc, exc_info=True)
             irr = None
             res = {}
+
         if irr is not None:
             irr_values.append(irr)
-        seed_results.append({"seed": run_seed, "irr": irr})
+
+        detail = {"seed": run_seed, "irr": irr}
+        if collect_details:
+            detail["loans"] = res.get("loans")
+            detail["cash_flows"] = res.get("cash_flows")
+        seed_results.append(detail)
 
     irr_array = np.array(irr_values) if irr_values else np.array([])
 

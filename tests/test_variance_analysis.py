@@ -29,12 +29,14 @@ def test_variance_analysis_endpoint():
 
     var_resp = client.post(
         f"/api/simulations/{sim_id}/variance-analysis",
-        params={"num_inner_simulations": 2},
+        params={"num_inner_simulations": 2, "include_seed_details": True},
     )
     assert var_resp.status_code == 200, var_resp.text
     data = var_resp.json()
     assert "irr_percentiles" in data
     assert "var_percentiles" in data
+    assert "seed_details" in data
+    assert isinstance(data["seed_details"], list)
 
 
 def test_variance_seed_results_endpoint():
