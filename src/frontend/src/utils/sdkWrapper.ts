@@ -305,6 +305,50 @@ export const getMonteCarloResults = async (
 };
 
 /**
+ * Fetch stress test results from the simulation results payload
+ */
+export const getStressTestResults = async (
+  id: string,
+  timeGranularity: 'yearly' | 'monthly' = 'yearly'
+) => {
+  const results = await getSimulationResults(id, timeGranularity);
+  return results?.stress_test_results || null;
+};
+
+/**
+ * Fetch bootstrap analysis results from the simulation results payload
+ */
+export const getBootstrapResults = async (
+  id: string,
+  timeGranularity: 'yearly' | 'monthly' = 'yearly'
+) => {
+  const results = await getSimulationResults(id, timeGranularity);
+  return results?.bootstrap_results || null;
+};
+
+/**
+ * Fetch grid stress test results from the simulation results payload
+ */
+export const getGridStressResults = async (
+  id: string,
+  timeGranularity: 'yearly' | 'monthly' = 'yearly'
+) => {
+  const results = await getSimulationResults(id, timeGranularity);
+  return results?.grid_stress_results || null;
+};
+
+/**
+ * Fetch vintage VaR results from the simulation results payload
+ */
+export const getVintageVarResults = async (
+  id: string,
+  timeGranularity: 'yearly' | 'monthly' = 'yearly'
+) => {
+  const results = await getSimulationResults(id, timeGranularity);
+  return results?.vintage_var || null;
+};
+
+/**
  * Create a multi-fund simulation
  */
 export const createMultiFundSimulation = async (payload: any) => {
@@ -369,6 +413,10 @@ export const sdkWrapper = {
   getSimulationResults,
   getSimulationVisualization,
   getMonteCarloResults,
+  getStressTestResults,
+  getBootstrapResults,
+  getGridStressResults,
+  getVintageVarResults,
   getEfficientFrontier,
   runSimulationWithConfig,
   createMultiFundSimulation,

@@ -479,6 +479,15 @@ These options appear in the wizard under **Advanced Monte Carlo Options** once M
 | `chart_maintain_aspect_ratio` | Boolean | Whether to maintain aspect ratio for charts | `true` | Checkbox |
 | `chart_export_formats` | Array | Formats for exporting charts | `['png', 'jpg', 'svg', 'csv']` | Checkbox group |
 
+### Simulation Results Metrics
+
+| Metric | Description |
+|--------|-------------|
+| `stress_test_results` | Scenario impacts and worst-case metrics from stress testing |
+| `bootstrap_results` | Sequencing risk analysis results |
+| `grid_stress_results` | Two-dimensional parameter grid stress outcomes |
+| `vintage_var` | Value-at-Risk by origination vintage |
+
 ### Real-Time Visualization Parameters
 
 | Parameter | Type | Description | Default | UI Component |

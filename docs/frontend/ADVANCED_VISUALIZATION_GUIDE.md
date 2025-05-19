@@ -161,16 +161,29 @@ const band = sim.bootstrap_results;
 <Area dataKey="p95" ... baseLine={(d)=>d.p5} />
 ```
 
+// Using the new React component
+```tsx
+<BootstrapFanChart simulationId={id} />
+```
+
 **Grid-stress heat-map**
 ```tsx
 const grid = sim.grid_stress_results; // matrix of IRRs
 <Heatmap data={grid.irr_matrix} xLabels={grid.factors} yLabels={grid.factors} />
 ```
 
+```tsx
+<StressImpactHeatmap simulationId={id} />
+```
+
 **Vintage-VAR stacked area**
 ```tsx
 const vv = sim.vintage_var.vintage_var;
 const series = Object.keys(vv).map(year=>({year, var: vv[year].value_at_risk}));
+```
+
+```tsx
+<VintageVarAreaChart simulationId={id} />
 ```
 
 ---
