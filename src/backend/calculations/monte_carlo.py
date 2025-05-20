@@ -374,6 +374,31 @@ def run_single_simulation(
     }
 
 
+def _run_monte_carlo_sim(sim_id, params, time_granularity, variation_factor, seed):
+    """
+    Helper function to run a single Monte Carlo simulation.
+    This needs to be a top-level function to be picklable for multiprocessing.
+
+    Args:
+        sim_id: Simulation ID
+        params: Simulation parameters
+        time_granularity: Time granularity ('yearly' or 'monthly')
+        variation_factor: Variation factor for parameters
+        seed: Random seed
+
+    Returns:
+        Simulation result or error
+    """
+    try:
+        # Pass time_granularity to all submodules
+        params = dict(params)
+        params['time_granularity'] = time_granularity
+        sim_seed = None if seed is None else seed + sim_id
+        return run_single_simulation(sim_id, params, variation_factor=variation_factor, seed=sim_seed)
+    except Exception as e:
+        return {'simulation_id': sim_id, 'error': str(e)}
+
+
 def run_monte_carlo_simulation(
     fund_params: Dict[str, Any],
     num_simulations: int = 1000,
@@ -420,17 +445,8 @@ def run_monte_carlo_simulation(
     simulation_results = []
     errors = []
 
-    def _run_sim(sim_id, params):
-        try:
-            # Pass time_granularity to all submodules
-            params = dict(params)
-            params['time_granularity'] = time_granularity
-            return run_single_simulation(sim_id, params, variation_factor=variation_factor, seed=(seed + sim_id if seed is not None else None))
-        except Exception as e:
-            return {'simulation_id': sim_id, 'error': str(e)}
-
     with ProcessPoolExecutor(max_workers=num_processes) as executor:
-        futures = [executor.submit(_run_sim, i, param_variations[i]) for i in range(num_simulations)]
+        futures = [executor.submit(_run_monte_carlo_sim, i, param_variations[i], time_granularity, variation_factor, seed) for i in range(num_simulations)]
         completed = 0
         for future in as_completed(futures):
             result = future.result()
