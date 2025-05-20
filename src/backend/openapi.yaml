@@ -10,7 +10,7 @@ info:
     - Retrieving simulation results
     - Analyzing GP Entity economics
     - Real-time updates via WebSockets
-  version: 2.1.0
+  version: 2.3.0
   contact:
     name: Equihome Partners
 servers:
@@ -377,6 +377,165 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VarianceAnalysisResults'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/variance-analysis/seeds:
+    get:
+      summary: Get Variance Analysis Seeds
+      description: Run Monte Carlo variance analysis and return individual seed results.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: num_inner_simulations
+          in: query
+          description: Number of Monte Carlo repetitions to run
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/variance-analysis/distribution:
+    get:
+      summary: Get Variance Analysis Distribution
+      description: Run Monte Carlo variance analysis and return an IRR distribution histogram.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: num_inner_simulations
+          in: query
+          description: Number of Monte Carlo repetitions to run
+          schema:
+            type: integer
+            default: 10
+        - name: bins
+          in: query
+          description: Number of histogram bins
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bins:
+                    type: array
+                    items:
+                      type: number
+                  frequencies:
+                    type: array
+                    items:
+                      type: integer
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/variance-analysis/iterations:
+    get:
+      summary: Get Variance Iteration Metrics
+      description: Return metrics for each iteration of the inner Monte Carlo loop.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: num_inner_simulations
+          in: query
+          description: Number of Monte Carlo repetitions to run
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/simulations/{simulation_id}/variance-analysis/var-table:
+    get:
+      summary: Get Variance Analysis VaR Table
+      description: Return Value-at-Risk metrics for specified confidence levels.
+      parameters:
+        - name: simulation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: num_inner_simulations
+          in: query
+          description: Number of Monte Carlo repetitions to run
+          schema:
+            type: integer
+            default: 10
+        - name: confidence_levels
+          in: query
+          description: Comma-separated VaR confidence levels (0-1)
+          schema:
+            type: string
+            default: '0.95,0.99'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
         '404':
           description: Not found
         '422':
@@ -926,6 +1085,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EfficientFrontierResponse'
+        '404':
+          description: Not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/optimization/{optimization_id}/efficient-frontier/details:
+    get:
+      summary: Get Efficient Frontier Details
+      description: Return risk/return points with asset weights for each portfolio on the frontier.
+      parameters:
+        - name: optimization_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
         '404':
           description: Not found
         '422':

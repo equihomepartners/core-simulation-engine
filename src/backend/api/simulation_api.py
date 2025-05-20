@@ -18,6 +18,7 @@ from datetime import datetime
 from enum import Enum
 from fastapi.responses import JSONResponse, StreamingResponse
 from decimal import Decimal
+import numpy as np
 
 from calculations.simulation_controller import SimulationController
 from calculations.variance_analysis import run_config_mc
@@ -1990,6 +1991,117 @@ async def run_variance_analysis(
     return response
 
 
+@router.get("/{simulation_id}/variance-analysis/seeds", response_model=List[dict])
+async def get_variance_seed_results(
+    simulation_id: str,
+    num_inner_simulations: int = Query(10, ge=1, description="Number of Monte Carlo repetitions"),
+):
+    """Return per-seed IRR results for variance analysis."""
+    if simulation_id not in simulation_results:
+        raise HTTPException(status_code=404, detail="Simulation not found")
+
+    config = simulation_results[simulation_id].get("config")
+    if not config:
+        raise HTTPException(status_code=404, detail="Simulation configuration missing")
+
+    try:
+        _, seeds = run_config_mc(config, num_inner_simulations)
+    except Exception as exc:
+        logger.error("Variance seed run failed: %s", exc, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    return seeds
+
+
+@router.get(
+    "/{simulation_id}/variance-analysis/distribution",
+    response_model=dict,
+    response_model_exclude_none=True,
+)
+async def get_variance_distribution(
+    simulation_id: str,
+    num_inner_simulations: int = Query(10, ge=1, description="Number of Monte Carlo repetitions"),
+    bins: int = Query(20, ge=1, description="Number of histogram bins"),
+):
+    """Return IRR distribution histogram from variance analysis."""
+    if simulation_id not in simulation_results:
+        raise HTTPException(status_code=404, detail="Simulation not found")
+
+    config = simulation_results[simulation_id].get("config")
+    if not config:
+        raise HTTPException(status_code=404, detail="Simulation configuration missing")
+
+    try:
+        _, seeds = run_config_mc(config, num_inner_simulations)
+    except Exception as exc:
+        logger.error("Variance distribution run failed: %s", exc, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    irr_values = [s.get("irr") for s in seeds if s.get("irr") is not None]
+    if not irr_values:
+        raise HTTPException(status_code=400, detail="No IRR values generated")
+
+    hist, edges = np.histogram(irr_values, bins=bins)
+    return {"bins": edges.tolist(), "frequencies": hist.astype(int).tolist()}
+
+
+@router.get("/{simulation_id}/variance-analysis/iterations", response_model=List[dict])
+async def get_variance_iteration_metrics(
+    simulation_id: str,
+    num_inner_simulations: int = Query(10, ge=1, description="Number of Monte Carlo repetitions"),
+    offset: int = Query(0, ge=0, description="Offset into iteration results"),
+    limit: int = Query(100, ge=1, description="Maximum number of iterations to return"),
+):
+    """Return metrics for each iteration in the inner Monte Carlo loop."""
+    if simulation_id not in simulation_results:
+        raise HTTPException(status_code=404, detail="Simulation not found")
+
+    config = simulation_results[simulation_id].get("config")
+    if not config:
+        raise HTTPException(status_code=404, detail="Simulation configuration missing")
+
+    try:
+        df = run_config_mc(config, num_inner_simulations)
+    except Exception as exc:
+        logger.error("Variance iteration run failed: %s", exc, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    records = df.to_dict(orient="records")
+    return records[offset : offset + limit]
+
+
+@router.get("/{simulation_id}/variance-analysis/var-table", response_model=dict)
+async def get_variance_var_table(
+    simulation_id: str,
+    num_inner_simulations: int = Query(10, ge=1, description="Number of Monte Carlo repetitions"),
+    confidence_levels: str = Query("0.95,0.99", description="Comma-separated VaR confidence levels (0-1)"),
+):
+    """Return a Value-at-Risk table for the given confidence levels."""
+    if simulation_id not in simulation_results:
+        raise HTTPException(status_code=404, detail="Simulation not found")
+
+    config = simulation_results[simulation_id].get("config")
+    if not config:
+        raise HTTPException(status_code=404, detail="Simulation configuration missing")
+
+    try:
+        _, seeds = run_config_mc(config, num_inner_simulations)
+    except Exception as exc:
+        logger.error("Variance VaR run failed: %s", exc, exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    irr_values = [s.get("irr") for s in seeds if s.get("irr") is not None]
+    if not irr_values:
+        raise HTTPException(status_code=400, detail="No IRR values generated")
+
+    levels = [float(c) for c in confidence_levels.split(",") if c]
+    var_table = {
+        str(level): RiskMetrics.value_at_risk(irr_values, confidence_level=level)
+        for level in levels
+    }
+    return {"value_at_risk": var_table}
+
+
 # ---------------------------------------------------------------------------
 # Portfolio optimization helper routes
 # ---------------------------------------------------------------------------
@@ -2017,3 +2129,19 @@ async def get_efficient_frontier(optimization_id: str):
         optimization_id=optimization_id,
         token="",
     )
+
+
+@router.get(
+    "/optimization/{optimization_id}/efficient-frontier/details",
+    response_model=List[dict],
+)
+async def get_efficient_frontier_details(optimization_id: str):
+    """Return efficient frontier points with weights."""
+    data = await optimization_api.get_efficient_frontier(
+        optimization_id=optimization_id,
+        token="",
+    )
+    points = []
+    for ret, risk, wts in zip(data["returns"], data["risks"], data["weights"]):
+        points.append({"return": ret, "risk": risk, "weights": wts})
+    return points
