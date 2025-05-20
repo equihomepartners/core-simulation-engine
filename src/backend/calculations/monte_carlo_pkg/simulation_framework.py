@@ -17,7 +17,9 @@ from functools import partial
 import json
 import os
 import copy
+import pickle
 from datetime import datetime
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 from ..statistics.core_stats import CoreStatistics
 from ..statistics.risk_metrics import RiskMetrics
@@ -279,13 +281,13 @@ class SimulationFramework:
         cache_file = None
         if cache_dir is not None:
             os.makedirs(cache_dir, exist_ok=True)
-            cache_file = os.path.join(cache_dir, f"simulation_{simulation_id}.json")
+            cache_file = os.path.join(cache_dir, f"simulation_{simulation_id}.pkl")
 
             # Check if cached results exist
             if os.path.exists(cache_file):
                 try:
-                    with open(cache_file, 'r') as f:
-                        cached_results = json.load(f)
+                    with open(cache_file, 'rb') as f:
+                        cached_results = pickle.load(f)
 
                     logger.info(f"Loaded cached results for simulation {simulation_id}")
                     return cached_results
@@ -359,23 +361,22 @@ class SimulationFramework:
         # Run simulations
         if n_processes > 1:
             # Parallel execution
-            with multiprocessing.Pool(processes=n_processes) as pool:
-                batch_results = []
-
-                # Create partial function with fixed parameters
+            batch_results = []
+            with ProcessPoolExecutor(max_workers=n_processes) as executor:
+                futures = []
                 sim_func = partial(SimulationFramework._run_simulation_batch, simulation_function)
 
-                # Submit all batches
-                for i, batch_result in enumerate(pool.imap(sim_func, batches)):
-                    batch_results.append(batch_result)
+                for batch in batches:
+                    futures.append(executor.submit(sim_func, batch))
 
-                    # Update progress
+                for i, future in enumerate(as_completed(futures)):
+                    batch_results.append(future.result())
+
                     if progress_callback is not None:
-                        progress = (i + 1) / n_processes
-                        progress_callback(progress, f"Completed batch {i+1}/{n_processes}")
+                        progress = (i + 1) / len(futures)
+                        progress_callback(progress, f"Completed batch {i+1}/{len(futures)}")
 
-                # Combine batch results
-                combined_results = SimulationFramework._combine_batch_results(batch_results)
+            combined_results = SimulationFramework._combine_batch_results(batch_results)
         else:
             # Sequential execution
             combined_results = SimulationFramework._run_simulation_batch(simulation_function, batches[0])
@@ -400,8 +401,8 @@ class SimulationFramework:
         # Cache results if requested
         if cache_file is not None:
             try:
-                with open(cache_file, 'w') as f:
-                    json.dump(combined_results, f)
+                with open(cache_file, 'wb') as f:
+                    pickle.dump(combined_results, f)
 
                 logger.info(f"Cached results for simulation {simulation_id}")
             except Exception as e:
