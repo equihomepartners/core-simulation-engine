@@ -12,7 +12,7 @@ export const FEATURES = {
   MONTE_CARLO_ENABLED: true,
   CUSTOM_GRAPHS_ENABLED: true,
   EXPORT_ENABLED: true,
-  WEBSOCKET_ENABLED: false, // Temporarily disabled for debugging
+  WEBSOCKET_ENABLED: true,
 };
 
 // Default Simulation Settings
