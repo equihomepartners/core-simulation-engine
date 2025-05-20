@@ -761,61 +761,50 @@ def calculate_distribution_metrics(cash_flows: Dict[int, Dict[str, Decimal]],
     # Extract cash flow values and years
     years = sorted([year for year in cash_flows.keys() if isinstance(year, int)])
 
-    # Calculate distribution metrics
     total_contribution = float(capital_contributions.get('total_contribution', DECIMAL_ZERO))
 
-    # Calculate distributions by year
-    distributions_by_year = {}
-    cumulative_distributions = 0.0
+    if not years:
+        return {
+            'distributions_by_year': {},
+            'distribution_yield_by_year': {},
+            'avg_distribution_yield': 0.0,
+            'dpi_by_year': {},
+            'rvpi_by_year': {},
+            'tvpi_by_year': {},
+            'cumulative_distributions': 0.0,
+        }
 
-    for year in years:
-        # Prefer LP-perspective cash-flow if available (excludes GP-only items like origination fees)
-        net_cf = float(cash_flows[year].get('lp_net_cash_flow', cash_flows[year].get('net_cash_flow', DECIMAL_ZERO)))
+    df = pd.DataFrame.from_dict({y: {k: float(v) for k, v in cash_flows[y].items()} for y in years}, orient='index')
 
-        if net_cf > 0:
-            distributions_by_year[year] = net_cf
-            cumulative_distributions += net_cf
+    # Prefer LP perspective but fall back to net_cash_flow
+    df['flow'] = df.get('lp_net_cash_flow', df.get('net_cash_flow'))
+    df['flow'] = df['flow'].fillna(df.get('net_cash_flow', 0))
 
-    # Calculate distribution yield by year
-    distribution_yield_by_year = {}
+    distributions = df['flow'].clip(lower=0)
+    distributions_by_year = distributions[distributions > 0].to_dict()
+    cumulative_distributions = float(distributions.sum())
 
-    for year in distributions_by_year:
-        if 'portfolio_value' in cash_flows.get(year, {}):
-            portfolio_value = float(cash_flows[year]['portfolio_value'])
-            if portfolio_value > 0:
-                distribution_yield_by_year[year] = distributions_by_year[year] / portfolio_value
-
-    # Calculate average distribution yield
-    if distribution_yield_by_year:
-        avg_distribution_yield = sum(distribution_yield_by_year.values()) / len(distribution_yield_by_year)
+    if 'portfolio_value' in df.columns:
+        distribution_yield = distributions / df['portfolio_value']
+        distribution_yield_by_year = distribution_yield.dropna().to_dict()
+        avg_distribution_yield = float(distribution_yield.mean(skipna=True)) if not distribution_yield.dropna().empty else 0.0
     else:
+        distribution_yield_by_year = {}
         avg_distribution_yield = 0.0
 
-    # Calculate distribution to paid-in (DPI) by year
-    dpi_by_year = {}
-
-    for year in distributions_by_year:
-        year_cumulative_distributions = sum(
-            distributions_by_year[y] for y in distributions_by_year if y <= year
-        )
-        if total_contribution > 0:
-            dpi_by_year[year] = year_cumulative_distributions / total_contribution
-
-    # Calculate residual value to paid-in (RVPI) by year
-    rvpi_by_year = {}
-
-    for year in years:
-        if 'portfolio_value' in cash_flows.get(year, {}):
-            portfolio_value = float(cash_flows[year]['portfolio_value'])
-            if total_contribution > 0:
-                rvpi_by_year[year] = portfolio_value / total_contribution
-
-    # Calculate total value to paid-in (TVPI) by year
-    tvpi_by_year = {}
-
-    for year in years:
-        if year in dpi_by_year and year in rvpi_by_year:
-            tvpi_by_year[year] = dpi_by_year[year] + rvpi_by_year[year]
+    if total_contribution > 0:
+        dpi_series = distributions.cumsum() / total_contribution
+        dpi_by_year = dpi_series.to_dict()
+        if 'portfolio_value' in df.columns:
+            rvpi_series = df['portfolio_value'] / total_contribution
+            rvpi_by_year = rvpi_series.dropna().to_dict()
+        else:
+            rvpi_by_year = {}
+        tvpi_by_year = {year: dpi_by_year.get(year, 0) + rvpi_by_year.get(year, 0) for year in years}
+    else:
+        dpi_by_year = {}
+        rvpi_by_year = {}
+        tvpi_by_year = {}
 
     return {
         'distributions_by_year': distributions_by_year,
