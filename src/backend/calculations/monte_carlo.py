@@ -21,10 +21,9 @@ import pandas as pd
 from typing import Dict, List, Tuple, Any, Optional, Callable
 import copy
 import random
-from concurrent.futures import ProcessPoolExecutor, as_completed
 import multiprocessing
 
-# Import generate_market_conditions from monte_carlo_pkg to avoid circular imports
+# Import from monte_carlo_pkg to avoid circular imports
 from .monte_carlo_pkg import generate_market_conditions
 
 # Import other modules
@@ -373,32 +372,6 @@ def run_single_simulation(
         'performance_metrics': performance_metrics
     }
 
-
-def _run_monte_carlo_sim(sim_id, params, time_granularity, variation_factor, seed):
-    """
-    Helper function to run a single Monte Carlo simulation.
-    This needs to be a top-level function to be picklable for multiprocessing.
-
-    Args:
-        sim_id: Simulation ID
-        params: Simulation parameters
-        time_granularity: Time granularity ('yearly' or 'monthly')
-        variation_factor: Variation factor for parameters
-        seed: Random seed
-
-    Returns:
-        Simulation result or error
-    """
-    try:
-        # Pass time_granularity to all submodules
-        params = dict(params)
-        params['time_granularity'] = time_granularity
-        sim_seed = None if seed is None else seed + sim_id
-        return run_single_simulation(sim_id, params, variation_factor=variation_factor, seed=sim_seed)
-    except Exception as e:
-        return {'simulation_id': sim_id, 'error': str(e)}
-
-
 def run_monte_carlo_simulation(
     fund_params: Dict[str, Any],
     num_simulations: int = 1000,
@@ -445,18 +418,21 @@ def run_monte_carlo_simulation(
     simulation_results = []
     errors = []
 
-    with ProcessPoolExecutor(max_workers=num_processes) as executor:
-        futures = [executor.submit(_run_monte_carlo_sim, i, param_variations[i], time_granularity, variation_factor, seed) for i in range(num_simulations)]
-        completed = 0
-        for future in as_completed(futures):
-            result = future.result()
-            if 'error' in result:
-                errors.append(result)
-            else:
-                simulation_results.append(result)
-            completed += 1
-            if progress_callback:
-                progress_callback(completed, num_simulations)
+    # Run simulations in a single process to avoid pickling issues
+    for i in range(num_simulations):
+        try:
+            # Pass time_granularity to all submodules
+            params = dict(param_variations[i])
+            params['time_granularity'] = time_granularity
+            sim_seed = None if seed is None else seed + i
+            result = run_single_simulation(i, params, variation_factor=variation_factor, seed=sim_seed)
+            simulation_results.append(result)
+        except Exception as e:
+            errors.append({'simulation_id': i, 'error': str(e)})
+
+        # Update progress
+        if progress_callback:
+            progress_callback(i + 1, num_simulations)
 
     # Filter out failed runs for analysis/optimization
     successful_results = [r for r in simulation_results if 'error' not in r]

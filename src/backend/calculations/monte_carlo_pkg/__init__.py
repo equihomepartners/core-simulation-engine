@@ -9,6 +9,7 @@ from .simulation_framework import SimulationFramework
 from .sensitivity_analysis import SensitivityAnalysis
 from .simulation_results import SimulationResults
 from .parameter_selection import ParameterSelection
+from .simulation_helpers import run_monte_carlo_sim
 
 # Define the generate_market_conditions function here to avoid circular imports
 import random
@@ -134,5 +135,6 @@ __all__ = [
     'SimulationResults',
     'ParameterSelection',
     'generate_market_conditions',
-    'run_monte_carlo_simulation'
+    'run_monte_carlo_simulation',
+    'run_monte_carlo_sim'
 ]
